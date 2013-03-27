@@ -26,7 +26,7 @@ SWEP.ViewModelFOV			= 55
 SWEP.ViewModel				= "models/weapons/v_cuttingtorch.mdl"
 SWEP.WorldModel				= "models/weapons/w_cuttingtorch.mdl"
 
-SWEP.PrintName			= "ACF Cutting torch"
+SWEP.PrintName			= "XCF Cutting torch"
 SWEP.Slot				= 0
 SWEP.SlotPos			= 6
 SWEP.IconLetter			= "G"
@@ -67,7 +67,7 @@ function SWEP:Think()
 		if ent:IsValid() and self.LastSend < CurTime() then
 			if not ent:IsPlayer() and not ent:IsNPC() then	
 				self.LastSend = CurTime() + 1
-				local Valid = ACF_Check( ent )
+				local Valid = XCF_Check( ent, self.Owner )
 				if Valid then
 					self.Weapon:SetNetworkedInt( "HP", ent.ACF.Health )
 					self.Weapon:SetNetworkedInt( "Armour", ent.ACF.Armour )
@@ -119,7 +119,7 @@ function SWEP:PrimaryAttack()
 			util.Effect( "thruster_ring", effect, true, true ) --("The 2 booleans control clientside override, by default it doesn't display it since it'll lag a bit behind inputs in MP, same for sounds" Kaf)
 			ent:EmitSound( "items/medshot4.wav", true, true )--and play a sound.
 		else
-			local Valid = ACF_Check ( ent )
+			local Valid = XCF_Check ( ent, self.Owner )
 			if ( Valid and ent.ACF.Health < ent.ACF.MaxHealth ) then
 				ent.ACF.Health = math.min(ent.ACF.Health + (30/ent.ACF.MaxArmour),ent.ACF.MaxHealth)
 				ent.ACF.Armour = ent.ACF.MaxArmour * (0.5 + ent.ACF.Health/ent.ACF.MaxHealth/2)
@@ -154,7 +154,7 @@ self.Weapon:SetNextPrimaryFire( CurTime() + 0.05 )
 		if CLIENT then return end
 	local ent = tr.Entity
 	if ent:IsValid() then
-		local Valid = ACF_Check ( ent )
+		local Valid = XCF_Check ( ent, self.Owner )
 		if Valid then
 			self.Weapon:SetNetworkedInt( "HP", ent.ACF.Health )
 			self.Weapon:SetNetworkedInt( "Armour", ent.ACF.Armour )
