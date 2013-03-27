@@ -1,0 +1,69 @@
+	AddCSLuaFile( "shared.lua" )
+	SWEP.HoldType			= "rpg"
+
+if (CLIENT) then
+	
+	SWEP.PrintName			= "ACF Anti-Tank GL"
+	SWEP.Author				= "Bubbus"
+	SWEP.Slot				= 4
+	SWEP.SlotPos			= 3
+	SWEP.IconLetter			= "f"
+	SWEP.DrawCrosshair		= false
+	SWEP.Purpose		= "Make tanks disappear."
+	SWEP.Instructions       = "Reload at 50mm Cannon Ammo-boxes!"
+	//SWEP.WepSelectIcon = surface.GetTextureID("vgui/entities/potato_launcher.vtf")
+
+end
+
+
+
+SWEP.Base				= "weapon_acf_base"
+SWEP.ViewModelFlip			= false
+
+SWEP.Spawnable			= true
+SWEP.AdminSpawnable		= false
+SWEP.Category			= "ACF"
+SWEP.ViewModel 			= "models/weapons/v_RPG.mdl";
+SWEP.WorldModel 		= "models/weapons/w_rocket_launcher.mdl";
+
+SWEP.Weight				= 5
+SWEP.AutoSwitchTo		= false
+SWEP.AutoSwitchFrom		= false
+
+SWEP.Primary.Recoil			= 20
+SWEP.Primary.ClipSize		= 1
+SWEP.Primary.Delay			= 0.1
+SWEP.Primary.DefaultClip	= 5
+SWEP.Primary.Automatic		= false
+SWEP.Primary.Ammo			= "RPG_Round"
+SWEP.Primary.Sound 			= "weapons/launcher_fire.wav"
+
+util.PrecacheSound( SWEP.Primary.Sound )
+
+SWEP.ReloadTime				= 5
+
+SWEP.Secondary.ClipSize		= -1
+SWEP.Secondary.DefaultClip	= -1
+SWEP.Secondary.Automatic	= false
+SWEP.Secondary.Ammo			= "none"
+
+SWEP.ScopeChopPos = false
+SWEP.ScopeChopAngle = false
+SWEP.WeaponBone = false
+
+SWEP.MinInaccuracy = 1
+SWEP.MaxInaccuracy = 12
+SWEP.Inaccuracy = SWEP.MaxInaccuracy
+SWEP.InaccuracyDecay = 0.05
+SWEP.AccuracyDecay = 0.3
+SWEP.InaccuracyPerShot = 7
+SWEP.InaccuracyCrouchBonus = 1.7
+SWEP.InaccuracyDuckPenalty = 4
+
+SWEP.Stamina = 1
+SWEP.StaminaDrain = 0.006
+SWEP.StaminaJumpDrain = 0.1
+
+SWEP.Class = "C"
+SWEP.FlashClass = "AC"
+SWEP.Launcher = true

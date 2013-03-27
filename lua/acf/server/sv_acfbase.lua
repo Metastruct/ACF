@@ -78,51 +78,57 @@ function ACF_Activate ( Entity , Recalc )
 	--print(Entity.ACF.Health)
 end
 
+
+/**
+	XCF EDITED
+	This function has been superseded by XCF_Check, which requires an extra parameter for damage permission.
+//*/
 function ACF_Check ( Entity )
+	error("Some old code is calling ACF_Check, when it should be using the new XCF_Check function!")
+end
+
+
+
+// A template for the result of an unpermitted damage attempt.
+local rejectHitRes =
+{
+	["Damage"] = 0,
+	["Overkill"] = 0,
+	["Loss"] = 0,
+	["Kill"] = false
+}
+
+/**
+	XCF EDITED
+	ACF_Damage function with added damage permission checking.
+//*/
+function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone ) 
 	
-	if ( IsValid(Entity) ) then
-		if ( Entity:GetPhysicsObject():IsValid() and !Entity:IsWorld() and !Entity:IsWeapon() ) then
-			local Class = Entity:GetClass()
-			if ( Class != "gmod_ghost" and Class != "debris" and Class != "prop_ragdoll" and not string.find( Class , "func_" )  ) then
-				if !Entity.ACF then 
-					ACF_Activate( Entity )
-				elseif Entity.ACF.Mass != Entity:GetPhysicsObject():GetMass() then
-					ACF_Activate( Entity , true )
-				end
-				--print("ACF_Check "..Entity.ACF.Type)
-				return Entity.ACF.Type	
-			end	
+	local Activated = XCF_Check( Entity, Inflictor )
+	local CanDo = hook.Run("ACF_BulletDamage", Activated, Entity, Energy, FrAera, Angle, Inflictor, Bone, Gun )
+	
+	if Activated and CanDo then
+		if Entity.SpecialDamage then
+			return Entity:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone )
+			
+		elseif Activated == "Prop" then	
+			return ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone )
+			
+		elseif Activated == "Vehicle" then
+			return ACF_VehicleDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone )
+			
+		elseif Activated == "Squishy" then
+			return ACF_SquishyDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone )
+			
 		end
 	end
-	return false
+	
+	return table.Copy(rejectHitRes)
 	
 end
 
-function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone, Gun ) 
-	
-	local Activated = ACF_Check( Entity )
-	local CanDo = hook.Run("ACF_BulletDamage", Activated, Entity, Energy, FrAera, Angle, Inflictor, Bone, Gun )
-	if CanDo == false then
-		return { Damage = 0, Overkill = 0, Loss = 0, Kill = false }		
-	end
-	
-	if Entity.SpecialDamage then
-		return Entity:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone )
-	elseif Activated == "Prop" then	
-		
-		return ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone )
-		
-	elseif Activated == "Vehicle" then
-	
-		return ACF_VehicleDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone, Gun )
-		
-	elseif Activated == "Squishy" then
-	
-		return ACF_SquishyDamage( Entity , Energy , FrAera , Angle , Inflictor , Bone, Gun )
-		
-	end
-	
-end
+
+
 
 function ACF_CalcDamage( Entity , Energy , FrAera , Angle )
 
