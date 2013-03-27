@@ -1,5 +1,8 @@
-# Advanced Combat Framework
+XCF: Extended/Experimental Combat Framework
 
-The Advanced Combat Framework is a [Garry's Mod][] addon which creates a balanced, realistic and fun to play combat damage system, simulating projectiles, armor and explosions, as well as engines and gearboxes.
+An extension of ACF to include whatever I find interesting to add to it.
 
-[Garry's Mod]: <http://garrysmod.com/>
+The repo should currently be regarded as broken - I'm currently converting XCF from its original plugin format to a fully fledged ACF derivative.
+This will take time and reduces installation flexibility.  It also makes it much easier for me to implement my ideas.
+
+Please see the wiki for current features, planned features and usage documentation.
