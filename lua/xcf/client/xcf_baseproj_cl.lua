@@ -8,12 +8,30 @@ local baseerror = "Tried to access a base-projectile method.  This means that a 
 
 
 
-function this.GetUpdate(bullet)
+function this:Update(diffs)
 	error(baseerror)
 end
 
 
 
-function this.CreateEffect(Bullet)
+function this:CreateEffect()
+	error(baseerror)
+end
+
+
+
+function this:Launch()
+	error(baseerror)
+end
+
+
+
+function this:DoFlight()
+	error(baseerror)
+end
+
+
+
+function this:EndFlight()
 	error(baseerror)
 end

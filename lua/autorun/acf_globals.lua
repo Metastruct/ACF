@@ -199,12 +199,69 @@ function ACF_UpdateChecking( )
 end
 ACF_UpdateChecking( )
 
+
+if SERVER then
+	duplicator.RegisterEntityModifier( "acf_diffsound", function( ply , Entity , data)
+		if !IsValid( Entity ) then return end
+		local sound = data[1]
+		timer.Simple(1, function()
+			if Entity:GetClass() == "acf_engine" then
+				Entity.SoundPath = sound
+			elseif Entity:GetClass() == "acf_gun" then
+				Entity.Sound = sound
+			end
+		end)
+		
+		duplicator.StoreEntityModifier( Entity, "acf_diffsound", {sound} )
+	end)
+end
+
+concommand.Add("acf_replacesound", function(ply, _, args)
+	if CLIENT then return end
+	local sound
+	if type(args) == "table" then 
+		sound = args[1]
+	else
+		sound = args
+	end
+	
+	if not sound then return end
+	
+	if not file.Find("sounds"..sound, "GAME") then
+		print("sounds/"..sound.."*")
+		print("There is no such sound!")
+		return
+	end
+	
+	local tr = ply:GetEyeTrace()
+	if not tr.Entity or (tr.Entity:GetClass() ~= "acf_gun" and tr.Entity:GetClass() ~= "acf_engine") then
+		print("You need to look at engine or gun to change it's sound")
+		return
+	end
+	local ent = tr.Entity
+	if ent:GetClass() == "acf_engine" then
+		ent.SoundPath = sound
+	elseif ent:GetClass() == "acf_gun" then
+		ent.Sound = sound
+		ent:SetNWString( "Sound", sound )
+	end
+	duplicator.StoreEntityModifier( ent , "acf_diffsound", {sound} )
+end)
+
+
+
+// XCF EDIT 31/03/2013: Alteration to ensure chat display if player joins before http.fetch response and update is available.
 function ACF_ChatVersionPrint(ply)
+	if not ACF.CurrentVersion then 
+		timer.Create("ACF_ChatVersionRepeat" .. ply:SteamID(), 2, 5, function() ACF_ChatVersionPrint(ply) end)
+		return
+	end
+	
+	timer.Destroy("ACF_ChatVersionRepeat" .. ply:SteamID())
+	
 	if not ACF.Version or ACF.Version < ACF.CurrentVersion then
-	timer.Simple( 2,function()
-		ply:SendLua(
-			"chat.AddText(Color(255,0,0),\"A newer version of ACF is available!\")"
-			) 
+		timer.Simple( 2,function()
+			ply:SendLua("chat.AddText(Color(255,0,0),\"A newer version of ACF is available!\")") 
 		end)
 		local Table = {}
 		for k,v in pairs( ents.GetAll() ) do

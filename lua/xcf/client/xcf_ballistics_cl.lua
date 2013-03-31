@@ -17,18 +17,14 @@ local this = XCF.Ballistics
 include("xcf/client/xcf_neteffects_cl.lua")
 local netfx = XCF.NetFX
 
-//local projs = XCF.ProjClasses or error("Projectile classes haven't been initialized yet.")
 
 
 
-
-function this.CreateProj(Index, Bullet)
+function this.CreateProj(Index, Proj)
 	
-	printByName(Bullet)
-	
-	local effect = Bullet.ProjClass.CreateEffect(Bullet)
-	XCF.Projectiles[Index] = effect
-	effect:Launch()
+	Proj.ProjClass.CreateEffect(Proj)
+	XCF.Projectiles[Index] = Proj
+	Proj.ProjClass.Launch(Proj)
 
 end
 
@@ -37,10 +33,10 @@ end
 
 function this.EndProj(index)
 
-	local effect = XCF.Projectiles[index]
+	local Proj = XCF.Projectiles[index]
 	XCF.Projectiles[index] = nil
-	if not effect then error("No projectile could be found at index " .. index) end
-	effect:EndFlight()
+	if not Proj then error("No projectile could be found at index " .. index) end
+	Proj.ProjClass.EndFlight(Proj)
 	
 end
 
@@ -49,8 +45,8 @@ end
 
 function this.UpdateProj(index, diffs)
 
-	local effect = XCF.Projectiles[index] or error("No projectile could be found at index " .. index)
-	effect:Update(diffs)
+	local Proj = XCF.Projectiles[index] or error("No projectile could be found at index " .. index)
+	Proj.ProjClass.Update(diffs)
 
 end
 
@@ -62,7 +58,7 @@ function this.ProjLoop()
 	local Proj
 	for i, Proj in pairs(XCF.Projectiles) do
 		if not Proj then continue end
-		if not Proj.ProjClass then this.EndProj(i) end
+		if not Proj.ProjClass then print("Removing glitched projectile (no assigned class)") this.EndProj(i) continue end
 		
 		Proj.ProjClass.DoFlight(Proj)
 	end

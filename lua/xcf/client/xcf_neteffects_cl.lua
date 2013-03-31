@@ -21,6 +21,9 @@ function this.ReceiveProj(len)
 	local index 	= net.ReadInt(16)
 	local compact 	= net.ReadTable()
 	
+	print("RECV: idx = " .. index .. "\ntbl = ")
+	printByName(compact)
+	
 	compact.ProjClass = XCF.ProjClasses[compact.ProjClass] or error("Couldn't find appropriate projectile class for " .. compact.ProjClass .. "!")
 	
 	local proj = compact.ProjClass.GetExpanded(compact)
@@ -33,7 +36,10 @@ net.Receive(str.SEND, this.ReceiveProj)
 
 
 function this.EndProj(len)
-	balls.EndProj(net.ReadInt(16))
+	local index = net.ReadInt(16)
+	print("ENDP: idx = " .. index)
+	
+	balls.EndProj(index)
 end
 net.Receive(str.END, this.EndProj)
 
@@ -42,6 +48,9 @@ net.Receive(str.END, this.EndProj)
 function this.AlterProj(len)
 	local index 	= net.ReadInt(16)
 	local diffs 	= net.ReadTable()
+	
+	print("DIFF: idx = " .. index .. "\ntbl = ")
+	printByName(diffs)
 	
 	balls.UpdateProj(index, diffs)
 end
