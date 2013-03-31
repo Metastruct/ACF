@@ -1,14 +1,28 @@
 
 function EFFECT:Init( data )
-	self.CreateTime = CurTime()
-	urmum = self
+
 	//if not data.BulletData then error("No bulletdata attached to effect data!\n") return end
 
+	self.CreateTime = CurTime()
 	
-	/*
-	self.Index = data:GetAttachment()
 	self:SetModel("models/munitions/round_100mm_shot.mdl") 
 	
+	/*
+	
+		
+	end
+	//*/
+	
+end
+
+
+
+function EFFECT:Config(Bullet)
+
+	//self.Index = data:GetAttachment() or -1
+	self.Bullet = Bullet
+	
+	/*
 	if not ( self.Index ) then 
 		Msg("ACF_BulletEffect: error! Insufficient data to spawn.\n")
 		self:Remove() 
@@ -77,16 +91,12 @@ function EFFECT:Init( data )
 		self:SetAngles( BulletData.SimFlight:Angle() )
 		
 		ACF_SimBulletFlight( ACF.BulletEffect[self.Index], self.Index )
-		
 	end
 	//*/
-	
+
 end
 
 
-function EFFECT:HelloTest()
-	Msg("Hello!  Testing!!\n")
-end
 
 
 function EFFECT:HitEnd()
@@ -107,8 +117,11 @@ function EFFECT:HitRicochet()
 	//ACF.BulletEffect[self.Index] = nil			--Failsafe
 end
 
+
+
+
 function EFFECT:Think()
-	if self.CreateTime < CurTime() - 10 then
+	if self.CreateTime < CurTime() - 10 then	//TODO: check for bullet existence like below
 		self:Remove()
 		return false
 	end
@@ -123,6 +136,9 @@ function EFFECT:Think()
 	end
 	//*/
 end 
+
+
+
 
 function EFFECT:ApplyMovement( Bullet )
 	error("This function is now unused.\n") return

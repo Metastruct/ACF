@@ -245,13 +245,23 @@ concommand.Add("acf_replacesound", function(ply, _, args)
 	duplicator.StoreEntityModifier( ent , "acf_diffsound", {sound} )
 end)
 
+
+
+// XCF EDIT 31/03/2013: Alteration to ensure chat display if player joins before http.fetch response and update is available.
 function ACF_ChatVersionPrint(ply)
+	if not ACF.CurrentVersion then 
+		timer.Create("ACF_ChatVersionRepeat" .. ply:SteamID(), 2, 5, function() ACF_ChatVersionPrint(ply) end)
+		return
+	end
+	
+	timer.Destroy("ACF_ChatVersionRepeat" .. ply:SteamID())
+	
 	if not ACF.Version or ACF.Version < ACF.CurrentVersion then
-	timer.Simple( 2,function()
-		ply:SendLua(
-			"chat.AddText(Color(255,0,0),\"A newer version of ACF is available!\")"
-			) 
-		end)
+		timer.Simple( 2,function()
+			ply:SendLua(
+				"chat.AddText(Color(255,0,0),\"A newer version of ACF is available!\")"
+				) 
+			end)
 	end	
 end
 

@@ -54,19 +54,27 @@ end
 
 
 function this.DoFlight(Bullet)
-	if not Bullet then return false end
-	if not Bullet.LastThink then return false end
-	if not Bullet.Index then return false end
+	if not Bullet then print("Flight failed; tried to fly a nil shell!") return false end
+	if not Bullet.LastThink then print("Flight failed; shells must contain a LastThink parameter!") return false end
+	if not Bullet.Index then print("Flight failed; shells must contain an Index parameter!") return false end
 	
 	local Index = Bullet.Index
 	local Time = SysTime()
 	local DeltaTime = Time - Bullet.LastThink
 	
+	//*
 	local Speed = Bullet.Flight:Length()
 	local Drag = Bullet.Flight:GetNormalized() * (Bullet.DragCoef * Speed^2)/ACF.DragDiv
 	Bullet.NextPos = Bullet.Pos + (Bullet.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
 	Bullet.Flight = Bullet.Flight + (Bullet.Accel - Drag)*DeltaTime				--Calculates the next shell vector
 	Bullet.StartTrace = Bullet.Pos - Bullet.Flight:GetNormalized()*math.min(ACF.PhysMaxVel*DeltaTime, Bullet.FlightTime*Speed)
+	//*/
+	
+	/*
+	Bullet.NextPos = Bullet.Pos + (Bullet.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
+	Bullet.Flight = Bullet.Flight + Bullet.Accel * DeltaTime				--Calculates the next shell vector
+	Bullet.StartTrace = Bullet.Pos
+	//*/
 	
 	Bullet.LastThink = Time
 	Bullet.FlightTime = Bullet.FlightTime + DeltaTime
@@ -82,7 +90,7 @@ function this.DoFlight(Bullet)
 	
 	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 10, Color(0, 255, 255), false )
 	
-	
+	//*
 	if FlightRes.HitNonWorld then
 	
 		local propimpact = ACF.RoundTypes[Bullet.Type]["propimpact"]		
@@ -109,6 +117,17 @@ function this.DoFlight(Bullet)
 		Bullet.Pos = Bullet.NextPos
 		return balls.HIT_NONE, FlightRes
 	end
+	//*/
+	/*
+	if FlightRes.Hit then
+		print(tostring(Bullet) .. " hit!")
+		Bullet.Pos = FlightRes.HitPos
+		return balls.HIT_END, FlightRes
+	else															--If we didn't hit anything, move the shell and schedule next think
+		Bullet.Pos = Bullet.NextPos
+		return balls.HIT_NONE, FlightRes
+	end
+	//*/
 	
 end
 
@@ -138,4 +157,7 @@ function this.EndFlight(Index, Proj, FlightRes)
 	//printByName(Proj)
 	ACF_BulletEndFlight = ACF.RoundTypes[Proj.Type]["endflight"]	//TODO: why global?
 	ACF_BulletEndFlight( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
+	//balls.RemoveProj( Index )
 end
+
+print("sv shell reload")

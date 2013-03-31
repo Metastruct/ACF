@@ -4,6 +4,7 @@ XCF = XCF or {}
 
 XCF.Projectiles = XCF.Projectiles or {}
 XCF.ProjectilesLimit = 1000  --The maximum number of bullets in flight at any one time
+XCF.LastProj = 0
 
 XCF.Ballistics = { //TODO: shared
 	["CL_INIT"] = 1, 
@@ -16,23 +17,10 @@ XCF.Ballistics = { //TODO: shared
 	["HIT_RICOCHET"] = "Ricochet",
 }
 local this = XCF.Ballistics
-/*
-timer.Create("XCFBallsGetDefClass", 1, 0,
-	function() 
-		if XCF.ProjClasses then 
-			this.DEFAULT_PROJCLASS = XCF.ProjClasses.Shell
-			timer.Remove("XCFBallsGetDefClass")
-			print("got it!!")
-		else
-			print("didn't get it this time")
-		end
-	end)
-//*/
+
 	
 include("xcf/server/xcf_neteffects_sv.lua")
 local netfx = XCF.NetFX
-
-//local projs = XCF.ProjClasses or error("Projectile classes haven't been initialized yet.")
 
 
 
@@ -40,7 +28,11 @@ function this.Launch( Proj, ProjClass )
 	
 	if not Proj then return end
 	
-	local curind = #XCF.Projectiles + 1	// TODO: can improve efficiency by caching table length and updating upon add/remove
+	Proj = table.Copy(Proj)
+	
+	local curind = (XCF.LastProj % XCF.ProjectilesLimit) + 1 	// TODO: can improve efficiency by caching table length and updating upon add/remove
+	XCF.LastProj = curind
+	
 	if curind > XCF.ProjectilesLimit then return end
 	
 	if not Proj.ProjClass then
@@ -61,14 +53,13 @@ end
 
 
 
-
 function this.ProjLoop()
 
 	local Proj
 	for i, Proj in pairs(XCF.Projectiles) do
 		//print(i, Proj)
 		if not Proj then continue end
-		if not Proj.ProjClass then this.RemoveProj(i) end
+		if not Proj.ProjClass then print("Removing glitched projectile (no assigned class)") this.RemoveProj(i) continue end
 		
 		this.CalcFlight( i, Proj )
 	end
@@ -85,7 +76,7 @@ function this.RemoveProj( Index )
 	XCF.Projectiles[Index] = nil
 	this.NotifyClients(Index, Proj, this.CL_REMOVE)
 	Proj.ProjClass.Removed(Proj) // todo: see if acf framework can support class-based projectiles or if it needs total overhaul
-
+	
 end
 
 

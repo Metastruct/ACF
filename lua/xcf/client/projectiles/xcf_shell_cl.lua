@@ -18,12 +18,43 @@ local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
 
 
 
-function this.CreateEffect(Bullet)
+function this:CreateEffect()
 	local effectdata = EffectData()
 	local effect = util.ClientsideEffect( "XCF_ShellEffect", effectdata )
 	
-	//effect:Config(Bullet)
-	effect:HelloTest()
+	//print(tostring(effect))
 	
-	return effect
+	effect:Config(self)
+	
+	self.Effect = effect
+end
+
+
+
+function this:Update(diffs)
+	print("UPDATE for " .. tostring(self) .. "\nDIFFS:")
+	PrintTable(diffs)
+	/*
+	if bullet.Effect then
+		bullet.Effect:Update(diffs)
+	end
+	//*/
+end
+
+
+
+function this:Launch()
+	print("LAUNCHING " .. tostring(self))
+end
+
+
+
+function this:DoFlight()
+	//print("TODO: clientside shell flight model")
+end
+
+
+
+function this:EndFlight()
+	print("ENDING " .. tostring(self))
 end
