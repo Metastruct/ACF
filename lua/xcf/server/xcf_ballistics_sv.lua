@@ -44,6 +44,8 @@ function this.Launch( Proj, ProjClass )
 	XCF.Projectiles[curind] = Proj
 	Proj.Index = curind
 	
+	printByName(Proj)
+	
 	this.NotifyClients(curind, Proj, this.CL_INIT)
 	this.CalcFlight(curind, Proj)
 	

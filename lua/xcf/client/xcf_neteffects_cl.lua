@@ -22,11 +22,20 @@ function this.ReceiveProj(len)
 	local compact 	= net.ReadTable()
 	
 	print("RECV: idx = " .. index .. "\ntbl = ")
+	/*
 	printByName(compact)
+	print("RECV END\n\n\n")
+	//*/
 	
 	compact.ProjClass = XCF.ProjClasses[compact.ProjClass] or error("Couldn't find appropriate projectile class for " .. compact.ProjClass .. "!")
 	
 	local proj = compact.ProjClass.GetExpanded(compact)
+	
+	/*
+	print("EXPANDED:\n")
+	printByName(proj)
+	print("EXPANDED END\n\n\n")
+	//*/
 	
 	balls.CreateProj(index, proj)
 
