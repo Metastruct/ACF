@@ -22,8 +22,6 @@ function this:CreateEffect()
 	local effectdata = EffectData()
 	local effect = util.ClientsideEffect( "XCF_ShellEffect", effectdata )
 	
-	//print(tostring(effect))
-	
 	effect:Config(self)
 	
 	self.Effect = effect
@@ -33,10 +31,11 @@ end
 
 function this:Update(diffs)
 	print("UPDATE for " .. tostring(self) .. "\nDIFFS:")
-	PrintTable(diffs)
-	/*
-	if bullet.Effect then
-		bullet.Effect:Update(diffs)
+	printByName(diffs)
+	table.Merge(self, diffs)
+	//*
+	if self.Effect then
+		self.Effect:Update(diffs)
 	end
 	//*/
 end
@@ -45,16 +44,41 @@ end
 
 function this:Launch()
 	print("LAUNCHING " .. tostring(self))
+	self.LastThink = SysTime()
+	self.FlightTime = 0
+	
+	printByName(self)
+	
 end
 
 
 
 function this:DoFlight()
-	//print("TODO: clientside shell flight model")
+	if not self then print("Flight failed; tried to fly a nil shell!") return false end
+	if not self.LastThink then print("Flight failed; shells must contain a LastThink parameter!") return false end
+	
+	local Time = SysTime()
+	local DeltaTime = Time - self.LastThink
+	
+	local Speed = self.Flight:Length()
+	local Drag = self.Flight:GetNormalized() * (self.DragCoef * Speed^2)/ACF.DragDiv
+	self.NextPos = self.Pos + (self.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
+	self.Flight = self.Flight + (self.Accel - Drag)*DeltaTime				--Calculates the next shell vector
+	self.StartTrace = self.Pos - self.Flight:GetNormalized()*math.min(ACF.PhysMaxVel*DeltaTime, self.FlightTime*Speed)
+	self.Pos = self.NextPos
+	self.LastThink = SysTime()
+	self.FlightTime = self.FlightTime + DeltaTime
+	
+	debugoverlay.Line( self.StartTrace, self.NextPos, 4, Color(255, 255, 0), false )
+	
+	return true
 end
 
 
 
 function this:EndFlight()
 	print("ENDING " .. tostring(self))
+	if self.Effect then
+		self.Effect:HitEnd()
+	end
 end

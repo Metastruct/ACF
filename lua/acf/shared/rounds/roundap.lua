@@ -73,7 +73,7 @@ end
 
 function ACF_APPropImpact( Index, Bullet, Target, HitNormal, HitPos , Bone )	--Can be called from other round types
 
-	if ACF_Check( Target ) then
+	if XCF_Check( Target ) then
 	
 		local Speed = Bullet["Flight"]:Length() / ACF.VelScale
 		local Energy = ACF_Kinetic( Speed , Bullet["ProjMass"], Bullet["LimitVel"] )

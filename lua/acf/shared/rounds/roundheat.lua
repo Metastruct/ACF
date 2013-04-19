@@ -131,7 +131,7 @@ end
 
 function ACF_HEATPropImpact( Index, Bullet, Target, HitNormal, HitPos , Bone ) 	--Can be called from other round types
 
-	if ACF_Check( Target ) then
+	if XCF_Check( Target ) then
 			
 		if Bullet["Detonated"] then
 			

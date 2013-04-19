@@ -61,7 +61,15 @@ function this.GetExpanded(bullet)
 	
 	if not conversion then return nil end
 	local ret = conversion( nil, input )
+	
 	ret.ProjClass = this
+	
+	ret.Pos = bullet.Pos or Vector(0,0,0)
+	ret.Flight = bullet.Flight or Vector(0,0,0)
+	ret.Type = ret.Type or bullet.Type
+	
+	local cvarGrav = GetConVar("sv_gravity")
+	ret.Accel = Vector(0,0,cvarGrav:GetInt()*-1)
 	
 	return ret
 

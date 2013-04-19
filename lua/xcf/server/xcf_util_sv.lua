@@ -13,7 +13,7 @@ function XCF_Check( Entity, Inflictor )
 	
 	if ( IsValid(Entity) ) then
 	
-		if not XCF.DamagePermission(Entity:CPPIGetOwner(), Inflictor, Entity) then return false end
+		if CPPI and not XCF.DamagePermission(Entity:CPPIGetOwner(), Inflictor, Entity) then return false end
 	
 		if ( Entity:GetPhysicsObject():IsValid() and !Entity:IsWorld() and !Entity:IsWeapon() ) then
 			local Class = Entity:GetClass()

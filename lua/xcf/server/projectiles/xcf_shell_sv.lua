@@ -88,7 +88,7 @@ function this.DoFlight(Bullet)
 	local FlightRes = util.TraceLine(FlightTr)					--Trace to see if it will hit anything
 	
 	
-	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 10, Color(0, 255, 255), false )
+	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 2, Color(0, 255, 255), false )
 	
 	//*
 	if FlightRes.HitNonWorld then

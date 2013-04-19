@@ -24,6 +24,9 @@
 		BulletEffect.Tracer = 0
 		BulletEffect.Force = 0
 		BulletEffect.Damage = 0	 
+		
+	printByName(BulletEffect)
+		
 	LocalPlayer():FireBullets(BulletEffect) 
 	
 	util.Decal("ExplosiveGunshot", self.Origin + self.DirVec*10, self.Origin - self.DirVec*10)
