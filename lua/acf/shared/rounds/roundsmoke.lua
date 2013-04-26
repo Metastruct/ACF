@@ -89,13 +89,11 @@ end
 
 function ACF_SMPropImpact( Index, Bullet, Target, HitNormal, HitPos , Bone ) 	--Can be called from other round types
 
-	if XCF_Check( Target ) then
-		local Speed = Bullet["Flight"]:Length() / ACF.VelScale
-		local Energy = ACF_Kinetic( Speed , Bullet["ProjMass"] - Bullet["FillerMass"], Bullet["LimitVel"] )
-		local HitRes = ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bone )
-		if HitRes.Ricochet then
-			return "Ricochet"
-		end
+	local Speed = Bullet["Flight"]:Length() / ACF.VelScale
+	local Energy = ACF_Kinetic( Speed , Bullet["ProjMass"] - Bullet["FillerMass"], Bullet["LimitVel"] )
+	local HitRes = ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bone )
+	if HitRes.Ricochet then
+		return "Ricochet"
 	end
 	return false
 

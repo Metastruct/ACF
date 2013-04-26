@@ -32,7 +32,7 @@ function ACF_HE( Hitpos , HitNormal , FillerMass, FragMass , Inflictor, NoOcc, A
 		for i,Tar in pairs(Targets) do
 			Iterations = i
 			if ( Tar != nil and Power > 0 and not Tar.Exploding ) then
-				local Type = XCF_Check(Tar)
+				local Type = XCF_Check(Tar, Inflictor)
 				if ( Type ) then
 					local Hitat = nil
 					if Type == "Squishy" then 										--A little hack so it doesn't check occlusion at the feet of players
@@ -165,7 +165,7 @@ function ACF_SpallTrace( HitVec , SpallTr , SpallEnergy , SpallAera , Inflictor 
 
 	local SpallRes = util.TraceLine(SpallTr)
 	
-	if SpallRes.Hit and XCF_Check( SpallRes.Entity ) then
+	if SpallRes.Hit and XCF_Check( SpallRes.Entity, Inflictor ) then
 	
 		local Angle = ACF_GetHitAngle( SpallRes.HitNormal , HitVec )
 		local HitRes = ACF_Damage( SpallRes.Entity , SpallEnergy , SpallAera , Angle , Inflictor, 0 )  --DAMAGE !!

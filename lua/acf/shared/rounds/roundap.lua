@@ -73,8 +73,6 @@ end
 
 function ACF_APPropImpact( Index, Bullet, Target, HitNormal, HitPos , Bone )	--Can be called from other round types
 
-	if XCF_Check( Target ) then
-	
 		local Speed = Bullet["Flight"]:Length() / ACF.VelScale
 		local Energy = ACF_Kinetic( Speed , Bullet["ProjMass"], Bullet["LimitVel"] )
 		local HitRes = ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bone )
@@ -89,9 +87,6 @@ function ACF_APPropImpact( Index, Bullet, Target, HitNormal, HitPos , Bone )	--C
 		else
 			return false
 		end
-	else 
-		table.insert( Bullet["Filter"] , Target )
-	return "Penetrated" end
 		
 end
 

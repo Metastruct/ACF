@@ -154,8 +154,8 @@ function TOOL:Think()
 
 	local ent = trace.Entity
 	if ent != self.lastent or self.updateacf then
-		if( ACF_Check ~= mil ) then
-			local valid = ACF_Check( ent )
+		if( XCF_Check ~= nil ) then
+			local valid = XCF_Check( ent, self:GetOwner() )
 			if valid then
 				local mass = ent:GetPhysicsObject():GetMass()
 				self:GetOwner():ConCommand("acfarmorprop_mass "..mass);
