@@ -60,9 +60,9 @@ function TOOL:TransmitSelection()
 	if SERVER then return end
 	
 	local gui = XCF.GUI.Tabs
-	if not gui then Error("Didn't find tool GUI") return end
+	if not gui then error("Didn't find tool GUI") return end
 	
-	local tab = gui:GetActiveTab():GetPanel().EditPanel or Error("Didn't find edit panel")
+	local tab = gui:GetActiveTab():GetPanel().EditPanel or error("Didn't find edit panel")
 	local info = tab:GetInfoTable()
 	
 	//PrintTable(info)
@@ -95,13 +95,16 @@ if SERVER then
 	end
 
 	local lastreceive = CurTime()
-	local delay = 0.2
+	local delay = 0.1
 	
 	util.AddNetworkString("xcfmenu_transmit")
 	net.Receive("xcfmenu_transmit", function(len, ply)
 		
+		if not (IsValid(ply) and ply:IsPlayer()) then return end
+		
 		local now = CurTime()
-		if (now - lastreceive < delay) then return end
+		if (now - lastreceive < delay) then lastreceive = now return end
+		lastreceive = now
 		
 		local trace = util.TraceLine(util.GetPlayerTrace(ply))
 		
@@ -109,15 +112,13 @@ if SERVER then
 	
 		local infotable = net.ReadTable()
 	
-		
-	
 		//PrintTable(infotable)
 	
 		local Type = infotable["ent"]	-- entity class
 		local Id = infotable["id"]		-- acf short id for desired class
 		
 		if not XCF.TOOL.AllowedTypes[string.lower(Type)] then 	-- no naughtiness thanks
-			self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "You aren't allowed to spawn '" .. Type .. "' with this tool!", "NOTIFY_ERROR" ) )
+			ply:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "You aren't allowed to spawn '" .. Type .. "' with this tool!", "NOTIFY_ERROR" ) )
 			return false
 		end
 		
@@ -151,16 +152,14 @@ if SERVER then
 			end
 			
 			if Feedback != nil then
-				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", Feedback, "NOTIFY_ERROR" ) )
+				ply:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", Feedback, "NOTIFY_ERROR" ) )
 			end
 				
 			return true
 		else
-			self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "Couldn't spawn your '" .. Type .. "' because it's not recognized by the GMod duplicator!", "NOTIFY_ERROR" ) )
-			Error("XCFTOOL: Didn't find entity duplicator records for \"" .. Type .. "\"!")
+			ply:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "Couldn't spawn your '" .. Type .. "' because it's not recognized by the GMod duplicator!", "NOTIFY_ERROR" ) )
+			error("XCFTOOL: Didn't find entity duplicator records for \"" .. Type .. "\"!")
 		end
-		
-		lastreceive = now
 		
 	end)
 
@@ -170,11 +169,9 @@ end
 
 function TOOL:LeftClick( trace )
 
-	//Msg(CLIENT, SERVER, "\n")
+	//print("CLIENT=", CLIENT, "SERVER=", SERVER)
 
 	if (CLIENT) then
-	
-		//Msg("hello")
 		
 		self:TransmitSelection()
 		return true
@@ -182,9 +179,7 @@ function TOOL:LeftClick( trace )
 	end
 	
 	self.LastClick = trace
-	/*
-	
-	//*/
+
 end
 
 
@@ -206,7 +201,7 @@ function TOOL:RightClick( trace )
 			if !Error then
 				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Unlink Succesful', NOTIFY_GENERIC, 7);" )
 			elseif Error != nil then
-				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", Error, "NOTIFY_ERROR" ) )
+				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", tostring(Error), "NOTIFY_ERROR" ) )
 			else
 				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Unlink Failed', NOTIFY_GENERIC, 7);" )
 			end
@@ -228,7 +223,7 @@ function TOOL:RightClick( trace )
 			if !Error then
 				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Link Succesful', NOTIFY_GENERIC, 7);" )
 			elseif Error != nil then
-				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", Error, "NOTIFY_ERROR" ) )
+				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", tostring(Error), "NOTIFY_ERROR" ) )
 			else
 				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Link Failed', NOTIFY_GENERIC, 7);" )
 			end

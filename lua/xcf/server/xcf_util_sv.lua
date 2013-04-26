@@ -34,30 +34,15 @@ end
 
 
 function XCF_CreateBulletSWEP( BulletData, Swep )
+
+	BulletData = table.Copy(BulletData)
+	BulletData.TraceBackComp = Swep.Owner:GetVelocity():Dot(BulletData.Flight:GetNormalized())
+	BulletData.Filter = BulletData.Filter or {}
+	BulletData.Gun = Swep
+	BulletData.Filter[#BulletData.Filter + 1] = Swep.Owner
 	
-	ACF.CurBulletIndex = ACF.CurBulletIndex + 1		--Increment the index
-	if ACF.CurBulletIndex > ACF.BulletIndexLimt then
-		ACF.CurBulletIndex = 1
-	end
+	local BulletData = XCF.Ballistics.Launch(BulletData)
 	
-	local cvarGrav = GetConVar("sv_gravity")
-	BulletData["Accel"] = Vector(0,0,cvarGrav:GetInt()*-1)			--Those are BulletData settings that are global and shouldn't change round to round
-	BulletData["LastThink"] = SysTime()
-	BulletData["FlightTime"] = 0
-	BulletData["TraceBackComp"] = 0
-	local gun = BulletData["Gun"]
-	if gun and gun:IsValid() then											--Check the Gun's velocity and add a modifier to the flighttime so the traceback system doesn't hit the originating contraption if it's moving along the shell path
-		BulletData["TraceBackComp"] = Swep.Owner:GetVelocity():Dot(BulletData["Flight"]:GetNormalized())
-		if gun.sitp_inspace then
-			BulletData["Accel"] = Vector(0, 0, 0)
-			BulletData["DragCoef"] = 0
-		end
-	end
-	BulletData["Filter"] = { gun, Swep.Owner }
-	BulletData["Index"] = ACF.CurBulletIndex
-		
-	ACF.Bullet[ACF.CurBulletIndex] = table.Copy(BulletData)		--Place the bullet at the current index pos
-	ACF_BulletClient( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex], "Init" , 0 )
-	ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
+	return BulletData
 	
 end

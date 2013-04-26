@@ -11,6 +11,24 @@ local str = { //TODO: shared
 }
 
 
+
+include("xcf/shared/xcf_util_sh.lua")
+
+local oldvec
+// Make sure to pcall all code while hack is active - can't afford to mess up global functions for other code.
+// doing this because WriteVector compression is horrendous and rewriting the entire WriteTable function is not my current focus.
+local function vectorhack(bool)
+	if oldvec then return end
+	
+	if bool then
+		oldvec = net.WriteVector
+		net.WriteVector = net.WriteVectorDouble
+	else
+		net.WriteVector = oldvec
+		oldvec = nil
+	end
+end
+
 /**
 	Send all clients a projectile definition to begin simulating.
 //*/
@@ -19,9 +37,18 @@ function this.SendProj(Index, Proj)
 
 	local tosend = Proj.ProjClass.GetCompact(Proj)
 	
+	print("TO SEND:")
+	printByName(tosend)
+	print("TO SEND END\n\n")
+	
 	net.Start(str.SEND)
 	net.WriteInt(Index, 16)
-	net.WriteTable(tosend)
+	vectorhack(true)
+	local success, err = pcall(net.WriteTable, tosend)
+	vectorhack(false)
+	
+	if not success then error("Failure to write new projectile: " .. err .. "\n" .. debug.traceback()) end
+	
 	net.Broadcast()
 
 end
@@ -29,9 +56,16 @@ end
 
 
 util.AddNetworkString(str.END)
-function this.EndProj(Index)
+function this.EndProj(Index, Update)
 	net.Start(str.END)
 	net.WriteInt(Index, 16)
+	if Update then
+		vectorhack(true)
+		pcall(net.WriteTable, Update)
+		vectorhack(false)
+	else	// signify no update (net lib requires)
+		net.WriteTable({[0] = true})
+	end
 	net.Broadcast()
 end
 
@@ -40,15 +74,18 @@ end
 //TODO: this
 util.AddNetworkString(str.ALTER)
 function this.AlterProj(Index, Alterations)
+	if not Alterations then error("Tried to send invalid projectile update (" .. Index .. ")") end
+	print("UPDATE OUT:")
+	printByName(Alterations)
+	print("UPDATE END")
+	
 	net.Start(str.ALTER)
 	net.WriteInt(Index, 16)
-	net.WriteTable(Alterations)
+	vectorhack(true)
+	local success, err = pcall(net.WriteTable, Alterations)
+	vectorhack(false)
+	
+	if not success then error("Failure to write projectile alterations: " .. err .. "\n" .. debug.traceback()) end
 	net.Broadcast()
 end
 
-
-/*
-if (Hit == 1) then		--Bullet has reached end of flight, remove old effect
-elseif (Hit == 2) then		--Bullet penetrated, don't remove old effect
-elseif (Hit == 3) then		--Bullet ricocheted, don't remove old effect
-//*/

@@ -13,15 +13,18 @@ local projcs = XCF.ProjClasses
 projcs[classname] = projcs[classname] and projcs[classname].super and projcs[classname] or XCF.inheritsFrom(projcs.Base)
 local this = projcs[classname]
 
+// TODO: ensure ballistic functions are never called in here so that shells can exist independently of ballistics structure (for things like impact computers etc)
 local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
 
 
 
 
+//TODO: catch bullet table modifications and cache them for updates. (use metatable)  mutable ammotypes will become possible.
 function this.GetUpdate(bullet)
 	return {
 		["Pos"] 	= bullet.Pos,
-		["Flight"] 	= bullet.Flight
+		["Flight"] 	= bullet.Flight,
+		//["Detonated"] = bullet.Detonated	// this will become unnecessary when the above todo is completed.
 	}
 end
 
@@ -37,8 +40,13 @@ function this.Prepare(BulletData)
 	BulletData["LastThink"] = SysTime()
 	BulletData["FlightTime"] = 0
 	BulletData["TraceBackComp"] = 0
-	if BulletData["Gun"]:IsValid() then											--Check the Gun's velocity and add a modifier to the flighttime so the traceback system doesn't hit the originating contraption if it's moving along the shell path
-		BulletData["TraceBackComp"] = BulletData["Gun"]:GetPhysicsObject():GetVelocity():Dot(BulletData["Flight"]:GetNormalized())
+	if BulletData["Gun"]:IsValid() then		--Check the Gun's velocity and add a modifier to the flighttime so the traceback system doesn't hit the originating contraption if it's moving along the shell path
+		local phys = BulletData["Gun"]:GetPhysicsObject()
+		if phys and IsValid(phys) then
+			BulletData["TraceBackComp"] = phys:GetVelocity():Dot(BulletData["Flight"]:GetNormalized())
+		else
+			BulletData["TraceBackComp"] = 0
+		end
 		if BulletData["Gun"].sitp_inspace then
 			BulletData["Accel"] = Vector(0, 0, 0)
 			BulletData["DragCoef"] = 0
@@ -68,19 +76,22 @@ function this.DoFlight(Bullet)
 	Bullet.NextPos = Bullet.Pos + (Bullet.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
 	Bullet.Flight = Bullet.Flight + (Bullet.Accel - Drag)*DeltaTime				--Calculates the next shell vector
 	Bullet.StartTrace = Bullet.Pos - Bullet.Flight:GetNormalized()*math.min(ACF.PhysMaxVel*DeltaTime, Bullet.FlightTime*Speed)
-	//*/
-	
-	/*
-	Bullet.NextPos = Bullet.Pos + (Bullet.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
-	Bullet.Flight = Bullet.Flight + Bullet.Accel * DeltaTime				--Calculates the next shell vector
-	Bullet.StartTrace = Bullet.Pos
+	//TODO: fix traceback for static objects
 	//*/
 	
 	Bullet.LastThink = Time
 	Bullet.FlightTime = Bullet.FlightTime + DeltaTime
 	
+	return this.DoTrace(Bullet)
 	
-	
+end
+
+
+
+function this.DoTrace(Bullet)
+
+	local Index = Bullet.Index
+
 	local FlightTr = { }
 		FlightTr.start = Bullet.StartTrace
 		FlightTr.endpos = Bullet.NextPos
@@ -90,7 +101,7 @@ function this.DoFlight(Bullet)
 	
 	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 2, Color(0, 255, 255), false )
 	
-	//*
+	
 	if FlightRes.HitNonWorld then
 	
 		local propimpact = ACF.RoundTypes[Bullet.Type]["propimpact"]		
@@ -117,47 +128,44 @@ function this.DoFlight(Bullet)
 		Bullet.Pos = Bullet.NextPos
 		return balls.HIT_NONE, FlightRes
 	end
-	//*/
-	/*
-	if FlightRes.Hit then
-		print(tostring(Bullet) .. " hit!")
-		Bullet.Pos = FlightRes.HitPos
-		return balls.HIT_END, FlightRes
-	else															--If we didn't hit anything, move the shell and schedule next think
-		Bullet.Pos = Bullet.NextPos
-		return balls.HIT_NONE, FlightRes
-	end
-	//*/
 	
 end
 
 
 
-function this.Removed(Proj)
-end
-
-
-
+/**
+	Projectile event callback called by the ballistic core.
+//*/
 function this.Penetrate(Index, Proj, FlightRes)
-	//ACF_BulletClient( Index, Bullet, "Update" , 2 , FlightRes.HitPos  )
-	ACF_DoBulletsFlight( Index, Proj )
+	if Proj.CallbackPenetrate then Proj.CallbackPenetrate(Index, Proj, FlightRes) end
+	this.DoTrace(Proj)
+	
+	local ret = this.GetUpdate(Proj)
+	ret.UpdateType = balls.HIT_PENETRATE
+	return ret, balls.PROJ_UPDATE
 end
 
 
 
 function this.Ricochet(Index, Proj, FlightRes)
-	//ACF_BulletClient( Index, Bullet, "Update" , 3 , FlightRes.HitPos  )
-	ACF_CalcBulletFlight( Index, Proj, true )
+	if Proj.CallbackRicochet then Proj.CallbackRicochet(Index, Proj, FlightRes) end
+	Proj.FlightTime = 0	// TODO: find a better way of temporarily invalidating backtracing.
+	this.DoFlight( Proj )
+	
+	local ret = this.GetUpdate(Proj)
+	ret.UpdateType = balls.HIT_RICOCHET
+	return ret, balls.PROJ_UPDATE
 end
 
 
 
 function this.EndFlight(Index, Proj, FlightRes)
-	//ACF_BulletClient( Index, Bullet, "Update" , 1 , FlightRes.HitPos  )
-	//printByName(Proj)
-	ACF_BulletEndFlight = ACF.RoundTypes[Proj.Type]["endflight"]	//TODO: why global?
-	ACF_BulletEndFlight( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
-	//balls.RemoveProj( Index )
+	if Proj.CallbackEndFlight then Proj.CallbackEndFlight(Index, Proj, FlightRes) end
+	ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
+	
+	local ret = this.GetUpdate(Proj)
+	ret.UpdateType = balls.HIT_END
+	return ret, balls.PROJ_REMOVE
 end
 
-print("sv shell reload")
+

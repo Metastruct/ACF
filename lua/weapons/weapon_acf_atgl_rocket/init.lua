@@ -120,7 +120,7 @@ function SWEP:FireBullet()
 	rocket:SetOwner(self.Owner)
 	rocket:Spawn()
 	rocket:SetCrate(self)
-	//rocket:Launch()
+	rocket:Launch()
 	myrokkit = rocket
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
@@ -128,3 +128,35 @@ function SWEP:FireBullet()
 	debugoverlay.Line(MuzzlePos, MuzzlePos + MuzzleVecFinal * 100, 60, Color(200, 200, 255, 255),  true)
 	
 end
+
+
+
+
+function SWEP:GrabRocketFromCrate(crate)
+	
+	local ammotype = crate.RoundId
+	local ammotbl = ACF.Weapons.Guns[ammotype]
+	
+	if not ammotbl then return false end
+	if not ammotbl.gunclass == "RK" then return false end
+	
+	local rkdata = {}
+	rkdata.Id = Data1		--Weapon this round loads into, ie 140mmC, 105mmH ...
+	rkdata.Type = Data2		--Type of round, IE AP, HE, HEAT ...
+	rkdata.PropLength = Data3--Lenght of propellant
+	rkdata.ProjLength = Data4--Lenght of the projectile
+	rkdata.FillerVol = ( Data5 or 0 )
+	rkdata.ConeAng = ( Data6 or 0 )
+	
+	XCF_GenerateMissileInfo( rkdata )
+	
+	rkdata.Crate = -1
+	
+	self.BulletData = rkdata
+	self:UpdateFakeCrate()
+	
+	self.Owner:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "Reloaded the ATGL with ".. rkdata.Id .." ammo!", "NOTIFY_GENERIC" ) )
+	
+end
+
+

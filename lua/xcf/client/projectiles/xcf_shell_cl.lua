@@ -30,11 +30,11 @@ end
 
 
 function this:Update(diffs)
-	print("UPDATE for " .. tostring(self) .. "\nDIFFS:")
-	printByName(diffs)
+	//print("UPDATE for " .. tostring(self) .. "\nDIFFS:")
+	//printByName(diffs)
 	table.Merge(self, diffs)
 	//*
-	if self.Effect then
+	if IsValid(self.Effect) then
 		self.Effect:Update(diffs)
 	end
 	//*/
@@ -78,7 +78,7 @@ end
 
 function this:EndFlight()
 	print("ENDING " .. tostring(self))
-	if self.Effect then
+	if IsValid(self.Effect) then
 		self.Effect:HitEnd()
 	end
 end

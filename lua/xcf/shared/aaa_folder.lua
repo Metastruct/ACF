@@ -10,6 +10,9 @@ AddCSLuaFile("xcf/shared/aaa_folder.lua")
 AddCSLuaFile("xcf/shared/xcf_acf_additions.lua")
 include("xcf/shared/xcf_acf_additions.lua")
 
+AddCSLuaFile("xcf/shared/xcf_util_sh.lua")
+include("xcf/shared/xcf_util_sh.lua")
+
 AddCSLuaFile("xcf/shared/xcf_baseproj_sh.lua")
 include("xcf/shared/xcf_baseproj_sh.lua")
 
