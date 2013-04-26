@@ -34,8 +34,8 @@ end
 
 function this.processCreateCache()
 	for k, v in pairs(this.CreateCache) do
-		this.createProjNow(k, v)
 		this.CreateCache[k] = nil
+		this.createProjNow(k, v)
 	end
 end
 
@@ -61,8 +61,8 @@ end
 
 function this.processEndCache()
 	for k, v in pairs(this.EndCache) do
-		this.endProjNow(k, v)
 		this.EndCache[k] = nil
+		this.endProjNow(k, v)
 	end
 end
 
@@ -82,15 +82,15 @@ end
 
 function this.UpdateProj(index, diffs)
 
-	this.UpdateCache[this.UpdateCache + 1] = {index, diffs}
+	this.UpdateCache[#this.UpdateCache + 1] = {index, diffs}
 
 end
 
 
 function this.processUpdateCache()
 	for k, v in pairs(this.UpdateCache) do
-		this.updateProjNow(v[1], v[2])
 		this.UpdateCache[k] = nil
+		this.updateProjNow(v[1], v[2])
 	end
 end
 
@@ -98,7 +98,8 @@ end
 function this.updateProjNow(index, diffs)
 
 	local Proj = XCF.Projectiles[index] or error("No projectile could be found at index " .. index)
-	Proj.ProjClass.Update(diffs)
+	if not diffs then error("NetFX let an invalid update reach the ballistics core! (" .. index .. ")") end
+	Proj.ProjClass.Update(Proj, diffs)
 
 end
 

@@ -1,4 +1,5 @@
 function pairsByKeys (t, f)
+  if not t then return function() end end
   local a = {}
   for n in pairs(t) do table.insert(a, n) end
   table.sort(a, f)

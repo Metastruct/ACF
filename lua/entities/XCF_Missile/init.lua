@@ -329,10 +329,10 @@ function ENT:Detonate( FlightRes )
 	end
 	
 	self.BulletData["Owner"] = self.Owner
+	self.BulletData.Filter = self.Filter
 	print(self.Owner)
 	
-	XCF_CreateBulletSWEP( self.BulletData, self )
-	self.BulletIndex = ACF.CurBulletIndex
+	self.BulletData = XCF_CreateBulletSWEP( self.BulletData, self )
 	self.MadeBullet = true
 	
 	self.Entity:Remove()

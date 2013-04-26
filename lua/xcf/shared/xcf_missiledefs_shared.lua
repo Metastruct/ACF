@@ -43,7 +43,7 @@ local pg7v = // it's an rpg rocket
 	["year"]		= 1960,
 	["round"]		= 
 	{
-		["id"]			= "170mmRK",
+		["id"]			= "85mmRK",
 		["maxlength"]	= 24*2.54,
 		["maxweight"]	= 2.6,
 		["casing"]		= 0.2,	// thickness of missile casing, cm

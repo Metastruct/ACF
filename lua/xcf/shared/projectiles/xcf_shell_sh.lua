@@ -17,18 +17,33 @@ local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
 
 
 
+
+local fillerdensity = {}
+fillerdensity["SM"] = 2000
+fillerdensity["HE"] = 1000
+fillerdensity["HP"] = 1
+fillerdensity["HEAT"] = fillerdensity["HE"]
+fillerdensity["APHE"] = fillerdensity["HE"]
+
 /**
 	Reduce a full bulletinfo table to the minimum data set required to reconstruct that bulletinfo.
 	Useful for net transportation, serialization etc
 //*/
 function this.GetCompact(bullet)
+	local hasfiller = fillerdensity[bullet.Type]
+	
+	if hasfiller then
+		hasfiller = bullet.FillerVol or bullet.CavVol or bullet.FillerMass / ACF.HEDensity * fillerdensity[bullet.Type]
+	end
+	
 	return
 	{
 		["Id"] 		= bullet.Id,
 		["Type"] 	= bullet.Type,
 		["PropLength"]	= bullet.PropLength,
 		["ProjLength"]	= bullet.ProjLength,
-		["FillerVol"]	= bullet.FillerVol,
+		//TODO: remove this hack when warheads are implemented
+		["FillerVol"]	= hasfiller,
 		["ConeAng"]		= bullet.ConeAng,
 		["Tracer"]		= bullet.Tracer,
 		

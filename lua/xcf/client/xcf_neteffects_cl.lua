@@ -13,18 +13,43 @@ local str = {	//TODO: shared
 }
 
 
+
+include("xcf/shared/xcf_util_sh.lua")
+
+local oldvec
+local function vectorhack(bool)
+	if oldvec then return end
+	
+	if bool then
+		oldvec = net.ReadVector
+		net.ReadVector = net.ReadVectorDouble
+	else
+		net.ReadVector = oldvec or net.ReadVector
+		oldvec = nil
+	end
+end
+
+
+
 /**
 	Receive a projectile definition to begin simulating.
 //*/
 function this.ReceiveProj(len)
 
 	local index 	= net.ReadInt(16)
-	local compact 	= net.ReadTable()
+	vectorhack(true)
+	local success, compact 	= pcall(net.ReadTable)
+	vectorhack(false)
+	
+	if not (success and compact) then
+		print("Received an invalid projectile from the server! (" .. index .. ")")
+		return
+	end
 	
 	print("RECV: idx = " .. index .. "\ntbl = ")
-	/*
+	//*
 	printByName(compact)
-	print("RECV END\n\n\n")
+	print("RECV END\n\n")
 	//*/
 	
 	compact.ProjClass = XCF.ProjClasses[compact.ProjClass] or error("Couldn't find appropriate projectile class for " .. compact.ProjClass .. "!")
@@ -46,27 +71,42 @@ net.Receive(str.SEND, this.ReceiveProj)
 
 function this.EndProj(len)
 	local index = net.ReadInt(16)
-	print("ENDP: idx = " .. index)
 	
+	vectorhack(true)
+	local success, update = pcall(net.ReadTable)
+	vectorhack(false)
+	
+	if success and update and not update[0] then 
+		print("ENDDIFF: idx = " .. index .. "\ntbl = ")
+		printByName(update)
+		balls.UpdateProj(index, update)
+	end
+	
+	print("ENDP: idx = " .. index)
 	balls.EndProj(index)
 end
 net.Receive(str.END, this.EndProj)
 
 
-//TODO: this
+
+
 function this.AlterProj(len)
 	local index 	= net.ReadInt(16)
-	local diffs 	= net.ReadTable()
+	vectorhack(true)
+	local success, diffs = pcall(net.ReadTable)
+	vectorhack(false)
+	
+	print(tostring(success), tostring(diffs))
+	
+	if not (success and diffs) then
+		print("Received an invalid update for projectile " .. index .. "!")
+		return
+	end
 	
 	print("DIFF: idx = " .. index .. "\ntbl = ")
 	printByName(diffs)
 	
 	balls.UpdateProj(index, diffs)
 end
-net.Receive(str.END, this.EndProj)
+net.Receive(str.ALTER, this.AlterProj)
 
-/*
-if (Hit == 1) then		--Bullet has reached end of flight, remove old effect
-elseif (Hit == 2) then		--Bullet penetrated, don't remove old effect
-elseif (Hit == 3) then		--Bullet ricocheted, don't remove old effect
-//*/

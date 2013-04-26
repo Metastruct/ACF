@@ -3,18 +3,28 @@
 XCF = XCF or {}
 
 XCF.Projectiles = XCF.Projectiles or {}
-XCF.ProjectilesLimit = 1000  --The maximum number of bullets in flight at any one time
+XCF.ProjectilesLimit = 250  --The maximum number of bullets in flight at any one time
 XCF.LastProj = 0
 
+concommand.Add( "xcf_maxprojectiles", function(ply, cmd, args, str)
+	if ply:IsAdmin() then 
+		XCF.ProjectilesLimit = math.Clamp(tonumber(args[1]), 50, 1000)
+	end
+end)
+
+
 XCF.Ballistics = { //TODO: shared
-	["CL_INIT"] = 1, 
-	["CL_UPDATE"] = 2,
-	["CL_REMOVE"] = 3,
+	// Projectile modification event IDs
+	["PROJ_INIT"] = 1, 
+	["PROJ_UPDATE"] = 2,
+	["PROJ_REMOVE"] = 3,
 	
+	// These correlate with callbacks in the projectile classes.
+	// TODO: move these into the proj classes
 	["HIT_NONE"] = "HitNone",
 	["HIT_END"] = "EndFlight",
 	["HIT_PENETRATE"] = "Penetrate",
-	["HIT_RICOCHET"] = "Ricochet",
+	["HIT_RICOCHET"] = "Ricochet"
 }
 local this = XCF.Ballistics
 
@@ -25,6 +35,8 @@ local netfx = XCF.NetFX
 
 
 function this.Launch( Proj, ProjClass )
+	
+	print(Proj, ProjClass)
 	
 	if not Proj then return end
 	
@@ -39,14 +51,17 @@ function this.Launch( Proj, ProjClass )
 		Proj.ProjClass = ProjClass or XCF.ProjClasses.Shell or error("Tried to create an old projectile, but default projectile class is undefined!")
 	end
 	
-	Proj.ProjClass.Prepare(Proj)	// todo: see if acf framework can support class-based projectiles or if it needs total overhaul
-		
+	Proj.ProjClass.Prepare(Proj)
+	
+	local idxproj = XCF.Projectiles[curind]
+	if idxproj then this.RemoveProj(curind, true) end
+	
 	XCF.Projectiles[curind] = Proj
 	Proj.Index = curind
 	
 	printByName(Proj)
 	
-	this.NotifyClients(curind, Proj, this.CL_INIT)
+	this.NotifyClients(curind, Proj, this.PROJ_INIT)
 	this.CalcFlight(curind, Proj)
 	
 	return Proj
@@ -59,7 +74,6 @@ function this.ProjLoop()
 
 	local Proj
 	for i, Proj in pairs(XCF.Projectiles) do
-		//print(i, Proj)
 		if not Proj then continue end
 		if not Proj.ProjClass then print("Removing glitched projectile (no assigned class)") this.RemoveProj(i) continue end
 		
@@ -72,12 +86,16 @@ hook.Add("Think", "XCF.ProjLoop", this.ProjLoop)
 
 
 
-function this.RemoveProj( Index )
+//TODO: make quiet work (remove projectile without any end effects, must notify client)
+function this.RemoveProj( Index, quiet )
 	
 	local Proj = XCF.Projectiles[Index]
+	if not Proj then return end
 	XCF.Projectiles[Index] = nil
-	this.NotifyClients(Index, Proj, this.CL_REMOVE)
-	Proj.ProjClass.Removed(Proj) // todo: see if acf framework can support class-based projectiles or if it needs total overhaul
+	
+	this.NotifyClients(Index, Proj, this.PROJ_REMOVE)
+	local removed = Proj.ProjClass.Removed
+	if removed then removed(Proj) end
 	
 end
 
@@ -87,10 +105,20 @@ end
 function this.CalcFlight( Index, Proj )
 	
 	local result, trace = Proj.ProjClass.DoFlight(Proj)
-	if not result then this.RemoveProj(Index) return end
-	
-	if result != this.HIT_NONE then 
-		Proj.ProjClass[result](Index, Proj, trace)
+	if not result then
+		print("Projectile did not return a result value: removing.")
+		this.RemoveProj(Index)
+		return
+	end
+
+	local callback
+	if result then
+		callback = Proj.ProjClass[result]
+		if not callback then return end
+		
+		local update, type = callback(Index, Proj, trace)
+		if type then this.NotifyClients(Index, Bullet, type, update) end
+		if type == this.PROJ_REMOVE then this.RemoveProj(Index) end
 	end
 	
 end
@@ -98,58 +126,44 @@ end
 
 
 
+/*
 local hittable = {}
-hittable[0] = function( Index, Bullet, Type, Hit, HitPos )	// update in flight
+hittable[this.CL_HIT_NONE] = function( Index, Bullet, Type, Hit, HitPos )	// update in flight
 		local ret =  Bullet.ProjClass.GetUpdate()
 		ret.UpdateType = this.HIT_NONE
 		return ret
 	end
-hittable[1] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
+hittable[this.CL_HIT_END] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
 		local ret =  Bullet.ProjClass.GetUpdate()
 		ret.UpdateType = this.HIT_END
 		return ret
 	end
-hittable[2] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
+hittable[this.CL_HIT_PENETRATE] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
 		local ret =  Bullet.ProjClass.GetUpdate()
 		ret.UpdateType = this.HIT_PENETRATE
 		return ret
 	end
-hittable[3] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
+hittable[this.CL_HIT_RICOCHET] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
 		local ret =  Bullet.ProjClass.GetUpdate()
 		ret.UpdateType = this.HIT_RICOCHET
 		return ret
 	end
-	
-	
-	
-// TODO: net library
-function this.NotifyClients( Index, Bullet, Type, Hit, HitPos )
+//*/
 
-	if Type == this.CL_UPDATE then
-		netfx.AlterProj(Index, hittable[Hit]())
-	elseif Type == this.CL_REMOVE then
-		netfx.EndProj(Index)
-	else
+	
+	
+	
+function this.NotifyClients( Index, Bullet, Type, update)
+
+	if Type == this.PROJ_UPDATE then
+		netfx.AlterProj(Index, update)
+	elseif Type == this.PROJ_REMOVE then
+		netfx.EndProj(Index, update)
+	elseif Type == this.PROJ_INIT then
 		netfx.SendProj(Index, Bullet)
+	else
+		error("Tried to send an unrecognized client update type (" .. tostring(Type) .. ")!\n" .. debug.traceback())
 	end
 
 end
 
-
-
-
-/* TODO: figure out the significance of having these defined in the ballistics file
-
-function ACF_BulletWorldImpact( Bullet, Index, HitPos, HitNormal )
-	--You overwrite this with your own function, defined in the ammo definition file
-end
-
-function ACF_BulletPropImpact( Bullet, Index, Target, HitNormal, HitPos )
-	--You overwrite this with your own function, defined in the ammo definition file
-end
-
-function ACF_BulletEndFlight( Bullet, Index, HitPos )
-	--You overwrite this with your own function, defined in the ammo definition file
-end
-
-//*/

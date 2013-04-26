@@ -65,6 +65,9 @@ end
 
 
 function EFFECT:HitEnd()
+	print("effect hit end")
+	if self.hasHitEnd then return end
+	self.hasHitEnd = true
 	local bullet = self.Bullet
 	self:Remove()
 	if bullet then
@@ -75,6 +78,7 @@ end
 
 
 function EFFECT:HitPierce()
+	print("effect hit pierce")
 	local bullet = self.Bullet
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
@@ -84,6 +88,7 @@ end
 
 
 function EFFECT:HitRicochet()
+	print("effect hit rico")
 	local bullet = self.Bullet
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
