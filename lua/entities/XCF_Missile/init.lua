@@ -221,7 +221,7 @@ function ENT:CalcFlight()
 	local Drag = (Dir*Speed^3) / 10000000 * self.BulletData.DragCoef
 	local Motor = Dir * self.BulletData.Motor
 	local Drift = VectorRand() * self.BulletData.Drift * Step
-	print(self.BulletData.Flight:Length() / 39.37, Motor:Length(), Drag:Length())
+	print(self.BulletData.Flight:Length() / 39.37, self.BulletData.Accel:Length(), Motor:Length(), Drag:Length(), Drift:Length())
 	self.BulletData.Flight = self.BulletData.Flight + (self.BulletData.Accel + Motor - Drag + Drift) * DeltaTime		--Calculates the next shell vector 
 	self.BulletData.Dir = (Dir*(Speed/2) + self.BulletData.Flight):GetNormalized()
 	
@@ -303,6 +303,11 @@ end
 
 
 function ENT:SetCrate(crate)
+
+	if crate.BulletData then
+		table.Merge(self.BulletData, crate.BulletData)
+	end
+
 	self.BulletData.Crate = crate:EntIndex()
 	
 	crate:SetNetworkedInt( "Caliber",		self.BulletData.Caliber or 10 )
@@ -312,6 +317,7 @@ function ENT:SetCrate(crate)
 	crate:SetNetworkedString( "AmmoType",	self.BulletData.Type or "AP" )
 	crate:SetNetworkedInt( "Tracer",  		self.BulletData.Tracer or 0)
 	crate:SetNetworkedVector( "Accel",		self.BulletData.Accel or Vector(0,0,-600))
+	
 end
 
 

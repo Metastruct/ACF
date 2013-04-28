@@ -98,7 +98,7 @@ function SWEP:MuzzleEffect()
 	
 	local Effect = EffectData()
 		Effect:SetEntity( self )
-		Effect:SetScale( self.BulletData["PropMass"] )
+		Effect:SetScale( self.BulletData["PropMass"] or 1 )
 		Effect:SetMagnitude( self.ReloadTime )
 		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData["Type"]]["netid"] or 1 )	--Encoding the ammo type into a table index
 	util.Effect( "XCF_SWEPMuzzleFlash", Effect, true, true )

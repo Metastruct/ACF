@@ -72,17 +72,17 @@ SWEP.Launcher = true
 function SWEP:Reload()
 	if self.Zoomed then return false end
 
+	local reloaded = self:DefaultReload( ACT_VM_RELOAD )
+	
 	if SERVER then
 		
 		local crate = self.Owner:GetEyeTrace().Entity
-		if crate:GetClass() == "acf_ammo" and self.Owner:GetPos():Distance(crate:GetPos()) < 200 then
+		if reloaded and crate:GetClass() == "acf_ammo" and self.Owner:GetPos():Distance(crate:GetPos()) < 200 then
 			self:GrabRocketFromCrate(crate)
 		end
 	
 		self.Owner:DoReloadEvent()
 	end
-	
-	local reloaded = self:DefaultReload( ACT_VM_RELOAD )
 	
 	if reloaded then
 		self.Inaccuracy = self.MaxInaccuracy

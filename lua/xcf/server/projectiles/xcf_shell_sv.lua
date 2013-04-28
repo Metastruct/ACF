@@ -99,7 +99,7 @@ function this.DoTrace(Bullet)
 	local FlightRes = util.TraceLine(FlightTr)					--Trace to see if it will hit anything
 	
 	
-	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 2, Color(0, 255, 255), false )
+	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 4, Color(0, 255, 255), false )
 	
 	
 	if FlightRes.HitNonWorld then
@@ -138,6 +138,8 @@ end
 //*/
 function this.Penetrate(Index, Proj, FlightRes)
 	if Proj.CallbackPenetrate then Proj.CallbackPenetrate(Index, Proj, FlightRes) end
+	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
+	debugoverlay.Text( FlightRes.HitPos, "PENETRATE: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	this.DoTrace(Proj)
 	
 	local ret = this.GetUpdate(Proj)
@@ -150,6 +152,8 @@ end
 function this.Ricochet(Index, Proj, FlightRes)
 	if Proj.CallbackRicochet then Proj.CallbackRicochet(Index, Proj, FlightRes) end
 	Proj.FlightTime = 0	// TODO: find a better way of temporarily invalidating backtracing.
+	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
+	debugoverlay.Text( FlightRes.HitPos, "RICOCHET: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	this.DoFlight( Proj )
 	
 	local ret = this.GetUpdate(Proj)
@@ -162,6 +166,8 @@ end
 function this.EndFlight(Index, Proj, FlightRes)
 	if Proj.CallbackEndFlight then Proj.CallbackEndFlight(Index, Proj, FlightRes) end
 	ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
+	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
+	debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	
 	local ret = this.GetUpdate(Proj)
 	ret.UpdateType = balls.HIT_END

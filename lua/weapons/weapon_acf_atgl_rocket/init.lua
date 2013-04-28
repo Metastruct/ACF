@@ -114,6 +114,9 @@ function SWEP:FireBullet()
 	XCF_CreateDumbMissile(self.BulletData, true)
 	//XCF_CreateBulletSWEP(self.BulletData, self)
 	//*/
+	
+	printByName(self.BulletData)
+	
 	local rocket = ents.Create( "XCF_Missile" )
 	rocket:SetPos(MuzzlePos2)
 	rocket:SetAngles(MuzzleVecFinal:Angle())
@@ -140,15 +143,17 @@ function SWEP:GrabRocketFromCrate(crate)
 	if not ammotbl then return false end
 	if not ammotbl.gunclass == "RK" then return false end
 	
-	local rkdata = {}
-	rkdata.Id = Data1		--Weapon this round loads into, ie 140mmC, 105mmH ...
-	rkdata.Type = Data2		--Type of round, IE AP, HE, HEAT ...
-	rkdata.PropLength = Data3--Lenght of propellant
-	rkdata.ProjLength = Data4--Lenght of the projectile
-	rkdata.FillerVol = ( Data5 or 0 )
-	rkdata.ConeAng = ( Data6 or 0 )
+	print(tostring(crate))
 	
-	XCF_GenerateMissileInfo( rkdata )
+	local rkdata = {}
+	rkdata.Id = crate.RoundId		--Weapon this round loads into, ie 140mmC, 105mmH ...
+	rkdata.Type = crate.RoundType		--Type of round, IE AP, HE, HEAT ...
+	rkdata.PropLength = crate.RoundPropellant--Lenght of propellant
+	rkdata.ProjLength = crate.RoundProjectile--Lenght of the projectile
+	rkdata.FillerVol = ( crate.RoundData5 or 0 )
+	rkdata.ConeAng = ( crate.RoundData6 or 0 )
+	
+	rkdata = XCF_GenerateMissileInfo( rkdata, true )
 	
 	rkdata.Crate = -1
 	
