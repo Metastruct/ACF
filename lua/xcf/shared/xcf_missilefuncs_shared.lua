@@ -15,8 +15,6 @@ local noboom = {["HP"] = true, ["SM"] = true, ["AP"] = true}	// should have a bl
 local hollow = {["HEAT"] = true, ["SM"] = true, ["HE"] = true}	// should be hollow except for warhead?
 function XCF_GenerateMissileInfo( partial, docopy )
 
-	printByName(partial)
-
 	local conversion = ACF.RoundTypes[partial.Type].convert
 	if not conversion then Error("Couldn't find conversion function for ammo type: " .. partial.AmmoType) end
 	

@@ -141,9 +141,7 @@ function SWEP:GrabRocketFromCrate(crate)
 	local ammotbl = ACF.Weapons.Guns[ammotype]
 	
 	if not ammotbl then return false end
-	if not ammotbl.gunclass == "RK" then return false end
-	
-	print(tostring(crate))
+	if ammotbl.gunclass ~= "RK" then return false end
 	
 	local rkdata = {}
 	rkdata.Id = crate.RoundId		--Weapon this round loads into, ie 140mmC, 105mmH ...

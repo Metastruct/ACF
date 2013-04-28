@@ -221,12 +221,11 @@ function ENT:CalcFlight()
 	local Drag = (Dir*Speed^3) / 10000000 * self.BulletData.DragCoef
 	local Motor = Dir * self.BulletData.Motor
 	local Drift = VectorRand() * self.BulletData.Drift * Step
-	print(self.BulletData.Flight:Length() / 39.37, self.BulletData.Accel:Length(), Motor:Length(), Drag:Length(), Drift:Length())
+	//print(self.BulletData.Flight:Length() / 39.37, self.BulletData.Accel:Length(), Motor:Length(), Drag:Length(), Drift:Length())
 	self.BulletData.Flight = self.BulletData.Flight + (self.BulletData.Accel + Motor - Drag + Drift) * DeltaTime		--Calculates the next shell vector 
 	self.BulletData.Dir = (Dir*(Speed/2) + self.BulletData.Flight):GetNormalized()
 	
 	if Time > self.FutureCutout then 
-		print("cutout")
 		self.BulletData.Motor = 0
 		if self.Trail then
 			self.Trail:Fire("Kill", "", 0)
@@ -234,7 +233,7 @@ function ENT:CalcFlight()
 		end
 	end
 	
-	debugoverlay.Line( self.BulletData.Pos, NextPos, 20, CLIENT and Color(255, 255, 0) or Color(255, 0, 0) )
+	debugoverlay.Line( self.BulletData.Pos, NextPos, 4, CLIENT and Color(255, 255, 0) or Color(0, 255, 255) )
 	
 	self:DoFlight( NextPos , Speed )
 	
@@ -325,7 +324,6 @@ end
 
 function ENT:Detonate( FlightRes )
 
-	print("boom")
 	self.Flying = false
 	//self:BecomeCrate(true)
 	self:SetPos(Vector(0,0,0))
@@ -336,7 +334,6 @@ function ENT:Detonate( FlightRes )
 	
 	self.BulletData["Owner"] = self.Owner
 	self.BulletData.Filter = self.Filter
-	print(self.Owner)
 	
 	self.BulletData = XCF_CreateBulletSWEP( self.BulletData, self )
 	self.MadeBullet = true

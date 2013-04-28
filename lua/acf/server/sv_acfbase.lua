@@ -107,7 +107,7 @@ function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone )
 	local Activated = XCF_Check( Entity, Inflictor )
 	local CanDo = hook.Run("ACF_BulletDamage", Activated, Entity, Energy, FrAera, Angle, Inflictor, Bone, Gun )
 	
-	print("cando is ", CanDo)
+	//print("cando is ", CanDo)
 	
 	if Activated and CanDo != false then
 		if Entity.SpecialDamage then

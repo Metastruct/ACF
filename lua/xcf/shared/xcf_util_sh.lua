@@ -15,7 +15,7 @@ function net.ReadVectorDouble()
 end
 
 
-local XCFDebug = true
+local XCFDebug = false
 function xcf_dbgprint(...)
 	if XCFDebug then
 		print(...)

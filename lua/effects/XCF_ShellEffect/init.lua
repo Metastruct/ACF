@@ -16,12 +16,12 @@ function EFFECT:Config(Bullet)
 
 	self.Bullet = Bullet
 		
-	xcf_dbgprint("Tracer in:", tostring(Bullet.Tracer))
+	//xcf_dbgprint("Tracer in:", tostring(Bullet.Tracer))
 	if Bullet.Tracer and Bullet.Tracer != 0 then
 		Bullet.Tracer = ParticleEmitter( Bullet.Pos )
 		Bullet.Color = Bullet.Color or Color(255, 255, 255)
 	end
-	xcf_dbgprint("Tracer out:", tostring(Bullet.Tracer), Bullet.Color and (Bullet.Color.r .. "," .. Bullet.Color.g .. "," .. Bullet.Color.b) or "no colour")
+	//xcf_dbgprint("Tracer out:", tostring(Bullet.Tracer), Bullet.Color and (Bullet.Color.r .. "," .. Bullet.Color.g .. "," .. Bullet.Color.b) or "no colour")
 		
 	Bullet.Effect = self.Entity
 		

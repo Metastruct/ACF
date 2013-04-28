@@ -28,6 +28,8 @@ end
 
 
 function SWEP:Initialize()
+	print("wep init", self.Owner)
+	if not IsValid(self.Owner) then return end
 	self:SetWeaponHoldType( self.HoldType )
 	self.defaultFOV = self.Owner:GetFOV()
 	self.lastaccuracy = 0
@@ -49,6 +51,8 @@ end
 
 
 function SWEP:AdjustMouseSensitivity()
+	if not self.defaultFOV then self.defaultFOV = self.Owner:GetFOV() end
+
 	if self.HasZoom and self.Zoomed then 
 		return self.ZoomFOV / self.defaultFOV
 	end
@@ -220,9 +224,9 @@ function SWEP:GetViewModelPosition( pos, ang )
 	if not CLIENT then return pos, ang end	// idk.
 	
 	local time = CurTime() * 0.33
-	local accuracy = (self.Inaccuracy * 0.01 + self.lastaccuracy * 0.99) * 0.25
+	local accuracy = (self.Inaccuracy * 0.02 + self.lastaccuracy * 0.98) * 0.25
 	
-	local x = accuracy * math.sin(lissax * time + lissasep)
+	local x = accuracy * math.sin(lissax * time + lissasep + time*0.01)
 	local y = accuracy * math.sin(lissay * time)
 	local sway = Angle(y, x, 0)
 	self.lastaccuracy = accuracy * 4
