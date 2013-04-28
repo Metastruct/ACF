@@ -16,10 +16,12 @@ function EFFECT:Config(Bullet)
 
 	self.Bullet = Bullet
 		
+	xcf_dbgprint("Tracer in:", tostring(Bullet.Tracer))
 	if Bullet.Tracer and Bullet.Tracer != 0 then
 		Bullet.Tracer = ParticleEmitter( Bullet.Pos )
 		Bullet.Color = Bullet.Color or Color(255, 255, 255)
 	end
+	xcf_dbgprint("Tracer out:", tostring(Bullet.Tracer), Bullet.Color and (Bullet.Color.r .. "," .. Bullet.Color.g .. "," .. Bullet.Color.b) or "no colour")
 		
 	Bullet.Effect = self.Entity
 		
@@ -65,8 +67,8 @@ end
 
 
 function EFFECT:HitEnd()
-	print("effect hit end")
 	if self.hasHitEnd then return end
+	
 	self.hasHitEnd = true
 	local bullet = self.Bullet
 	self:Remove()
@@ -78,7 +80,6 @@ end
 
 
 function EFFECT:HitPierce()
-	print("effect hit pierce")
 	local bullet = self.Bullet
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
@@ -88,7 +89,6 @@ end
 
 
 function EFFECT:HitRicochet()
-	print("effect hit rico")
 	local bullet = self.Bullet
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
@@ -121,6 +121,7 @@ function EFFECT:ApplyMovement( Bullet )
 	self:SetPos( Bullet.Pos )									--Moving the effect to the calculated position
 	self:SetAngles( Bullet.Flight:Angle() )
 	
+	//xcf_dbgprint("Tracer think:", tostring(Bullet.Tracer))
 	if Bullet.Tracer and Bullet.Tracer != 0 then
 		local DeltaTime = CurTime() - self.LastThink
 		local DeltaPos = Bullet.Flight*DeltaTime
@@ -130,7 +131,7 @@ function EFFECT:ApplyMovement( Bullet )
 			if (Light) then		
 				Light:SetAngles( Bullet.Flight:Angle() )
 				Light:SetVelocity( Bullet.Flight:GetNormalized() )
-				Light:SetColor( Bullet.Color.x, Bullet.Color.y, Bullet.Color.z )
+				Light:SetColor( Bullet.Color.r, Bullet.Color.g, Bullet.Color.b )
 				Light:SetDieTime( 0.1 )
 				Light:SetStartAlpha( 255 )
 				Light:SetEndAlpha( 155 )

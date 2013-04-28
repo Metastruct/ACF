@@ -3,8 +3,8 @@ include('shared.lua')
 SWEP.DrawAmmo			= true
 SWEP.DrawWeaponInfoBox	= true
 SWEP.BounceWeaponIcon   = true
-SWEP.SwayScale			= 2.0					-- The scale of the viewmodel sway
-SWEP.BobScale			= 2.0					-- The scale of the viewmodel bob
+SWEP.SwayScale			= 0					-- The scale of the viewmodel sway
+SWEP.BobScale			= 2					-- The scale of the viewmodel bob
 SWEP.IsACF				= true
 
 
@@ -30,6 +30,7 @@ end
 function SWEP:Initialize()
 	self:SetWeaponHoldType( self.HoldType )
 	self.defaultFOV = self.Owner:GetFOV()
+	self.lastaccuracy = 0
 	//self.Zoomed = false
 	/*
 	self.VMInstance = self.Owner:GetViewModel()
@@ -207,28 +208,26 @@ end
 
 
 
+/*
 SWEP.LastWobble = Vector()
 SWEP.WobbleTo = Vector()
 SWEP.LastWobblePoll = CurTime()
-local wobbleinfluence = 0.99
-local wobblepoll = math.Rand(0.4, 0.7)
+//*/
+local lissax = 3
+local lissay = 4
+local lissasep = math.pi / 2
 function SWEP:GetViewModelPosition( pos, ang )
-
-	if not CLIENT then return end	// idk.
-
-	if self.LastWobblePoll < CurTime() - wobblepoll then
-		self.WobbleTo = self:inaccuracy(Vector(1, 0, 0), self.Inaccuracy)
-		self.LastWobblePoll = CurTime()
-		wobblepoll = math.Rand(0.4, 0.7)
-	end
+	if not CLIENT then return pos, ang end	// idk.
 	
-	local trace = LocalPlayer():GetEyeTrace()
+	local time = CurTime() * 0.33
+	local accuracy = (self.Inaccuracy * 0.01 + self.lastaccuracy * 0.99) * 0.25
 	
-	//local aim = self.Owner:GetAimVector()
-	local aim = (trace.HitPos - trace.StartPos):GetNormalized()
-	local wobble = self.LastWobble
-	wobble = self.WobbleTo * (1 - wobbleinfluence) + wobble * wobbleinfluence
-	self.LastWobble = wobble
-	local pos2, aim2 = LocalToWorld(pos, wobble:Angle(), pos, ang)//(aim + wobble):GetNormalized()
+	local x = accuracy * math.sin(lissax * time + lissasep)
+	local y = accuracy * math.sin(lissay * time)
+	local sway = Angle(y, x, 0)
+	self.lastaccuracy = accuracy * 4
+	
+	local pos2, aim2 = LocalToWorld(pos, sway, pos, ang)//(aim + wobble):GetNormalized()
 	return pos, aim2
+
 end

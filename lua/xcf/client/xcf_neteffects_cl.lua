@@ -46,8 +46,8 @@ function this.ReceiveProj(len)
 		return
 	end
 	
+	/*
 	print("RECV: idx = " .. index .. "\ntbl = ")
-	//*
 	printByName(compact)
 	print("RECV END\n\n")
 	//*/
@@ -77,12 +77,14 @@ function this.EndProj(len)
 	vectorhack(false)
 	
 	if success and update and not update[0] then 
+		/*
 		print("ENDDIFF: idx = " .. index .. "\ntbl = ")
 		printByName(update)
+		//*/
 		balls.UpdateProj(index, update)
 	end
 	
-	print("ENDP: idx = " .. index)
+	//print("ENDP: idx = " .. index)
 	balls.EndProj(index)
 end
 net.Receive(str.END, this.EndProj)
@@ -96,15 +98,17 @@ function this.AlterProj(len)
 	local success, diffs = pcall(net.ReadTable)
 	vectorhack(false)
 	
-	print(tostring(success), tostring(diffs))
+	//print(tostring(success), tostring(diffs))
 	
 	if not (success and diffs) then
 		print("Received an invalid update for projectile " .. index .. "!")
 		return
 	end
 	
+	/*
 	print("DIFF: idx = " .. index .. "\ntbl = ")
 	printByName(diffs)
+	//*/
 	
 	balls.UpdateProj(index, diffs)
 end

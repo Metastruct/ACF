@@ -37,9 +37,11 @@ function this.SendProj(Index, Proj)
 
 	local tosend = Proj.ProjClass.GetCompact(Proj)
 	
+	/*
 	print("TO SEND:")
 	printByName(tosend)
 	print("TO SEND END\n\n")
+	//*/
 	
 	net.Start(str.SEND)
 	net.WriteInt(Index, 16)
@@ -75,9 +77,12 @@ end
 util.AddNetworkString(str.ALTER)
 function this.AlterProj(Index, Alterations)
 	if not Alterations then error("Tried to send invalid projectile update (" .. Index .. ")") end
+	
+	/*
 	print("UPDATE OUT:")
 	printByName(Alterations)
 	print("UPDATE END")
+	//*/
 	
 	net.Start(str.ALTER)
 	net.WriteInt(Index, 16)

@@ -6,9 +6,19 @@ XCF.Projectiles = XCF.Projectiles or {}
 XCF.ProjectilesLimit = 250  --The maximum number of bullets in flight at any one time
 XCF.LastProj = 0
 
+local projmin = 50
+local projmax = 1000
 concommand.Add( "xcf_maxprojectiles", function(ply, cmd, args, str)
+	if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
+		"\"xcf_maxprojectiles\" = " .. XCF.ProjectilesLimit .. "\t(min = " .. projmin .. ", max = " .. projmax .. ")" ..
+		"\n - Set the number of flying projectiles at any time." ..
+		"\n   Projs fired after the limit will overwrite the oldest flying projs.")
+		return
+	end
 	if ply:IsAdmin() then 
-		XCF.ProjectilesLimit = math.Clamp(tonumber(args[1]), 50, 1000)
+		XCF.ProjectilesLimit = math.Clamp(tonumber(args[1]) or 0, projmin, projmax)
+	else
+		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't change this because you are not an admin.")
 	end
 end)
 
@@ -36,12 +46,11 @@ local netfx = XCF.NetFX
 
 function this.Launch( Proj, ProjClass )
 	
-	print(Proj, ProjClass)
-	
 	if not Proj then return end
 	
 	Proj = table.Copy(Proj)
 	
+	//xcf_dbgprint(XCF.LastProj, XCF.ProjectilesLimit, XCF.LastProj % XCF.ProjectilesLimit)
 	local curind = (XCF.LastProj % XCF.ProjectilesLimit) + 1 	// TODO: can improve efficiency by caching table length and updating upon add/remove
 	XCF.LastProj = curind
 	
@@ -53,13 +62,13 @@ function this.Launch( Proj, ProjClass )
 	
 	Proj.ProjClass.Prepare(Proj)
 	
+	
 	local idxproj = XCF.Projectiles[curind]
+	xcf_dbgprint("Launching @ index", curind, idxproj and "(existing proj @ index!)" or "")
 	if idxproj then this.RemoveProj(curind, true) end
 	
 	XCF.Projectiles[curind] = Proj
 	Proj.Index = curind
-	
-	printByName(Proj)
 	
 	this.NotifyClients(curind, Proj, this.PROJ_INIT)
 	this.CalcFlight(curind, Proj)
@@ -122,33 +131,6 @@ function this.CalcFlight( Index, Proj )
 	end
 	
 end
-
-
-
-
-/*
-local hittable = {}
-hittable[this.CL_HIT_NONE] = function( Index, Bullet, Type, Hit, HitPos )	// update in flight
-		local ret =  Bullet.ProjClass.GetUpdate()
-		ret.UpdateType = this.HIT_NONE
-		return ret
-	end
-hittable[this.CL_HIT_END] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
-		local ret =  Bullet.ProjClass.GetUpdate()
-		ret.UpdateType = this.HIT_END
-		return ret
-	end
-hittable[this.CL_HIT_PENETRATE] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
-		local ret =  Bullet.ProjClass.GetUpdate()
-		ret.UpdateType = this.HIT_PENETRATE
-		return ret
-	end
-hittable[this.CL_HIT_RICOCHET] = function( Index, Bullet, Type, Hit, HitPos )	// update upon end hit
-		local ret =  Bullet.ProjClass.GetUpdate()
-		ret.UpdateType = this.HIT_RICOCHET
-		return ret
-	end
-//*/
 
 	
 	

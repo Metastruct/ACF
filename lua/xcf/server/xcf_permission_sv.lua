@@ -7,7 +7,7 @@ XCF.Permissions.Selfkill = true
 
 function XCF.DamagePermission(owner, attacker, ent)
 	
-	print("owner=",tostring(owner), "attacker=",tostring(attacker), "ent=",tostring(ent))
+	xcf_dbgprint("permission: owner=",tostring(owner), "attacker=",tostring(attacker), "ent=",tostring(ent))
 	
 	if not CPPI then return true end
 	if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end

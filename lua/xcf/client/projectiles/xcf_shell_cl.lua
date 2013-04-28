@@ -43,11 +43,14 @@ end
 
 
 function this:Launch()
-	print("LAUNCHING " .. tostring(self))
+
 	self.LastThink = SysTime()
 	self.FlightTime = 0
 	
+	/*
+	print("LAUNCHING " .. tostring(self))
 	printByName(self)
+	//*/
 	
 end
 
@@ -77,7 +80,7 @@ end
 
 
 function this:EndFlight()
-	print("ENDING " .. tostring(self))
+	//print("ENDING " .. tostring(self))
 	if IsValid(self.Effect) then
 		self.Effect:HitEnd()
 	end
