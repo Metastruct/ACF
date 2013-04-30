@@ -323,7 +323,7 @@ end
 
 
 function ENT:Detonate( FlightRes )
-
+	
 	self.Flying = false
 	//self:BecomeCrate(true)
 	self:SetPos(Vector(0,0,0))
@@ -332,13 +332,15 @@ function ENT:Detonate( FlightRes )
 		self.Trail = nil
 	end
 	
-	self.BulletData["Owner"] = self.Owner
+	self.BulletData["Owner"] = self.Owner or self:GetOwner() or error("No owner for this missile!")
 	self.BulletData.Filter = self.Filter
 	
-	self.BulletData = XCF_CreateBulletSWEP( self.BulletData, self )
 	self.MadeBullet = true
 	
 	self.Entity:Remove()
+	
+	self.BulletData = XCF_CreateBulletSWEP( self.BulletData, self)
+	
 	//timer.Simple(15, function() if self and self.Entity and IsValid(self.Entity) then self.Entity:Remove() end end)
 	//self.Entity:Remove()
 

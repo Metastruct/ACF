@@ -39,11 +39,17 @@ end
 
 function XCF_CreateBulletSWEP( BulletData, Swep )
 
+	if not IsValid(Swep) then error("Tried to create swep round with no swep or owner!") return end
+	
+	local owner = Swep:IsPlayer() and Swep or Swep.Owner or BulletData.Owner or error("Tried to create swep round with unowned swep!")
+
 	BulletData = table.Copy(BulletData)
-	BulletData.TraceBackComp = Swep.Owner:GetVelocity():Dot(BulletData.Flight:GetNormalized())
-	BulletData.Filter = BulletData.Filter or {}
+	BulletData.TraceBackComp = owner:GetVelocity():Dot(BulletData.Flight:GetNormalized())
 	BulletData.Gun = Swep
-	BulletData.Filter[#BulletData.Filter + 1] = Swep.Owner
+	
+	BulletData.Filter = BulletData.Filter or {}
+	BulletData.Filter[#BulletData.Filter + 1] = Swep
+	BulletData.Filter[#BulletData.Filter + 1] = owner
 	
 	local BulletData = XCF.Ballistics.Launch(BulletData)
 	

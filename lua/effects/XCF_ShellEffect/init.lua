@@ -3,7 +3,7 @@ function EFFECT:Init( data )
 
 	//if not data.BulletData then error("No bulletdata attached to effect data!\n") return end
 
-	self.CreateTime = CurTime()
+	self.CreateTime = SysTime()
 	self.LastThink = self.CreateTime
 	
 	self:SetModel("models/munitions/round_100mm_shot.mdl") 
@@ -34,6 +34,8 @@ end
 
 
 function EFFECT:Update(diffs)
+	
+	if not IsValid(self) then return false end
 	
 	local Bullet = self.Bullet
 	if not Bullet then self:Remove() error("Tried to update effect without a bullet table!") end
@@ -66,7 +68,18 @@ local function copyForRoundFuncs(bullet)
 end
 
 
+local function mergeCopiedRoundBack(bullet, original)
+	bullet.SimPos = nil
+	bullet.SimFlight = nil
+	bullet.ProjMass = bullet.RoundMass
+	bullet.RoundMass = nil
+	
+	table.Merge(original, bullet)
+end
+
+
 function EFFECT:HitEnd()
+	//print("hit end")
 	if self.hasHitEnd then return end
 	
 	self.hasHitEnd = true
@@ -75,24 +88,29 @@ function EFFECT:HitEnd()
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
 		ACF.RoundTypes[bullet.Type]["endeffect"](self, bullet)
+		mergeCopiedRoundBack(bullet, self.Bullet)
 	end
 end
 
 
 function EFFECT:HitPierce()
+	//print("hit pierce")
 	local bullet = self.Bullet
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
 		ACF.RoundTypes[bullet.Type]["pierceeffect"](self, bullet)
+		mergeCopiedRoundBack(bullet, self.Bullet)
 	end
 end
 
 
 function EFFECT:HitRicochet()
+	//print("hit rico")
 	local bullet = self.Bullet
 	if bullet then
 		bullet = copyForRoundFuncs(bullet)
 		ACF.RoundTypes[bullet.Type]["ricocheteffect"](self, bullet)
+		mergeCopiedRoundBack(bullet, self.Bullet)
 	end
 end
 
@@ -100,15 +118,15 @@ end
 
 
 function EFFECT:Think()
-	local curtime = CurTime()
+	local systime = SysTime()
 	//print("think: " .. tostring(self.Bullet.Type))
-	if self.CreateTime < curtime - 30 then	//TODO: check for bullet existence like below
+	if self.CreateTime < systime - 30 then	//TODO: check for bullet existence like below
 		self:Remove()
 		return false
 	end
 	
 	self:ApplyMovement( self.Bullet )
-	self.LastThink = curtime
+	self.LastThink = systime
 	return true
 	
 end 
@@ -123,9 +141,10 @@ function EFFECT:ApplyMovement( Bullet )
 	
 	//xcf_dbgprint("Tracer think:", tostring(Bullet.Tracer))
 	if Bullet.Tracer and Bullet.Tracer != 0 then
-		local DeltaTime = CurTime() - self.LastThink
+		local DeltaTime = SysTime() - self.LastThink
 		local DeltaPos = Bullet.Flight*DeltaTime
-		local Length =  math.max(DeltaPos:Length()*2,1)
+		//print(DeltaPos:Length(), Bullet.Travelled)
+		local Length =  math.Clamp(DeltaPos:Length(), 1, Bullet.Travelled)
 		for i=1, 5 do
 			local Light = Bullet.Tracer:Add( "sprites/light_glow02_add.vmt", Bullet.Pos - (DeltaPos*i/5) )
 			if (Light) then		

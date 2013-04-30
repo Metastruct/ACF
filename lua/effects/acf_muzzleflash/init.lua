@@ -23,7 +23,7 @@
 	
 	
 
-			local Muzzle = Gun:GetAttachment( Gun:LookupAttachment( "muzzle" ) )
+			local Muzzle = Gun:GetAttachment( Gun:LookupAttachment( "muzzle" ) ) or {["Pos"] = Gun:GetPos(), ["Ang"] = Gun:GetAngles()}
 			ParticleEffect( ACF.Classes["GunClass"][Class]["muzzleflash"], Muzzle.Pos, Muzzle.Ang, Gun )
 			Gun:Animate( Class, ReloadTime, false )
 		else

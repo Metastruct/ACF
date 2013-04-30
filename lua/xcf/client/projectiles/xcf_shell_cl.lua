@@ -46,6 +46,7 @@ function this:Launch()
 
 	self.LastThink = SysTime()
 	self.FlightTime = 0
+	self.Travelled = 0
 	
 	/*
 	print("LAUNCHING " .. tostring(self))
@@ -68,9 +69,11 @@ function this:DoFlight()
 	self.NextPos = self.Pos + (self.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
 	self.Flight = self.Flight + (self.Accel - Drag)*DeltaTime				--Calculates the next shell vector
 	self.StartTrace = self.Pos - self.Flight:GetNormalized()*math.min(ACF.PhysMaxVel*DeltaTime, self.FlightTime*Speed)
+	self.Travelled = self.Travelled + (self.NextPos:Distance(self.Pos))
 	self.Pos = self.NextPos
 	self.LastThink = SysTime()
 	self.FlightTime = self.FlightTime + DeltaTime
+	
 	
 	debugoverlay.Line( self.StartTrace, self.NextPos, 4, Color(255, 255, 0), false )
 	

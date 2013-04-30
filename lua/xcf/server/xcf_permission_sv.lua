@@ -12,8 +12,8 @@ function XCF.DamagePermission(owner, attacker, ent)
 	if not CPPI then return true end
 	if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end
 	
-	if not (attacker and IsValid(attacker)) then /*Dbg("Attacker not valid\n")*/ return false end
-	if not (owner and IsValid(owner)) then 
+	if not (attacker and IsValid(attacker) and attacker:IsPlayer()) then /*Dbg("Attacker not valid\n")*/ return false end
+	if not (owner and IsValid(owner) and owner:IsPlayer()) then 
 		if IsValid(ent) and ent:IsPlayer() then 
 			//Dbg("Ent is player ", ent, "\n")
 			owner = ent
@@ -21,6 +21,11 @@ function XCF.DamagePermission(owner, attacker, ent)
 			//Dbg("Owner not valid\n") 
 			return false
 		end
+	end
+	
+	if not (owner.SteamID or attacker.SteamID) then
+		print("XCF ERROR: owner or attacker is not a player!", tostring(owner), tostring(attacker), "\n", debug.traceback())
+		return false
 	end
 	
 	local ownerid = owner:SteamID()
