@@ -140,9 +140,6 @@ function ACF_Kinetic( Speed , Mass, LimitVel )
 		--Energy.Penetration = math.max( KE - (math.max(Speed-LimitVel,0)^2)/(LimitVel*5) * (KE/200)^0.95 , KE*0.1 )
 		--Energy.Penetration = math.max(Energy.Momentum^ACF.KinFudgeFactor - math.max(Speed-LimitVel,0)/(LimitVel*5) * Energy.Momentum , Energy.Momentum*0.1)
 	
-	print("Energy for round collision:")
-	printByName(Energy)
-	
 	return Energy
 end
 
