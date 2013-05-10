@@ -109,7 +109,7 @@ function ENT:Initialize()
 	end 
 		
 	local Time = CurTime()
-	self.ThinkDelay = 0.05
+	self.ThinkDelay = 0.01
 	
 	self.Entity:NextThink( Time + self.ThinkDelay )
 	

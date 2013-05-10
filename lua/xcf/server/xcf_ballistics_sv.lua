@@ -28,13 +28,7 @@ XCF.Ballistics = { //TODO: shared
 	["PROJ_INIT"] = 1, 
 	["PROJ_UPDATE"] = 2,
 	["PROJ_REMOVE"] = 3,
-	
-	// These correlate with callbacks in the projectile classes.
-	// TODO: move these into the proj classes
-	["HIT_NONE"] = "HitNone",
-	["HIT_END"] = "EndFlight",
-	["HIT_PENETRATE"] = "Penetrate",
-	["HIT_RICOCHET"] = "Ricochet"
+	["PROJ_RETRY"] = 4,	// is really update-then-retry
 }
 local this = XCF.Ballistics
 
@@ -69,6 +63,7 @@ function this.Launch( Proj, ProjClass )
 	
 	XCF.Projectiles[curind] = Proj
 	Proj.Index = curind
+	Proj.ProjClass.Launched(Proj)
 	
 	this.NotifyClients(curind, Proj, this.PROJ_INIT)
 	this.CalcFlight(curind, Proj)
@@ -111,9 +106,9 @@ end
 
 
 
-function this.CalcFlight( Index, Proj )
+function this.CalcFlight( Index, Proj, isRetry )
 	
-	local result, trace = Proj.ProjClass.DoFlight(Proj)
+	local result, trace = Proj.ProjClass.DoFlight(Proj, isRetry)
 	if not result then
 		print("Projectile did not return a result value: removing.")
 		this.RemoveProj(Index)
@@ -127,7 +122,9 @@ function this.CalcFlight( Index, Proj )
 		
 		local update, type = callback(Index, Proj, trace)
 		if type then this.NotifyClients(Index, Bullet, type, update) end
-		if type == this.PROJ_REMOVE then this.RemoveProj(Index) end
+		// TODO: use retry on penetration etc once recursion limit is in place
+		if 		type == this.PROJ_RETRY  then this.CalcFlight(Index, Proj, update or true)
+		elseif 	type == this.PROJ_REMOVE then this.RemoveProj(Index) end
 	end
 	
 end

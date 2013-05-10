@@ -15,42 +15,45 @@ function SWEP:Initialize()
 	self:SetWeaponHoldType(self.HoldType)
 	
 	self.BulletData = {}
-	/* rpg
-	self.BulletData["BlastRadius"]		= 164.53173881845
-	self.BulletData["BoomPower"]		= 47.83654034402
-	self.BulletData["Caliber"]			= 17
-	self.BulletData["CasingMass"]		= 9.0974532297589
-	self.BulletData["Cutout"]			= 4.2294422836372
-	self.BulletData["Detonated"]		= false
-	self.BulletData["DragCoef"]			= 0.00049301889893239
-	self.BulletData["Drift"]			= 13.252999329603
-	self.BulletData["FillerMass"]		= 36.94147154402
-	self.BulletData["FrAera"]			= 226.9806
-	self.BulletData["Id"]				= "170mmRK"
-	self.BulletData["KETransfert"]		= 0.1
+	//* rpg
+	self.BulletData["BlastRadius"]			= 53.542728888373
+	self.BulletData["BoomPower"]			= 2.9305305970856
+	self.BulletData["Caliber"]			= 8.5
+	self.BulletData["CasingMass"]			= 0.29570050752128
+	self.BulletData["ConeAng"]			= 60
+	self.BulletData["Cutout"]			= 0.35416583847288
+	self.BulletData["Detonated"]			= false
+	self.BulletData["DragCoef"]			= 0.0037179919757052
+	self.BulletData["Drift"]			= 5.567397921999
+	self.BulletData["FillerMass"]			= 1.2305305970856
+	self.BulletData["FillerVol"]			= 50000
+	self.BulletData["FrAera"]			= 56.74515
+	self.BulletData["Id"]			= "85mmRK"
+	self.BulletData["KETransfert"]			= 0.1
 	self.BulletData["LimitVel"]			= 100
-	self.BulletData["Mass"]				= 56.933993573779
-	self.BulletData["Motor"]			= 84.308155790614
-	self.BulletData["MuzzleVel"]		= 520.72248960355
-	self.BulletData["PenAera"]			= 100.5982506735
-	self.BulletData["ProjLength"]		= 130
-	self.BulletData["ProjMass"]			= 46.038924773779
-	self.BulletData["PropLength"]		= 30
-	self.BulletData["PropMass"]			= 10.8950688
+	self.BulletData["Mass"]			= 3.2262311046069
+	self.BulletData["Motor"]			= 24406.187110267
+	self.BulletData["MuzzleVel"]			= 114
+	self.BulletData["PenAera"]			= 30.962743577239
+	self.BulletData["ProjLength"]			= 21
+	self.BulletData["ProjMass"]			= 1.5262311046069
+	self.BulletData["PropLength"]			= 18.724067166974
+	self.BulletData["PropMass"]			= 1.7
 	self.BulletData["Ricochet"]			= 60
-	self.BulletData["RoundVolume"]		= 36316.896
-	self.BulletData["ShovePower"]		= 0.1
-	self.BulletData["SlugCaliber"]		= 3.8331761017484
-	self.BulletData["SlugDragCoef"]		= 0.00094641953709837
-	self.BulletData["SlugMV"]			= 2776.4155155407
-	self.BulletData["SlugMass"]			= 1.2193397832
-	self.BulletData["SlugPenAera"]		= 7.9960808097539
-	self.BulletData["SlugRicochet"]		= 500
+	self.BulletData["RoundVolume"]			= 2254.14815
+	self.BulletData["ShovePower"]			= 0.1
+	self.BulletData["SlugCaliber"]			= 1.9165880508742
+	self.BulletData["SlugDragCoef"]			= 0.0018928390741967
+	self.BulletData["SlugMV"]			= 1057.3584926577
+	self.BulletData["SlugMass"]			= 0.1524174729
+	self.BulletData["SlugPenAera"]			= 2.4610825543958
+	self.BulletData["SlugRicochet"]			= 500
 	self.BulletData["Tracer"]			= 0
-	self.BulletData["Type"]				= "HEAT"
+	self.BulletData["Type"]			= "HEAT"
+	self.BulletData["InvalidateTraceback"]			= true
 	//*/
 	
-	//* dumbfire
+	/* dumbfire
 	self.BulletData["BlastRadius"]			= 155.65293089663
 	self.BulletData["BoomPower"]			= 42.120393621566
 	self.BulletData["Caliber"]			= 17
@@ -117,6 +120,7 @@ function SWEP:FireBullet()
 	
 	printByName(self.BulletData)
 	
+	/*
 	local rocket = ents.Create( "XCF_Missile" )
 	rocket:SetPos(MuzzlePos2)
 	rocket:SetAngles(MuzzleVecFinal:Angle())
@@ -125,6 +129,15 @@ function SWEP:FireBullet()
 	rocket:SetCrate(self)
 	rocket:Launch()
 	myrokkit = rocket
+	//*/
+	
+	self.BulletData["Pos"] = MuzzlePos
+	self.BulletData["Flight"] = MuzzleVecFinal * self.BulletData["MuzzleVel"] * 39.37 + self.Owner:GetVelocity()
+	self.BulletData["Owner"] = self.Owner
+	self.BulletData["Gun"] = self
+	self.BulletData.ProjClass = XCF.ProjClasses.Rocket or error("Could not find the Rocket projectile type!")
+	
+	XCF_CreateBulletSWEP(self.BulletData, self)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
 	
@@ -141,7 +154,10 @@ function SWEP:GrabRocketFromCrate(crate)
 	local ammotbl = ACF.Weapons.Guns[ammotype]
 	
 	if not ammotbl then return false end
-	if ammotbl.gunclass ~= "RK" then return false end
+	if ammotbl.gunclass ~= "RK" or ammotype ~= "85mmRK" then
+		self.Owner:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "You can only reload this weapon with 85mm RPG Rounds!", "NOTIFY_GENERIC" ) )
+		return false
+	end
 	
 	local rkdata = {}
 	rkdata.Id = crate.RoundId		--Weapon this round loads into, ie 140mmC, 105mmH ...

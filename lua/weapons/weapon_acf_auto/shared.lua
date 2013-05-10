@@ -22,9 +22,9 @@ SWEP.ViewModelFlip			= false
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
-SWEP.ViewModel 			= "models/weapons/v_rif_aug.mdl";
-SWEP.WorldModel 		= "models/weapons/w_rif_aug.mdl";
-SWEP.ViewModelFlip		= true
+SWEP.ViewModel 			= "models/weapons/v_rif_galil.mdl";
+SWEP.WorldModel 		= "models/weapons/w_rif_galil.mdl";
+SWEP.ViewModelFlip		= false
 
 SWEP.Weight				= 5
 SWEP.AutoSwitchTo		= false
@@ -36,9 +36,9 @@ SWEP.Primary.Delay			= 0.13
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
-SWEP.Primary.Sound 			= "Weapon_AUG.Single"
+SWEP.Primary.Sound 			= "Weapon_Galil.Single"
 
-SWEP.ReloadTime				= 5
+SWEP.ReloadTime				= 3.5
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1

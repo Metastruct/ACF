@@ -40,7 +40,7 @@ SWEP.Primary.Sound 			= "weapons/launcher_fire.wav"
 
 util.PrecacheSound( SWEP.Primary.Sound )
 
-SWEP.ReloadTime				= 5
+SWEP.ReloadTime				= 3
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -54,7 +54,7 @@ SWEP.WeaponBone = false
 SWEP.MinInaccuracy = 1
 SWEP.MaxInaccuracy = 12
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.05
+SWEP.InaccuracyDecay = 0.07
 SWEP.AccuracyDecay = 0.3
 SWEP.InaccuracyPerShot = 7
 SWEP.InaccuracyCrouchBonus = 1.7

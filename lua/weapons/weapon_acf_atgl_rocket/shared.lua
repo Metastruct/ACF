@@ -40,7 +40,7 @@ SWEP.Primary.Sound 			= "weapons/launcher_fire.wav"
 
 util.PrecacheSound( SWEP.Primary.Sound )
 
-SWEP.ReloadTime				= 5
+SWEP.ReloadTime				= 3
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -77,7 +77,7 @@ function SWEP:Reload()
 	if SERVER then
 		
 		local crate = self.Owner:GetEyeTrace().Entity
-		if reloaded and crate:GetClass() == "acf_ammo" and self.Owner:GetPos():Distance(crate:GetPos()) < 200 then
+		if reloaded and IsValid(crate) and crate:GetClass() == "acf_ammo" and self.Owner:GetPos():Distance(crate:GetPos()) < 200 then
 			self:GrabRocketFromCrate(crate)
 		end
 	

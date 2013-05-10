@@ -60,6 +60,7 @@ SWEP.AccuracyDecay = 0.3
 SWEP.InaccuracyPerShot = 7
 SWEP.InaccuracyCrouchBonus = 1.7
 SWEP.InaccuracyDuckPenalty = 6
+SWEP.InaccuracyAimLimit = 4
 
 SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004
@@ -93,6 +94,7 @@ function SWEP:Think()
 
 	if self.ThinkBefore then self:ThinkBefore() end
 
+	local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )	
 	
 	if CLIENT then
 		local zoomed = self:GetNetworkedBool("Zoomed")
@@ -125,50 +127,65 @@ function SWEP:Think()
 	end
 	
 	
-	local timediff = (RealTime() - self.LastThink) * 66
+	local timediff = RealTime() - self.LastThink
 	
 	//print(self.Owner:GetVelocity():Length())
 	
-	local inaccuracydiff = self.MaxInaccuracy - self.MinInaccuracy
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+		self.Inaccuracy = self.MaxInaccuracy
+	elseif not isReloading then
 	
-	//local vel = math.Clamp(math.sqrt(self.Owner:GetVelocity():Length()/400), 0, 1) * inaccuracydiff	// max vel possible is 3500
-	local vel = math.Clamp(self.Owner:GetVelocity():Length()/400, 0, 1) * inaccuracydiff	// max vel possible is 3500
-	local aim = self.Owner:GetAimVector()
-	local diffaim = math.pow((aim - self.LastAim):Length(), 1) * 100
-	local crouching = self.Owner:Crouching()
-	local decay = self.InaccuracyDecay
-	local penalty = 0
+		local inaccuracydiff = self.MaxInaccuracy - self.MinInaccuracy
+		
+		//local vel = math.Clamp(math.sqrt(self.Owner:GetVelocity():Length()/400), 0, 1) * inaccuracydiff	// max vel possible is 3500
+		local vel = math.Clamp(self.Owner:GetVelocity():Length()/400, 0, 1) * inaccuracydiff	// max vel possible is 3500
+		local aim = self.Owner:GetAimVector()
+		
+		local difflimit = self.InaccuracyAimLimit - self.Inaccuracy
+		difflimit = difflimit < 0 and 0 or difflimit
+		
+		local diffaim = math.min(aim:Distance(self.LastAim) * 30, difflimit)
+		
+		local crouching = self.Owner:Crouching()
+		local decay = self.InaccuracyDecay
+		local penalty = 0
+		
+		//print(self.Owner:KeyDown(IN_SPEED), self.Owner:KeyDown(IN_RUN))
+		
+		local healthFract = self.Owner:Health() / 100
+		self.MaxStamina = math.Clamp(healthFract, 0, 1)
+		
+		if self.Owner:KeyDown(IN_SPEED) then
+			self.Stamina = math.Clamp(self.Stamina - self.StaminaDrain, 0, 1)
+		else
+			local recover = (crouching and self.StaminaDrain * self.InaccuracyCrouchBonus or self.StaminaDrain) * 0.33
+			self.Stamina = math.Clamp(self.Stamina + recover, 0, self.MaxStamina)
+		end
+		
+		decay = decay * self.Stamina
+		
+		if crouching then
+			decay = decay * self.InaccuracyCrouchBonus
+		end
+		
+		if self.WasCrouched != crouching then
+			penalty = penalty + self.InaccuracyDuckPenalty
+		end
+		
+		//self.Inaccuracy = math.Clamp(self.Inaccuracy + (vel + diffaim + penalty - decay) * timediff, self.MinInaccuracy, self.MaxInaccuracy)
+		local rawinaccuracy = self.MinInaccuracy + vel
+		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, decay, self.AccuracyDecay) + penalty + diffaim
+		self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
+		
+		//print("inacc", self.Inaccuracy)
+		
+		self.LastAim = aim
+		self.LastThink = RealTime()
+		self.WasCrouched = self.Owner:Crouching()
 	
-	//print(self.Owner:KeyDown(IN_SPEED), self.Owner:KeyDown(IN_RUN))
+		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
 	
-	local healthFract = self.Owner:Health() / 100
-	self.MaxStamina = math.Clamp(healthFract, 0, 1)
-	
-	if self.Owner:KeyDown(IN_SPEED) then
-		self.Stamina = math.Clamp(self.Stamina - self.StaminaDrain, 0, 1)
-	else
-		local recover = (crouching and self.StaminaDrain * self.InaccuracyCrouchBonus or self.StaminaDrain) * 0.33
-		self.Stamina = math.Clamp(self.Stamina + recover, 0, self.MaxStamina)
 	end
-	
-	decay = decay * self.Stamina
-	
-	if crouching then
-		decay = decay * self.InaccuracyCrouchBonus
-	end
-	
-	if self.WasCrouched != crouching then
-		penalty = penalty + self.InaccuracyDuckPenalty
-	end
-	
-	//self.Inaccuracy = math.Clamp(self.Inaccuracy + (vel + diffaim + penalty - decay) * timediff, self.MinInaccuracy, self.MaxInaccuracy)
-	local rawinaccuracy = self.MinInaccuracy + (vel + diffaim) * timediff
-	local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, decay, self.AccuracyDecay) + penalty
-	self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
-	
-	self.LastAim = aim
-	self.LastThink = RealTime()
-	self.WasCrouched = self.Owner:Crouching()
 	
 	if self.ThinkAfter then self:ThinkAfter() end
 	
@@ -209,6 +226,10 @@ end
 
 
 function SWEP:CanPrimaryAttack()
+	if self.Weapon:GetNetworkedBool( "reloading", false ) then return false end
+
+	//if CurTime() > self.Weapon:GetNextPrimaryFire() then return end
+	
 	if self.Weapon:Clip1() <= 0 then
 		self.Weapon:EmitSound( "Weapon_Pistol.Empty", 100, math.random(90,120) )
 		return false
@@ -258,17 +279,27 @@ end
 
 
 function SWEP:Reload()
-	if self.Zoomed then return false end
 
-	if SERVER then
-		self.Owner:DoReloadEvent()
-	end
+	if self.Weapon:GetNetworkedBool( "reloading", false ) then return end
+
+	if self.Zoomed then return false end
 	
-	local reloaded = self:DefaultReload( ACT_VM_RELOAD )
+	if self:Clip1() < self.Primary.ClipSize and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 then
+		if SERVER then
+			self.Weapon:SetNetworkedBool( "reloading", true )
+			//self.Weapon:SetVar( "reloadtimer", RealTime() + self.ReloadTime )
+			timer.Simple(self.ReloadTime, function() self.Weapon:SetNetworkedBool( "reloading", false ) end)
+			self.Weapon:SetNextPrimaryFire(CurTime() + self.ReloadTime)
+			self.Owner:DoReloadEvent()
+		end
+		
+		local reloaded = self:DefaultReload( ACT_VM_RELOAD )
 	
-	if reloaded then
+		print("do reload!")
+	
 		self.Inaccuracy = self.MaxInaccuracy
 	end
+
 end
 
 

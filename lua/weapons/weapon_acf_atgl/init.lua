@@ -45,6 +45,7 @@ function SWEP:Initialize()
 	self.BulletData["Tracer"]	=	1
 	self.BulletData["Type"]	=	"HEAT"
 	self.BulletData["Crate"] = -1
+	self.BulletData["InvalidateTraceback"]			= true
 	
 	self:UpdateFakeCrate()
 end

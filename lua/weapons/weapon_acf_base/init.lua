@@ -42,6 +42,7 @@ function SWEP:Initialize()
 	self.BulletData["MinProjLength"]	=	1.905
 	self.BulletData["Type"]				=	"AP"
 	self.BulletData["Id"] 				=	"12.7mmMG"
+	self.BulletData["InvalidateTraceback"]			= true
 
 	self:UpdateFakeCrate()
 end

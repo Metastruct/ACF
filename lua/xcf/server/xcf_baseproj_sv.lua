@@ -15,6 +15,13 @@ end
 
 
 
+// This function is called just after the projectile is launched.
+function this.Launched(BulletData)
+	error(baseerror)
+end
+
+
+
 // This function is called just before the projectile is launched, to prepare the projectile to be launched.
 function this.Prepare(BulletData)
 	error(baseerror)

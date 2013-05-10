@@ -138,7 +138,7 @@ function ACF_CalcDamage( Entity , Energy , FrAera , Angle )
 	local Structure = Entity.ACF.Density --Structural strengh of the material, derived from prop density, denser stuff is more vulnerable (Density is different than armour, calculated off real volume)
 	
 	local MaxPenetration = (Energy.Penetration / FrAera) * ACF.KEtoRHA							--Let's see how deep the projectile penetrates ( Energy = Kinetic Energy, FrAera = Frontal aera in cm2 )
-	--print(MaxPenetration)
+	print("MaxPenetration = " .. MaxPenetration)
 	local Penetration = math.min( MaxPenetration , Armour )			--Clamp penetration to the armour thickness
 	
 	local HitRes = {}

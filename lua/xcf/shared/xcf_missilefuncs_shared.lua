@@ -16,7 +16,7 @@ local hollow = {["HEAT"] = true, ["SM"] = true, ["HE"] = true}	// should be holl
 function XCF_GenerateMissileInfo( partial, docopy )
 
 	local conversion = ACF.RoundTypes[partial.Type].convert
-	if not conversion then Error("Couldn't find conversion function for ammo type: " .. partial.AmmoType) end
+	if not conversion then error("Couldn't find conversion function for ammo type: " .. partial.AmmoType) end
 	
 	if docopy then partial = table.Copy(partial) end
 	
@@ -25,15 +25,20 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	local fillerVol = partial.FillerVol
 	local coneAng = partial.ConeAng
 	
-	partial.Data5 = fillerVol
-	partial.Data6 = coneAng
+	partial.Data5 = partial.Data5 or fillerVol
+	partial.Data6 = partial.Data6 or coneAng
 	
-	partial = conversion( nil, partial )
+	//print("partial:")
+	//printByName(partial)
+	
+	partial = table.Merge(partial, conversion( nil, partial ))
 	
 	partial.FillerVol = fillerVol
 	partial.ConeAng = coneAng
 	
-	local round = ACF.Weapons["Guns"][partial.Id]["round"]
+	local rocket = ACF.Weapons["Guns"][partial.Id]
+	if not rocket then error("Could not find rocket table for id ", partial.Id) return end
+	local round = rocket.round
 	
 	if not noboom[partial.Type] then
 		partial.BlastRadius = (partial.FillerMass or 0) ^ 0.33 * 5 * 10
@@ -57,6 +62,9 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	
 	local propvolume = partial.PropLength * (math.pi * (partial.Caliber/2) ^ 2)
 	partial.Cutout = propvolume / round.burnrate
+	
+	//print("\nafter conversion:\n")
+	//printByName(partial)
 	
 	return partial
 

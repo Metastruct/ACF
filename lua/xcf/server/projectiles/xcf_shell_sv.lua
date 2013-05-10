@@ -13,8 +13,21 @@ local projcs = XCF.ProjClasses
 projcs[classname] = projcs[classname] and projcs[classname].super and projcs[classname] or XCF.inheritsFrom(projcs.Base)
 local this = projcs[classname]
 
-// TODO: ensure ballistic functions are never called in here so that shells can exist independently of ballistics structure (for things like impact computers etc)
-local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
+// ONGOING: ensure ballistic functions are never called in here so that shells can exist independently of ballistics structure (for things like impact computers etc)
+local balls = XCF.Ballistics or error("Tried to load " .. classname .. " before ballistics!")
+
+
+
+
+this.HitTypes = 
+{
+	["HIT_NONE"] = "HitNone",
+	["HIT_END"] = "EndFlight",
+	["HIT_PENETRATE"] = "Penetrate",
+	["HIT_RICOCHET"] = "Ricochet"
+}
+local hit = this.HitTypes
+
 
 
 
@@ -52,6 +65,7 @@ function this.Prepare(BulletData)
 			BulletData["DragCoef"] = 0
 		end
 	end
+	BulletData.Travelled = 0
 	BulletData["Filter"] = BulletData["Filter"] or {}
 	BulletData.Filter[#BulletData.Filter + 1] = BulletData["Gun"] 
 	BulletData.ProjClass = this
@@ -61,73 +75,90 @@ end
 
 
 
-function this.DoFlight(Bullet)
-	if not Bullet then print("Flight failed; tried to fly a nil shell!") return false end
-	if not Bullet.LastThink then print("Flight failed; shells must contain a LastThink parameter!") return false end
-	if not Bullet.Index then print("Flight failed; shells must contain an Index parameter!") return false end
+function this.Launched(self)
+	self.LastThink = SysTime()
+end
+
+
+
+function this.DoFlight(self, isRetry)
+	if not self then print("Flight failed; tried to fly a nil shell!") return false end
+	if not self.LastThink then print("Flight failed; shells must contain a LastThink parameter!") return false end
+	if not self.Index then print("Flight failed; shells must contain an Index parameter!") return false end
 	
-	local Index = Bullet.Index
+	if isRetry then return this.DoTrace(self) end
+	
+	local Index = self.Index
 	local Time = SysTime()
-	local DeltaTime = Time - Bullet.LastThink
+	local DeltaTime = Time - self.LastThink
 	
 	//*
-	local Speed = Bullet.Flight:Length()
-	local Drag = Bullet.Flight:GetNormalized() * (Bullet.DragCoef * Speed^2)/ACF.DragDiv
-	Bullet.NextPos = Bullet.Pos + (Bullet.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
-	Bullet.Flight = Bullet.Flight + (Bullet.Accel - Drag)*DeltaTime				--Calculates the next shell vector
-	//Bullet.StartTrace = Bullet.Pos - Bullet.Flight:GetNormalized()*math.min(ACF.PhysMaxVel*DeltaTime, Bullet.FlightTime*Speed)
-	Bullet.StartTrace = Bullet.Pos - Bullet.Flight:GetNormalized()*math.min(ACF.PhysMaxVel * DeltaTime, Bullet.FlightTime * Speed - Bullet.TraceBackComp * DeltaTime)
-	//TODO: fix traceback for static objects
-	//*/
+	local Speed = self.Flight:Length()
+	local Drag = self.Flight:GetNormalized() * (self.DragCoef * Speed^2)/ACF.DragDiv
+	self.NextPos = self.Pos + (self.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
+	self.Flight = self.Flight + (self.Accel - Drag)*DeltaTime				--Calculates the next shell vector
 	
-	Bullet.LastThink = Time
-	Bullet.FlightTime = Bullet.FlightTime + DeltaTime
+	local traceback = self.InvalidateTraceback and VEC_0 or -self.Flight:GetNormalized() * math.min(ACF.PhysMaxVel * DeltaTime, self.FlightTime * Speed - self.TraceBackComp * DeltaTime)
+	self.InvalidateTraceback = nil
 	
-	return this.DoTrace(Bullet)
+	self.StartTrace = self.Pos + traceback
+	
+	local Step = self.NextPos:Distance(self.Pos)
+	self.Travelled = self.Travelled + Step
+	
+	self.LastThink = Time
+	self.FlightTime = self.FlightTime + DeltaTime
+	
+	return this.DoTrace(self)
 	
 end
 
 
 
-function this.DoTrace(Bullet)
+function this.DoTrace(self)
 
-	local Index = Bullet.Index
+	local Index = self.Index
 
 	local FlightTr = { }
-		FlightTr.start = Bullet.StartTrace
-		FlightTr.endpos = Bullet.NextPos
-		FlightTr.filter = Bullet.Filter
+		FlightTr.start = self.StartTrace
+		FlightTr.endpos = self.NextPos
+		FlightTr.filter = self.Filter
 	local FlightRes = util.TraceLine(FlightTr)					--Trace to see if it will hit anything
 	
 	
-	debugoverlay.Line( Bullet.StartTrace, FlightRes.HitPos, 4, Color(0, 255, 255), false )
+	debugoverlay.Line( self.StartTrace, FlightRes.HitPos, 20, Color(0, 255, 255), false )
 	
+	if not FlightRes.Hit or FlightRes.HitSky then 
 	
-	if FlightRes.HitNonWorld then
+		if not util.IsInWorld(self.NextPos) then
+			return hit.HIT_END, FlightRes
+		end
 	
-		local propimpact = ACF.RoundTypes[Bullet.Type]["propimpact"]		
-		local Retry = propimpact( Index, Bullet, FlightRes.Entity , FlightRes.HitNormal , FlightRes.HitPos , FlightRes.HitGroup )				--If we hit stuff then send the resolution to the damage function	
+		self.Pos = self.NextPos
+		return hit.HIT_NONE, FlightRes
+	
+	elseif FlightRes.HitNonWorld then
+	
+		local propimpact = ACF.RoundTypes[self.Type]["propimpact"]		
+		local Retry = propimpact( Index, self, FlightRes.Entity , FlightRes.HitNormal , FlightRes.HitPos , FlightRes.HitGroup )				--If we hit stuff then send the resolution to the damage function	
 		if Retry == "Penetrated" then
-			return balls.HIT_PENETRATE, FlightRes
+			return hit.HIT_PENETRATE, FlightRes
 		elseif Retry == "Ricochet"  then
-			return balls.HIT_RICOCHET, FlightRes
+			return hit.HIT_RICOCHET, FlightRes
 		else
-			return balls.HIT_END, FlightRes
-		end
-		
-	elseif FlightRes.HitWorld then									--If we hit the world then try to see if it's thin enough to penetrate
+			return hit.HIT_END, FlightRes
+		end	
 	
-		local worldimpact = ACF.RoundTypes[Bullet.Type]["worldimpact"]
-		local Retry = worldimpact( Index, Bullet, FlightRes.HitPos, FlightRes.HitNormal )
+	elseif FlightRes.HitWorld then				--If we hit the world then try to see if it's thin enough to penetrate
+	
+		local worldimpact = ACF.RoundTypes[self.Type]["worldimpact"]
+		local Retry = worldimpact( Index, self, FlightRes.HitPos, FlightRes.HitNormal )
 		if Retry == "Penetrated" then 								--if it is, we soldier on	
-			return balls.HIT_PENETRATE, FlightRes
+			return hit.HIT_PENETRATE, FlightRes
 		else														--If not, end of the line, boyo
-			return balls.HIT_END, FlightRes
+			return hit.HIT_END, FlightRes
 		end
 		
-	else															--If we didn't hit anything, move the shell and schedule next think
-		Bullet.Pos = Bullet.NextPos
-		return balls.HIT_NONE, FlightRes
 	end
 	
 end
@@ -138,13 +169,26 @@ end
 	Projectile event callback called by the ballistic core.
 //*/
 function this.Penetrate(Index, Proj, FlightRes)
+
+	//print("PENETRATE, invtr, st2")
+	//printByName(Proj.Filter)
+
+	//Proj.StartTrace = FlightRes.HitPos
+	Proj.StartTrace = Proj.Pos
+	/*
+	if FlightRes.HitWorld then
+		Proj.InvalidateBacktrace = true
+	end
+	//*/
+	
 	if Proj.CallbackPenetrate then Proj.CallbackPenetrate(Index, Proj, FlightRes) end
 	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
 	debugoverlay.Text( FlightRes.HitPos, "PENETRATE: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
-	this.DoTrace(Proj)
+	this.DoTrace(Proj) // discarded return here is the reason for incomplete client display.  see below todo
 	
 	local ret = this.GetUpdate(Proj)
-	ret.UpdateType = balls.HIT_PENETRATE
+	ret.UpdateType = hit.HIT_PENETRATE
+	// TODO: use retry on penetration etc once recursion limit is in place
 	return ret, balls.PROJ_UPDATE
 end
 
@@ -152,26 +196,34 @@ end
 
 function this.Ricochet(Index, Proj, FlightRes)
 	if Proj.CallbackRicochet then Proj.CallbackRicochet(Index, Proj, FlightRes) end
-	Proj.FlightTime = 0	// TODO: find a better way of temporarily invalidating backtracing.
+	
+	//Proj.InvalidateBacktrace = true
+	Proj.StartTrace = FlightRes.HitPos
+	
 	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
 	debugoverlay.Text( FlightRes.HitPos, "RICOCHET: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
-	this.DoFlight( Proj )
+	this.DoFlight( Proj ) // discarded return here is the reason for incomplete client display.  see below todo
 	
 	local ret = this.GetUpdate(Proj)
-	ret.UpdateType = balls.HIT_RICOCHET
+	ret.UpdateType = hit.HIT_RICOCHET
+	// TODO: use retry on penetration etc once recursion limit is in place
 	return ret, balls.PROJ_UPDATE
 end
 
 
 
 function this.EndFlight(Index, Proj, FlightRes)
+
+	//print("END")
+	//printByName(Proj.Filter)
+			
 	if Proj.CallbackEndFlight then Proj.CallbackEndFlight(Index, Proj, FlightRes) end
 	ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
 	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
 	debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	
 	local ret = this.GetUpdate(Proj)
-	ret.UpdateType = balls.HIT_END
+	ret.UpdateType = hit.HIT_END
 	return ret, balls.PROJ_REMOVE
 end
 

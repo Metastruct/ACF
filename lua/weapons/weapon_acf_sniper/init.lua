@@ -41,6 +41,7 @@ function SWEP:Initialize()
 	self.BulletData["Tracer"] =			0
 	self.BulletData["Type"]				=	"AP"
 	self.BulletData["Id"] 				=	"14.5mmMG"
+	self.BulletData["InvalidateTraceback"]			= true
 	
 	self:UpdateFakeCrate()
 end
