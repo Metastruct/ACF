@@ -28,7 +28,7 @@ end
 
 
 function SWEP:Initialize()
-	print("wep init", self.Owner)
+	//print("wep init", self.Owner)
 	if not IsValid(self.Owner) then return end
 	self:SetWeaponHoldType( self.HoldType )
 	self.defaultFOV = self.Owner:GetFOV()

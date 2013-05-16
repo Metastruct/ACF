@@ -118,7 +118,7 @@ function SWEP:FireBullet()
 	//XCF_CreateBulletSWEP(self.BulletData, self)
 	//*/
 	
-	printByName(self.BulletData)
+	//printByName(self.BulletData)
 	
 	/*
 	local rocket = ents.Create( "XCF_Missile" )

@@ -82,7 +82,7 @@ function this.Launched(self)
 	self.RandDrift = this.pseudorandom(self.Seed or 1337)
 	self.FutureCutout = self.LastThink + (self.Cutout or 0)
 	
-	printByName(self)
+	//printByName(self)
 end
 
 
@@ -113,7 +113,7 @@ function this.DoFlight(self, isRetry)
 	self.Dir = (Dir*(Speed/2) + self.Flight):GetNormalized()
 	
 	local traceback = self.InvalidateTraceback and VEC_0 or -self.Flight:GetNormalized() * math.min(ACF.PhysMaxVel * DeltaTime, self.FlightTime * Speed - self.TraceBackComp * DeltaTime, self.Travelled)
-	print(tostring(traceback))
+	//print(tostring(traceback))
 	self.InvalidateTraceback = nil
 	
 	self.Travelled = self.Travelled + Step

@@ -1,5 +1,5 @@
 //TODO: sort out the details
-print("hi there")
+//print("hi there")
 local Rocket = {}
 	Rocket.spread = 1
 	Rocket.name = "Rocket"

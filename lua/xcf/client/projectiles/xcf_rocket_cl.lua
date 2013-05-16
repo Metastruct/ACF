@@ -53,7 +53,7 @@ function this:Launch()
 	self.Dir = self.Dir or self.Flight
 	self.Travelled = 0
 	
-	printByName(self)
+	//printByName(self)
 end
 
 

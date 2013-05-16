@@ -295,7 +295,7 @@ function SWEP:Reload()
 		
 		local reloaded = self:DefaultReload( ACT_VM_RELOAD )
 	
-		print("do reload!")
+		//print("do reload!")
 	
 		self.Inaccuracy = self.MaxInaccuracy
 	end

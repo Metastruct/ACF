@@ -97,6 +97,16 @@ if SERVER then
 	local lastreceive = CurTime()
 	local delay = 0.1
 	
+	
+	local translateEntToType = 
+	{
+		["acf_gun"] = "Guns",
+		["acf_ammo"] = "Ammo",
+		["acf_engine"] = "Mobility",
+		["acf_gearbox"] = "Mobility"
+	}
+	
+	
 	util.AddNetworkString("xcfmenu_transmit")
 	net.Receive("xcfmenu_transmit", function(len, ply)
 		
@@ -149,7 +159,12 @@ if SERVER then
 					Ent:Activate()
 					Ent:GetPhysicsObject():Wake()
       
-      				undo.Create( ACF.Weapons[Type][Id]["ent"] )
+					print(Type, Id)
+					PrintTable(infotable)
+					
+					local enttype = translateEntToType[Type]
+	  
+      				undo.Create( ACF.Weapons[enttype][Id]["ent"] )
         				undo.AddEntity( Ent )
         				undo.SetPlayer( ply )
       				undo.Finish()

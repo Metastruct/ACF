@@ -350,7 +350,7 @@ end
 	
 
 function ENT:Dud( HitPos , Speed )
-	print("dud")
+	//print("dud")
 	Dud = ents.Create("prop_physics")
 	Dud:SetPos( HitPos - self.BulletData.Dir*100 )
 	Dud:SetAngles( self.BulletData.Dir:Angle() )
