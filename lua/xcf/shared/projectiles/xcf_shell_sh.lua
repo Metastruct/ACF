@@ -22,7 +22,7 @@ local fillerdensity = {}
 fillerdensity["SM"] = 2000
 fillerdensity["HE"] = 1000
 fillerdensity["HP"] = 1
-fillerdensity["HEAT"] = fillerdensity["HE"]
+fillerdensity["HEAT"] = 1450
 fillerdensity["APHE"] = fillerdensity["HE"]
 
 /**

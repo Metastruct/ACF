@@ -147,7 +147,12 @@ if SERVER then
 				local Ent = DupeClass.Func(ply, unpack(ArgTable))		--Using the Duplicator entity register to find the right factory function
 				if IsValid(Ent) then
 					Ent:Activate()
-					Ent:GetPhysicsObject():Wake() 
+					Ent:GetPhysicsObject():Wake()
+      
+      				undo.Create( ACF.Weapons[Type][Id]["ent"] )
+        				undo.AddEntity( Ent )
+        				undo.SetPlayer( ply )
+      				undo.Finish()
 				end
 			end
 			

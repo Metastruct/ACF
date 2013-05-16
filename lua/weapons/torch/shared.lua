@@ -67,8 +67,8 @@ function SWEP:Think()
 		if ent:IsValid() and self.LastSend < CurTime() then
 			if not ent:IsPlayer() and not ent:IsNPC() then	
 				self.LastSend = CurTime() + 1
-				local Valid = XCF_Check( ent, self.Owner )
-				if Valid then
+				//local Valid = XCF_Check( ent, self.Owner )
+				if ent.ACF then
 					self.Weapon:SetNetworkedInt( "HP", ent.ACF.Health )
 					self.Weapon:SetNetworkedInt( "Armour", ent.ACF.Armour )
 					self.Weapon:SetNetworkedInt( "MaxHP", ent.ACF.MaxHealth )
