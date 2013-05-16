@@ -2,24 +2,23 @@ ACF = {}
 ACF.AmmoTypes = {}
 ACF.MenuFunc = {}
 ACF.AmmoBlacklist = {}
-ACF.Version = 314 -- Make sure to change this as the version goes up or the update check is for nothing! -wrex
+ACF.Version = 332 -- Make sure to change this as the version goes up or the update check is for nothing! -wrex
 ACF.CurrentVersion = 0 -- just defining a variable, do not change
-print("[[ ACF Loaded ]]")
 
-ACF.Threshold = 300	--Health Divisor
+ACF.Threshold = 225	--Health Divisor
 ACF.PartialPenPenalty = 5 --Exponent for the damage penalty for partial penetration
 ACF.PenAreaMod = 0.85
 ACF.KinFudgeFactor = 2.1	--True kinetic would be 2, over that it's speed biaised, below it's mass biaised
 ACF.KEtoRHA = 0.25		--Empirical conversion from (kinetic energy in KJ)/(Aera in Cm2) to RHA penetration
 ACF.GroundtoRHA = 0.05		--How much mm of steel is a mm of ground worth (Real soil is about 0.15
 ACF.KEtoSpall = 1
-ACF.AmmoMod = 1			-- Ammo modifier. 1 is 1x the amount of ammo
+ACF.AmmoMod = 0.6		-- Ammo modifier. 1 is 1x the amount of ammo
 ACF.ArmorMod = 1
 ACF.Spalling = 0
 ACF.GunfireEnabled = true
 ACF.MeshCalcEnabled = false
 
-ACF.HEPower = 10000		--HE Filler power per KG in KJ
+ACF.HEPower = 8000		--HE Filler power per KG in KJ
 ACF.HEDensity = 1.65	--HE Filler density (That's TNT density)
 ACF.HEFrag = 1500		--Mean fragment number for equal weight TNT and casing
 ACF.HEBlastPen = 0.4	--Blast penetration exponent based of HE power
@@ -180,8 +179,6 @@ end
 
 function ACF_UpdateChecking( )
 	
-	print("[ACF] Checking for updates....")
-	
 	http.Fetch("https://github.com/nrlulz/ACF",function(contents,size)
 		local rev = tonumber(string.match( contents, "([0-9]+) commits" ))
 		if rev and ACF.Version >= rev then
@@ -191,7 +188,6 @@ function ACF_UpdateChecking( )
 			print("[ACF] No Internet Connection Detected! ACF Update Check Failed")
 		else
 			print("[ACF] A newer version of ACF is available! Version: "..rev..", You have Version: "..ACF.Version)
-			print("[ACF] Please update!")
 		end
 		ACF.CurrentVersion = rev
 		
@@ -288,7 +284,8 @@ cvars.AddChangeCallback("acf_gunfire", ACF_CVarChangeCallback)
 /*
 ONE HUGE HACK to get good killicons.
 */
-
+-- disabling this for now because it was breaking killicons completely and i don't want to deal with it right now
+/*
 if SERVER then
 	
 	hook.Add("PlayerDeath", "ACF_PlayerDeath",function( victim, inflictor, attacker )
@@ -359,3 +356,4 @@ if CLIENT then
 		end)
 	end
 end
+*/

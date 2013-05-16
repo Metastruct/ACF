@@ -13,8 +13,6 @@ function ENT:Initialize()
 
 	self.LastCheck = 0
 	self.LastThink = 0
-	self.Mass = 0
-	self.PhysMass = 0
 	self.MassRatio = 1
 	self.Legal = true
 	self.CanUpdate = true
@@ -30,10 +28,11 @@ function MakeACF_Engine(Owner, Pos, Angle, Id)
 
 	if not Owner:CheckLimit("_acf_misc") then return false end
 
-	local Engine = ents.Create("ACF_Engine")
+	local Engine = ents.Create( "acf_engine" )
+	if not IsValid( Engine ) then return false end
+	
 	local List = list.Get("ACFEnts")
-	local Classes = list.Get("ACFClasses")
-	if not Engine:IsValid() then return false end
+	
 	Engine:SetAngles(Angle)
 	Engine:SetPos(Pos)
 	Engine:Spawn()
@@ -48,7 +47,7 @@ function MakeACF_Engine(Owner, Pos, Angle, Id)
 	Engine.IdleRPM = List["Mobility"][Id]["idlerpm"]
 	Engine.PeakMinRPM = List["Mobility"][Id]["peakminrpm"]
 	Engine.PeakMaxRPM = List["Mobility"][Id]["peakmaxrpm"]
-	Engine.LimitRPM = List["Mobility"][Id]["limitprm"]
+	Engine.LimitRPM = List["Mobility"][Id]["limitrpm"]
 	Engine.Inertia = List["Mobility"][Id]["flywheelmass"]*(3.1416)^2
 	Engine.iselec = List["Mobility"][Id]["iselec"]
 	Engine.elecpower = List["Mobility"][Id]["elecpower"]
@@ -82,12 +81,7 @@ function MakeACF_Engine(Owner, Pos, Angle, Id)
 	Engine:SetNetworkedBeamInt("MinRPM",Engine.PeakMinRPM)
 	Engine:SetNetworkedBeamInt("MaxRPM",Engine.PeakMaxRPM)
 	Engine:SetNetworkedBeamInt("LimitRPM",Engine.LimitRPM)
-
-	undo.Create("ACF Engine")
-		undo.AddEntity( Engine )
-		undo.SetPlayer( Owner )
-	undo.Finish()
-
+	
 	Owner:AddCount("_acf_engine", Engine)
 	Owner:AddCleanup( "acfmenu", Engine )
 
@@ -120,7 +114,7 @@ function ENT:Update( ArgsTable )	--That table is the player data, as sorted in t
 	self.IdleRPM = List["Mobility"][Id]["idlerpm"]
 	self.PeakMinRPM = List["Mobility"][Id]["peakminrpm"]
 	self.PeakMaxRPM = List["Mobility"][Id]["peakmaxrpm"]
-	self.LimitRPM = List["Mobility"][Id]["limitprm"]
+	self.LimitRPM = List["Mobility"][Id]["limitrpm"]
 	self.Inertia = List["Mobility"][Id]["flywheelmass"]*(3.1416)^2
 	self.iselec = List["Mobility"][Id]["iselec"] -- is the engine electric?
 	self.elecpower = List["Mobility"][Id]["elecpower"] -- how much power does it output
@@ -188,6 +182,7 @@ function ENT:Think()
 
 		if self.LastCheck < CurTime() then
 			self:CheckRopes()
+			self:CalcMassRatio()
 			if self:GetPhysicsObject():GetMass() < self.Weight or self:GetParent():IsValid() then
 				self.Legal = false
 			else 
@@ -205,59 +200,52 @@ function ENT:Think()
 
 end
 
-function ENT:ACFInit()
-
-	local Constrained = constraint.GetAllConstrainedEntities(self)
-	self.Mass = 0
-	self.PhysMass = 0
-
-	for _,Ent in pairs(Constrained) do
-
-		if IsValid(Ent) then
-			local Phys = Ent:GetPhysicsObject()
-
-			if Phys and Phys:IsValid() then
-				self.Mass = self.Mass + Phys:GetMass()
-				local Parent = Ent:GetParent()
-
-				if IsValid(Parent) then
-
-					local Constraints = {}
-					table.Add(Constraints,constraint.FindConstraints(Ent, "Weld"))
-					table.Add(Constraints,constraint.FindConstraints(Ent, "Axis"))
-					table.Add(Constraints,constraint.FindConstraints(Ent, "Ballsocket"))
-					table.Add(Constraints,constraint.FindConstraints(Ent, "AdvBallsocket"))
-
-					if Constraints then
-
-						for Key,Const in pairs(Constraints) do
-
-							if Const.Ent1 == Parent or Const.Ent2 == Parent then
-								self.PhysMass = self.PhysMass + Phys:GetMass()
-							end
-
-						end
-
-					end
-
-				else
-					self.PhysMass = self.PhysMass + Phys:GetMass()
-				end
-
-			end
-
+function ENT:CalcMassRatio()
+	
+	local Mass = 0
+	local PhysMass = 0
+	
+	-- get the shit that is physically attached to the vehicle
+	local PhysEnts = ACF_GetAllPhysicalConstraints( self )
+	
+	-- add any parented but not constrained props you sneaky bastards
+	local AllEnts = table.Copy( PhysEnts )
+	for k, v in pairs( PhysEnts ) do
+		
+		-- gotta make sure the parenting addon is installed...
+		if v.GetChildren then table.Merge( AllEnts, v:GetChildren() ) end
+	
+	end
+	
+	for k, v in pairs( AllEnts ) do
+		
+		if not IsValid( v ) then continue end
+		
+		local phys = v:GetPhysicsObject()
+		if not IsValid( phys ) then continue end
+		
+		Mass = Mass + phys:GetMass()
+		
+		if PhysEnts[ v ] then
+			PhysMass = PhysMass + phys:GetMass()
 		end
-
+		
 	end
 
-	self.MassRatio = self.PhysMass/self.Mass
+	self.MassRatio = PhysMass / Mass
+	
+	Wire_TriggerOutput( self, "Mass", math.Round( Mass, 2 ) )
+	Wire_TriggerOutput( self, "Physical Mass", math.Round( PhysMass, 2 ) )
+	
+end
 
-	Wire_TriggerOutput(self, "Mass", math.floor(self.Mass))
-	Wire_TriggerOutput(self, "Physical Mass", math.floor(self.PhysMass))
+function ENT:ACFInit()
+	
+	self:CalcMassRatio()
 
 	self.LastThink = CurTime()
 	self.Torque = self.PeakTorque
-	self.FlyRPM = self.IdleRPM*1.5
+	self.FlyRPM = self.IdleRPM * 1.5
 
 end
 
