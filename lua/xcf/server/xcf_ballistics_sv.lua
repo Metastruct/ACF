@@ -11,7 +11,7 @@ local projmax = 1000
 concommand.Add( "xcf_maxprojectiles", function(ply, cmd, args, str)
 	if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
 		"\"xcf_maxprojectiles\" = " .. XCF.ProjectilesLimit .. "\t(min = " .. projmin .. ", max = " .. projmax .. ")" ..
-		"\n - Set the number of flying projectiles at any time." ..
+		"\n - Set the maximum number of flying projectiles at any time." ..
 		"\n   Projs fired after the limit will overwrite the oldest flying projs.")
 		return
 	end
