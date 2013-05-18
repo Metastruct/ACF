@@ -3,22 +3,308 @@
 XCF = XCF or {}
 XCF.Permissions = {}
 XCF.Permissions.Selfkill = true
+XCF.Permissions.Safezones = false
+XCF.Permissions.Modes = {}
+
+//TODO: convar this
+local mapSZDir = "xcf/safezones/"
 
 
-function XCF.DamagePermission(owner, attacker, ent)
+
+local function resolveAABBs(mins, maxs)
 	
-	xcf_dbgprint("permission: owner=",tostring(owner), "attacker=",tostring(attacker), "ent=",tostring(ent))
+	/*
+	for xyz, val in pairs(mins) do	// ensuring points conform to AABB mins/maxs
+		if val > maxs.xyz then
+			local store = maxs.xyz
+			maxs.xyz = val
+			mins.xyz = store
+		end
+	end
+	//*/
+	
+	local store
+	if mins.x > maxs.x then
+		store = maxs.x
+		maxs.x = mins.x
+		mins.x = store
+	end
+	
+	if mins.y > maxs.y then
+		store = maxs.y
+		maxs.y = mins.y
+		mins.y = store
+	end
+	
+	if mins.z > maxs.z then
+		store = maxs.z
+		maxs.z = mins.z
+		mins.z = store
+	end
+	
+	return mins, maxs
+end
+
+
+//TODO: sanitize safetable instead of marking it all as bad
+local function validateSZs(safetable)
+	if type(safetable) ~= "table" then return false end
+	
+	PrintTable(safetable)
+
+	for k, v in pairs(safetable) do
+		if type(k) ~= "string" then print("typek") return false end
+		if not (#v == 2 and v[1] and v[2]) then print("v2") return false end
+		
+		for a, b in ipairs(v) do
+			if not (b.x and b.y and b.z) then print("vecxyz") return false end
+		end
+		
+		local mins = v[1]
+		local maxs = v[2]
+		
+		mins, maxs = resolveAABBs(mins, maxs)
+		
+	end
+	
+	return true
+end
+
+
+
+
+local function getMapFilename()
+	
+	local mapname = string.gsub(game.GetMap(), "[^%a%d-_]", "_")
+	return mapSZDir .. mapname .. ".txt"
+	
+end
+
+
+
+local function getMapSZs()
+	local mapname = getMapFilename()
+	local mapSZFile = file.Read(mapname, "DATA") or ""
+	
+	local safezones = util.JSONToTable(mapSZFile)
+	
+	if not validateSZs(safezones) then
+		// TODO: generate default safezones around spawnpoints.
+		print("!!!!!!!!!!!!!!!!!!\nWARNING: Safezone file " .. mapname .. " is corrupt, invalid or missing!  Safezones will not be available this time.\n!!!!!!!!!!!!!!!!!!")
+		return
+	end
+	
+	XCF.Permissions.Safezones = safezones
+end
+hook.Add( "Initialize", "XCF_LoadSafesForMap", getMapSZs )
+//getMapSZs()
+
+
+local plyzones = {}
+
+function detSZTrans(ply, data)
+	local sid = ply:SteamID()
+	local trans = false
+	local pos = ply:GetPos()
+	local oldzone = plyzones[sid]
+	
+	local zone = XCF.IsInSafezone(pos) or nil
+	plyzones[sid] = zone
+	
+	if oldzone ~= zone then
+		hook.Call("XCF_PlayerChangedZone", GAMEMODE, ply, zone, oldzone)
+	end
+	
+	return data
+end
+hook.Add("Move", "XCF_DetectSZTransition", detSZTrans)
+
+
+
+
+function tellPlyAboutZones(ply, zone, oldzone)
+	if XCF.DamagePermission ~= XCF.Permissions.Modes.battle then return end
+	ply:SendLua("chat.AddText(Color(" .. (zone and "0,255,0" or "255,0,0") .. "),\"You have entered the " .. (zone and zone .. " safezone." or "battlefield!") .. "\")") 
+end
+hook.Add("XCF_PlayerChangedZone", "XCF_TellPlyAboutSafezone", tellPlyAboutZones)
+
+
+
+
+concommand.Add( "xcf_addsafezone", function(ply, cmd, args, str)
+	if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
+		" - Add a safezone as an AABB box." ..
+		"\n   Input a name and six numbers.  First three numbers are minimum co-ords, last three are maxs." ..
+		"\n   Example; xcf_addsafezone airbase -500 -500 0 500 500 1000")
+		return false
+	end
+	
+	if ply:IsAdmin() then 
+		local szname = tostring(args[1])
+		args[1] = nil
+		local default = tostring(args[8])
+		if default ~= "default" then default = nil end
+		
+		if not XCF.Permissions.Safezones then XCF.Permissions.Safezones = {} end
+		
+		if XCF.Permissions.Safezones[szname] and XCF.Permissions.Safezones[szname].default then 
+			ply:PrintMessage(HUD_PRINTCONSOLE, "Command unsuccessful: an unmodifiable safezone called " .. szname .. " already exists!")
+			return false
+		end
+	
+		for k, v in ipairs(args) do			
+			args[k] = tonumber(v)
+			if args[k] == nil then 
+				ply:PrintMessage(HUD_PRINTCONSOLE, "Command unsuccessful: argument " .. k .. " could not be interpreted as a number (" .. v .. ")")
+				return false
+			end
+		end
+		
+		local mins = Vector(args[2], args[3], args[4])
+		local maxs = Vector(args[5], args[6], args[7])
+		mins, maxs = resolveAABBs(mins, maxs)
+		
+		XCF.Permissions.Safezones[szname] = {mins, maxs}
+		if default then XCF.Permissions.Safezones[szname].default = true end
+		ply:PrintMessage(HUD_PRINTCONSOLE, "Command SUCCESSFUL: added a safezone called " .. szname .. " between " .. tostring(mins) .. " and " .. tostring(maxs) .. "!")
+		return true
+		
+	else
+		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+	end
+end)
+
+
+
+
+
+concommand.Add( "xcf_savesafezones", function(ply, cmd, args, str)
+	//if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
+	//	" - Save all current safezones to file.  They will be restored every time this map is loaded.")
+	//	return false
+	//end
+	
+	if ply:IsAdmin() then 
+	
+		if not XCF.Permissions.Safezones then 
+			ply:PrintMessage(HUD_PRINTCONSOLE, "Command unsuccessful: There are no safezones on the map which can be saved.")
+			return false
+		end
+		
+		local szjson = util.TableToJSON(XCF.Permissions.Safezones)
+		
+		local mapname = getMapFilename()
+		file.CreateDir(mapSZDir)
+		file.Write(mapname, szjson)
+		
+		ply:PrintMessage(HUD_PRINTCONSOLE, "Command SUCCESSFUL: All safezones on the map have been made restorable.")
+		return true
+		
+	else
+		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+	end
+end)
+
+
+
+
+
+concommand.Add( "xcf_setpermissionmode", function(ply, cmd, args, str)
+	if not args[1] then 
+		local modes = ""
+		for k, v in pairs(XCF.Permissions.Modes) do
+			modes = modes .. k .. " "
+		end
+		ply:PrintMessage(HUD_PRINTCONSOLE,
+		" - Set damage permission behaviour mode." ..
+		"   Available modes: " .. modes)
+		return false
+	end
+	
+	if ply:IsAdmin() then 
+	
+		local mode = tostring(args[1])
+		if not XCF.Permissions.Modes[mode] then
+			ply:PrintMessage(HUD_PRINTCONSOLE, 
+			"Command unsuccessful: " .. mode .. " is not a valid permission mode!" .. 
+			"\nUse this command without arguments to see all available modes.")
+			return false
+		end
+		
+		XCF.DamagePermission = XCF.Permissions.Modes[mode]
+		
+		for k, v in pairs(player.GetAll()) do
+			v:SendLua("chat.AddText(Color(255,0,0),\"Damage protection has been changed to " .. mode .. " mode!\")") 
+		end
+		
+		ply:PrintMessage(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Current damage permission policy is now " .. mode .. "!")
+		return true
+		
+	else
+		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+	end
+end)
+
+
+
+
+
+function XCF.IsInSafezone(pos)
+
+	if not XCF.Permissions.Safezones then return false end
+	
+	local szmin, szmax
+	for szname, szpts in pairs(XCF.Permissions.Safezones) do
+		szmin = szpts[1]
+		szmax = szpts[2]
+		
+		if	(pos.x > szmin.x and pos.y > szmin.y and pos.z > szmin.z) and 
+			(pos.x < szmax.x and pos.y < szmax.y and pos.z < szmax.z) then
+			//print(szname)
+			return szname
+		end
+	end
+	//print("false")
+	return false
+end
+
+
+
+
+function XCF.Permissions.Modes.battle(owner, attacker, ent)
+	
+	local szs = XCF.Permissions.Safezones
+	
+	//print(szs, attacker, ent)
+	//if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end
+	
+	if szs then
+		local entpos = ent:GetPos()
+		local attpos = attacker:GetPos()
+		
+		if XCF.IsInSafezone(entpos) or XCF.IsInSafezone(attpos) then return false end
+	end
+	
+	return true
+end
+
+
+//*
+function XCF.Permissions.Modes.build(owner, attacker, ent)
+	
+	//print(owner, attacker, ent)
 	
 	if not CPPI then return true end
 	if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end
 	
-	if not (attacker and IsValid(attacker) and attacker:IsPlayer()) then /*Dbg("Attacker not valid\n")*/ return false end
+	if not (attacker and IsValid(attacker) and attacker:IsPlayer()) then return false end
 	if not (owner and IsValid(owner) and owner:IsPlayer()) then 
 		if IsValid(ent) and ent:IsPlayer() then 
-			//Dbg("Ent is player ", ent, "\n")
 			owner = ent
 		else 
-			//Dbg("Owner not valid\n") 
 			return false
 		end
 	end
@@ -26,13 +312,12 @@ function XCF.DamagePermission(owner, attacker, ent)
 	if not (owner.SteamID or attacker.SteamID) then
 		print("XCF ERROR: owner or attacker is not a player!", tostring(owner), tostring(attacker), "\n", debug.traceback())
 		return false
-	end
+	end	
 	
 	local ownerid = owner:SteamID()
 	local attackerid = attacker:SteamID()
 	
 	if ownerid == attackerid then
-		//Dbg("Owner is attacker\n")
 		return XCF.Permissions.Selfkill
 	end
 	
@@ -40,11 +325,15 @@ function XCF.DamagePermission(owner, attacker, ent)
 		XCF.Permissions[ownerid] = {}
 	end
 	
-	if XCF.Permissions[ownerid][attackerid] then /*Dbg("Attacker is permitted\n")*/ return true end
+	if XCF.Permissions[ownerid][attackerid] then return true end
 	
-	//Dbg("Fell through\n")
 	return false
 end
+//*/
+
+XCF.DamagePermission = XCF.Permissions.Modes.build
+
+
 
 
 function XCF.AddDamagePermission(owner, attacker)
@@ -56,6 +345,8 @@ function XCF.AddDamagePermission(owner, attacker)
 end
 
 
+
+
 function XCF.RemoveDamagePermission(owner, attacker)
 	if not XCF.Permissions[ownerid] then return end
 	
@@ -63,11 +354,15 @@ function XCF.RemoveDamagePermission(owner, attacker)
 end
 
 
+
+
 function XCF.ClearDamagePermissions(owner)
 	if not XCF.Permissions[ownerid] then return end
 	
 	XCF.Permissions[ownerid] = nil
 end
+
+
 
 
 function XCF.PermissionsRaw(ownerid, attackerid, value)
@@ -88,6 +383,8 @@ function XCF.PermissionsRaw(ownerid, attackerid, value)
 end
 
 
+
+
 local function onDisconnect( ply )
 	plyid = ply:SteamID()
 	
@@ -96,6 +393,8 @@ local function onDisconnect( ply )
 	end
 end
 hook.Add( "PlayerDisconnected", "XCF_PermissionDisconnect", onDisconnect )
+
+
 
 
 local function plyBySID(steamid)
@@ -107,6 +406,8 @@ local function plyBySID(steamid)
 	
 	return false
 end
+
+
 
 
 // All code below modified from the NADMOD client permissions menu, by Nebual
@@ -145,6 +446,8 @@ net.Receive("xcf_dmgfriends", function(len, ply)
 end)
 
 
+
+
 util.AddNetworkString("xcf_refreshfriends")
 net.Receive("xcf_refreshfriends", function(len, ply)
 	//Msg("\nsv refreshfriends\n")
@@ -156,5 +459,3 @@ net.Receive("xcf_refreshfriends", function(len, ply)
 		net.WriteTable(perms)
 	net.Send(ply)
 end)
-
-//Msg("loaded rev 5")

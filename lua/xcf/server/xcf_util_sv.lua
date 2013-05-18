@@ -11,11 +11,10 @@
 //*/
 function XCF_Check( Entity, Inflictor )
 	
-	xcf_dbgprint("checking ", tostring(Entity), " against player ", tostring(Inflictor), debug.traceback())
-	
 	if ( IsValid(Entity) ) then
 	
 		if CPPI and not XCF.DamagePermission(Entity:CPPIGetOwner(), Inflictor, Entity) then xcf_dbgprint("cppi false") return false end
+		//if not XCF.DamagePermission(Entity:GetOwner(), Inflictor, Entity) then xcf_dbgprint("cppi false") return false end
 	
 		if ( Entity:GetPhysicsObject():IsValid() and !Entity:IsWorld() and !Entity:IsWeapon() ) then
 			local Class = Entity:GetClass()
@@ -25,12 +24,11 @@ function XCF_Check( Entity, Inflictor )
 				elseif Entity.ACF.Mass != Entity:GetPhysicsObject():GetMass() then
 					ACF_Activate( Entity , true )
 				end
-				xcf_dbgprint("passed as type ", Entity.ACF.Type)
 				return Entity.ACF.Type	
 			end	
 		end
 	end
-	xcf_dbgprint("invalid")
+	
 	return false
 	
 end
