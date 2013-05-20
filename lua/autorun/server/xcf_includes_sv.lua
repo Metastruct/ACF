@@ -23,3 +23,4 @@ aaa_IncludeHere("xcf/shared/gunclass")
 aaa_IncludeHere("xcf/shared/projectiles")
 
 aaa_IncludeHere("xcf/server/projectiles")
+aaa_IncludeHere("xcf/server/permissionmodes")

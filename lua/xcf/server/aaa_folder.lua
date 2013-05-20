@@ -12,3 +12,4 @@ include("xcf/server/xcf_overrides_sv.lua")
 include("xcf/server/xcf_permission_sv.lua")
 
 aaa_IncludeHere("xcf/server/projectiles")
+aaa_IncludeHere("xcf/server/permissionmodes")

@@ -2,12 +2,25 @@
 
 XCF = XCF or {}
 XCF.Permissions = {}
+
+//TODO: make player-customizable
 XCF.Permissions.Selfkill = true
+
 XCF.Permissions.Safezones = false
+
 XCF.Permissions.Modes = {}
+XCF.Permissions.ModeDescs = {}
 
 //TODO: convar this
 local mapSZDir = "xcf/safezones/"
+
+
+
+
+local function msgtoconsole(hud, msg)
+	print(msg)
+end
+
 
 
 
@@ -53,11 +66,11 @@ local function validateSZs(safetable)
 	PrintTable(safetable)
 
 	for k, v in pairs(safetable) do
-		if type(k) ~= "string" then print("typek") return false end
-		if not (#v == 2 and v[1] and v[2]) then print("v2") return false end
+		if type(k) ~= "string" then return false end
+		if not (#v == 2 and v[1] and v[2]) then return false end
 		
 		for a, b in ipairs(v) do
-			if not (b.x and b.y and b.z) then print("vecxyz") return false end
+			if not (b.x and b.y and b.z) then return false end
 		end
 		
 		local mins = v[1]
@@ -90,56 +103,61 @@ local function getMapSZs()
 	
 	if not validateSZs(safezones) then
 		// TODO: generate default safezones around spawnpoints.
-		print("!!!!!!!!!!!!!!!!!!\nWARNING: Safezone file " .. mapname .. " is corrupt, invalid or missing!  Safezones will not be available this time.\n!!!!!!!!!!!!!!!!!!")
-		return
+		return false
 	end
 	
 	XCF.Permissions.Safezones = safezones
+	return true
 end
-hook.Add( "Initialize", "XCF_LoadSafesForMap", getMapSZs )
-//getMapSZs()
+
+
+
+
+hook.Add( "Initialize", "XCF_LoadSafesForMap", function()
+	if not getMapSZs() then
+		print("!!!!!!!!!!!!!!!!!!\nWARNING: Safezone file " .. mapname .. " is missing, invalid or corrupt!  Safezones will not be restored this time.\n!!!!!!!!!!!!!!!!!!")
+	end
+end )
+
+
 
 
 local plyzones = {}
-
-function detSZTrans(ply, data)
-	local sid = ply:SteamID()
-	local trans = false
-	local pos = ply:GetPos()
-	local oldzone = plyzones[sid]
-	
-	local zone = XCF.IsInSafezone(pos) or nil
-	plyzones[sid] = zone
-	
-	if oldzone ~= zone then
-		hook.Call("XCF_PlayerChangedZone", GAMEMODE, ply, zone, oldzone)
+hook.Add("Think", "XCF_DetectSZTransition", function()
+	for k, ply in pairs(player.GetAll()) do
+		local sid = ply:SteamID()
+		local trans = false
+		local pos = ply:GetPos()
+		local oldzone = plyzones[sid]
+		
+		local zone = XCF.IsInSafezone(pos) or nil
+		plyzones[sid] = zone
+		
+		if oldzone ~= zone then
+			hook.Call("XCF_PlayerChangedZone", GAMEMODE, ply, zone, oldzone)
+		end
 	end
-	
-	return data
-end
-hook.Add("Move", "XCF_DetectSZTransition", detSZTrans)
-
-
-
-
-function tellPlyAboutZones(ply, zone, oldzone)
-	if XCF.DamagePermission ~= XCF.Permissions.Modes.battle then return end
-	ply:SendLua("chat.AddText(Color(" .. (zone and "0,255,0" or "255,0,0") .. "),\"You have entered the " .. (zone and zone .. " safezone." or "battlefield!") .. "\")") 
-end
-hook.Add("XCF_PlayerChangedZone", "XCF_TellPlyAboutSafezone", tellPlyAboutZones)
+end)
 
 
 
 
 concommand.Add( "xcf_addsafezone", function(ply, cmd, args, str)
-	if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+	
+	if not args[1] then printmsg(HUD_PRINTCONSOLE,
 		" - Add a safezone as an AABB box." ..
 		"\n   Input a name and six numbers.  First three numbers are minimum co-ords, last three are maxs." ..
 		"\n   Example; xcf_addsafezone airbase -500 -500 0 500 500 1000")
 		return false
 	end
 	
-	if ply:IsAdmin() then 
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
 		local szname = tostring(args[1])
 		args[1] = nil
 		local default = tostring(args[8])
@@ -148,14 +166,14 @@ concommand.Add( "xcf_addsafezone", function(ply, cmd, args, str)
 		if not XCF.Permissions.Safezones then XCF.Permissions.Safezones = {} end
 		
 		if XCF.Permissions.Safezones[szname] and XCF.Permissions.Safezones[szname].default then 
-			ply:PrintMessage(HUD_PRINTCONSOLE, "Command unsuccessful: an unmodifiable safezone called " .. szname .. " already exists!")
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: an unmodifiable safezone called " .. szname .. " already exists!")
 			return false
 		end
 	
 		for k, v in ipairs(args) do			
 			args[k] = tonumber(v)
 			if args[k] == nil then 
-				ply:PrintMessage(HUD_PRINTCONSOLE, "Command unsuccessful: argument " .. k .. " could not be interpreted as a number (" .. v .. ")")
+				printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: argument " .. k .. " could not be interpreted as a number (" .. v .. ")")
 				return false
 			end
 		end
@@ -166,29 +184,66 @@ concommand.Add( "xcf_addsafezone", function(ply, cmd, args, str)
 		
 		XCF.Permissions.Safezones[szname] = {mins, maxs}
 		if default then XCF.Permissions.Safezones[szname].default = true end
-		ply:PrintMessage(HUD_PRINTCONSOLE, "Command SUCCESSFUL: added a safezone called " .. szname .. " between " .. tostring(mins) .. " and " .. tostring(maxs) .. "!")
-		return true
-		
-	else
-		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
-		return false
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: added a safezone called " .. szname .. " between " .. tostring(mins) .. " and " .. tostring(maxs) .. "!")
+		return true	
 	end
 end)
 
 
 
 
+concommand.Add( "xcf_removesafezone", function(ply, cmd, args, str)
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+	
+	if not args[1] then printmsg(HUD_PRINTCONSOLE,
+		" - Delete a safezone using its name." ..
+		"\n   Input a safezone name.  If it exists, it will be removed." ..
+		"\n   Deletion is not permanent until safezones are saved.")
+		return false
+	end
+	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
+		local szname = tostring(args[1])
+		if not szname then 
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: could not interpret your input as a string.")
+			return false
+		end
+		
+		if not (XCF.Permissions.Safezones and XCF.Permissions.Safezones[szname]) then
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: could not find a safezone called " .. szname .. ".")
+			return false
+		end
+		
+		if XCF.Permissions.Safezones[szname].default then 
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: an unmodifiable safezone called " .. szname .. " already exists!")
+			return false
+		end
+		
+		XCF.Permissions.Safezones[szname] = nil
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: removed the safezone called " .. szname .. "!")
+		return true	
+	end
+end)
+
+
+
 
 concommand.Add( "xcf_savesafezones", function(ply, cmd, args, str)
-	//if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
-	//	" - Save all current safezones to file.  They will be restored every time this map is loaded.")
-	//	return false
-	//end
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
 	
-	if ply:IsAdmin() then 
-	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else	
 		if not XCF.Permissions.Safezones then 
-			ply:PrintMessage(HUD_PRINTCONSOLE, "Command unsuccessful: There are no safezones on the map which can be saved.")
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: There are no safezones on the map which can be saved.")
 			return false
 		end
 		
@@ -198,56 +253,119 @@ concommand.Add( "xcf_savesafezones", function(ply, cmd, args, str)
 		file.CreateDir(mapSZDir)
 		file.Write(mapname, szjson)
 		
-		ply:PrintMessage(HUD_PRINTCONSOLE, "Command SUCCESSFUL: All safezones on the map have been made restorable.")
-		return true
-		
-	else
-		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
-		return false
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: All safezones on the map have been made restorable.")
+		return true	
 	end
 end)
 
+
+
+
+concommand.Add( "xcf_reloadsafezones", function(ply, cmd, args, str)
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
+		local ret = getMapSZs()
+		
+		if ret then
+			printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: All safezones on the map have been restored.")
+		else
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: Safezone file for this map is missing, invalid or corrupt.")
+		end
+		return ret
+	end
+end)
 
 
 
 
 concommand.Add( "xcf_setpermissionmode", function(ply, cmd, args, str)
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+
 	if not args[1] then 
 		local modes = ""
 		for k, v in pairs(XCF.Permissions.Modes) do
 			modes = modes .. k .. " "
 		end
-		ply:PrintMessage(HUD_PRINTCONSOLE,
+		printmsg(HUD_PRINTCONSOLE,
 		" - Set damage permission behaviour mode." ..
-		"   Available modes: " .. modes)
+		"\n   Available modes: " .. modes)
 		return false
 	end
 	
-	if ply:IsAdmin() then 
-	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
 		local mode = tostring(args[1])
 		if not XCF.Permissions.Modes[mode] then
-			ply:PrintMessage(HUD_PRINTCONSOLE, 
+			printmsg(HUD_PRINTCONSOLE, 
 			"Command unsuccessful: " .. mode .. " is not a valid permission mode!" .. 
 			"\nUse this command without arguments to see all available modes.")
 			return false
 		end
 		
+		local oldmode = table.KeyFromValue(XCF.Permissions.Modes, XCF.DamagePermission)
 		XCF.DamagePermission = XCF.Permissions.Modes[mode]
 		
-		for k, v in pairs(player.GetAll()) do
-			v:SendLua("chat.AddText(Color(255,0,0),\"Damage protection has been changed to " .. mode .. " mode!\")") 
-		end
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Current damage permission policy is now " .. mode .. "!")
 		
-		ply:PrintMessage(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Current damage permission policy is now " .. mode .. "!")
+		hook.Call("XCF_ProtectionModeChanged", GAMEMODE, mode, oldmode)
+		
 		return true
-		
-	else
-		ply:PrintMessage(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
-		return false
 	end
 end)
 
+
+
+
+concommand.Add( "xcf_reloadpermissionmodes", function(ply, cmd, args, str)
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
+		if not aaa_IncludeHere then
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: folder-loading function is not available.")
+			return false
+		end
+		
+		aaa_IncludeHere("xcf/server/permissionmodes")
+		
+		local mode = table.KeyFromValue(XCF.Permissions.Modes, XCF.DamagePermission)
+		
+		if not mode then
+			XCF.DamagePermission = function() return true end
+			hook.Call("XCF_ProtectionModeChanged", GAMEMODE, "default", nil)
+			mode = "default"
+		end
+		
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Current damage permission policy is now " .. mode .. "!")
+		return true
+	end
+end)
+
+
+
+
+local function tellPlysAboutDPMode(mode, oldmode)
+	if mode == oldmode then return end
+	
+	for k, v in pairs(player.GetAll()) do
+		v:SendLua("chat.AddText(Color(255,0,0),\"Damage protection has been changed to " .. mode .. " mode!\")") 
+	end
+end
+hook.Add("XCF_ProtectionModeChanged", "XCF_TellPlysAboutDPMode", tellPlysAboutDPMode)
 
 
 
@@ -263,75 +381,27 @@ function XCF.IsInSafezone(pos)
 		
 		if	(pos.x > szmin.x and pos.y > szmin.y and pos.z > szmin.z) and 
 			(pos.x < szmax.x and pos.y < szmax.y and pos.z < szmax.z) then
-			//print(szname)
 			return szname
 		end
 	end
-	//print("false")
 	return false
 end
 
 
 
 
-function XCF.Permissions.Modes.battle(owner, attacker, ent)
+function XCF.Permissions.RegisterMode(mode, name, desc)
+	XCF.Permissions.Modes[name] = mode
+	XCF.Permissions.ModeDescs[name] = desc
 	
-	local szs = XCF.Permissions.Safezones
-	
-	//print(szs, attacker, ent)
-	//if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end
-	
-	if szs then
-		local entpos = ent:GetPos()
-		local attpos = attacker:GetPos()
-		
-		if XCF.IsInSafezone(entpos) or XCF.IsInSafezone(attpos) then return false end
-	end
-	
-	return true
+	print("XCF: Registered damage permission mode \"" .. name .. "\"!")
 end
 
 
-//*
-function XCF.Permissions.Modes.build(owner, attacker, ent)
-	
-	//print(owner, attacker, ent)
-	
-	if not CPPI then return true end
-	if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end
-	
-	if not (attacker and IsValid(attacker) and attacker:IsPlayer()) then return false end
-	if not (owner and IsValid(owner) and owner:IsPlayer()) then 
-		if IsValid(ent) and ent:IsPlayer() then 
-			owner = ent
-		else 
-			return false
-		end
-	end
-	
-	if not (owner.SteamID or attacker.SteamID) then
-		print("XCF ERROR: owner or attacker is not a player!", tostring(owner), tostring(attacker), "\n", debug.traceback())
-		return false
-	end	
-	
-	local ownerid = owner:SteamID()
-	local attackerid = attacker:SteamID()
-	
-	if ownerid == attackerid then
-		return XCF.Permissions.Selfkill
-	end
-	
-	if not XCF.Permissions[ownerid] then
-		XCF.Permissions[ownerid] = {}
-	end
-	
-	if XCF.Permissions[ownerid][attackerid] then return true end
-	
-	return false
-end
-//*/
 
-XCF.DamagePermission = XCF.Permissions.Modes.build
+
+XCF.DamagePermission = function() return true end
+hook.Call("XCF_ProtectionModeChanged", GAMEMODE, "default", nil)
 
 
 
@@ -391,6 +461,8 @@ local function onDisconnect( ply )
 	if XCF.Permissions[plyid] then
 		XCF.Permissions[plyid] = nil
 	end
+	
+	plyzones[plyid] = nil
 end
 hook.Add( "PlayerDisconnected", "XCF_PermissionDisconnect", onDisconnect )
 
