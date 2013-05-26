@@ -115,7 +115,7 @@ end
 
 hook.Add( "Initialize", "XCF_LoadSafesForMap", function()
 	if not getMapSZs() then
-		print("!!!!!!!!!!!!!!!!!!\nWARNING: Safezone file " .. mapname .. " is missing, invalid or corrupt!  Safezones will not be restored this time.\n!!!!!!!!!!!!!!!!!!")
+		print("!!!!!!!!!!!!!!!!!!\nWARNING: Safezone file " .. getMapFilename() .. " is missing, invalid or corrupt!  Safezones will not be restored this time.\n!!!!!!!!!!!!!!!!!!")
 	end
 end )
 
