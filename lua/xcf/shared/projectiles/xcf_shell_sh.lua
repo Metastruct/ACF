@@ -60,22 +60,22 @@ end
 //*/
 function this.GetExpanded(bullet)
 
-	local input = {}
-	local input2 = bullet
-		input["Id"] = 			input2["Id"] or "12.7mmMG"
-		input["Type"] = 		input2["Type"] or "AP"
-		input["PropLength"] = 	input2["PropLength"] or 0
-		input["ProjLength"] = 	input2["ProjLength"] or 0
-		input["Data5"] = 		input2["FillerVol"] or 0
-		input["Data6"] = 		input2["ConeAng"] or 0
-		input["Data7"] = 		0
-		input["Data8"] = 		0
-		input["Data9"] = 		0
-		input["Data10"] = 		input2["Tracer"] or 0
-	local conversion = ACF.RoundTypes[input.Type].convert
+	local toconvert = {}
+	toconvert["Id"] = 			bullet["Id"] or "12.7mmMG"
+	toconvert["Type"] = 		bullet["Type"] or "AP"
+	toconvert["PropLength"] = 	bullet["PropLength"] or 0
+	toconvert["ProjLength"] = 	bullet["ProjLength"] or 0
+	toconvert["Data5"] = 		bullet["FillerVol"] or bullet["Data5"] or 0
+	toconvert["Data6"] = 		bullet["ConeAng"] or bullet["Data6"] or 0
+	toconvert["Data7"] = 		bullet["Data7"] or 0
+	toconvert["Data8"] = 		bullet["Data8"] or 0
+	toconvert["Data9"] = 		bullet["Data9"] or 0
+	toconvert["Data10"] = 		bullet["Tracer"] or bullet["Data10"] or 0
+		
+	local conversion = ACF.RoundTypes[bullet.Type].convert
 	
 	if not conversion then return nil end
-	local ret = conversion( nil, input )
+	local ret = conversion( nil, bullet )
 	
 	ret.ProjClass = this
 	

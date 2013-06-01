@@ -1,5 +1,7 @@
 PrecacheParticleSystem( "Rocket Motor" )
 
+local DEFAULTMODEL = "models/missiles/70mmffar.mdl"
+
 
 function EFFECT:Init( data )
 
@@ -34,7 +36,8 @@ function EFFECT:Config(Rocket)
 		
 	local rkclass = ACF.Weapons.Guns[Rocket.Id]
 		
-	self:SetModel(rkclass and rkclass.model or "models/missiles/aim54.mdl") 
+	self:SetModel(rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL) 
+	print("rocketmodel", rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL)
 		
 	self:SetPos( Rocket.Pos )	--Moving the effect to the calculated position
 	self:SetAngles( Rocket.Flight:Angle() )

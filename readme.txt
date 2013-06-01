@@ -64,9 +64,9 @@ ACF_CanRefill( Refill, Ammo )
 	
 	
 	
---------------------
---   XCF  HOOKS   --
---------------------
+---------------
+-- XCF HOOKS --
+---------------
 
 
 XCF_PlayerChangedZone

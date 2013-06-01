@@ -19,7 +19,7 @@ function ENT:Initialize()
 	self.Sequence = 0
 	
 	self.WireDebugName = "Ammo Crate"
-	self.Inputs = Wire_CreateInputs( self, { "Active" } ) --, "Fuse Length"
+	self.Inputs = Wire_CreateInputs( self, { "Active", "Detonate" } ) --, "Fuse Length"
 	self.Outputs = Wire_CreateOutputs( self, { "Munitions" , "On Fire" } )
 		
 	self.NextThink = CurTime() +  1
@@ -63,7 +63,6 @@ end
 function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )	--This function needs to return HitRes
 
 	local HitRes = ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor )	--Calling the standard damage prop function
-	
 	
 	if self.Exploding or not self.IsExplosive then return HitRes end
 	if HitRes.Kill then
@@ -193,8 +192,29 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 		PlayerData["Data8"] = self.RoundData8
 		PlayerData["Data9"] = self.RoundData9
 		PlayerData["Data10"] = self.RoundData10
+	
+	/*
+	print("\n\n\nbefore\n\n\n")
+	PrintTable(PlayerData)
 	self.ConvertData = ACF.RoundTypes[self.RoundType]["convert"]
 	self.BulletData = self:ConvertData( PlayerData )
+	print("\n\n\nafter\n\n\n")
+	PrintTable(self.BulletData)
+	//*/
+	
+	//*
+	local guntable = ACF.Weapons.Guns
+	local gun = guntable[self.RoundId]
+	local roundclass = XCF.ProjClasses[gun.roundclass or "Shell"] or error("Unrecognized projectile class " .. (gun.roundclass or "Shell") .. "!")
+	print("made a", gun.roundclass or "Shell", "crate!", roundclass)
+	
+	print("\n\n\nbefore\n\n\n")
+	PrintTable(PlayerData)
+	self.BulletData = roundclass.GetExpanded(PlayerData)
+	print("\n\n\nafter\n\n\n")
+	PrintTable(self.BulletData)
+	//*/
+	
 	
 	local Size = (self:OBBMaxs() - self:OBBMins())
 	local Efficiency = 0.11 * ACF.AmmoMod			--This is the part of space that's actually useful, the rest is wasted on interround gaps, loading systems ..
@@ -221,6 +241,24 @@ function ENT:TriggerInput( iname , value )
 		else
 			self.Load = false
 		end
+	elseif (iname == "Detonate") and value ~= 0 then
+		if not self.ACF then
+			self:ACF_Activate( false )
+		end
+		local HitRes = ACF_PropDamage( self , ACF_Kinetic( 99999 , 50000 ) , 999 , 0 , self.Owner )
+		//*
+		local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
+		if CanDo == false then return end
+		self.Exploding = true
+		//if( Inflictor and Inflictor:IsValid() and Inflictor:IsPlayer() ) then
+			self.Inflictor = self.Owner
+		//end
+		if self.Ammo > 1 then
+			ACF_AmmoExplosion( self , self:GetPos() )
+		else
+			ACF_HEKill( self , VectorRand() )
+		end
+		//*/
 	elseif (iname == "Fuse Length" and value > 0 and (self.BulletData["RoundType"] == "HE" or self.BulletData["RoundType"] == "APHE")) then
 	end
 

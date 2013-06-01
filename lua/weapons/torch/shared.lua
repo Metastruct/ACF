@@ -5,7 +5,7 @@ AddCSLuaFile( "shared.lua" )
 SWEP.Weight				= 5
 SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
-SWEP.AdminSpawnable			= true
+SWEP.AdminSpawnable			= false
 SWEP.Author					= "Lazermaniac"
 SWEP.Contact				= "lazermaniac@gmail.com"
 

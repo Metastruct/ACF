@@ -186,7 +186,7 @@ end
 
 function SWEP:DrawHUD()
 
-	//if not self.Owner:Alive() then return end
+	if not (self.Owner:Alive() or self.Owner:InVehicle()) then return end
 
 	local drawcircle = true
 	

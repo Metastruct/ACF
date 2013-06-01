@@ -90,12 +90,7 @@ function SWEP:Initialize()
 	self.BulletData["Type"]			= "HEAT"
 	//*/
 	
-	self.BulletData["Crate"] = -1
-	
-	/*
-	
-	//*/
-	
+	self.BulletData["Crate"] = -1	
 	self:UpdateFakeCrate()
 end
 
@@ -103,20 +98,13 @@ end
 
 function SWEP:FireBullet()
 
+	self.Owner:LagCompensation( true )
+
 	local MuzzlePos = self.Owner:GetShootPos()
 	local MuzzleVec = self.Owner:GetAimVector()
 	local angs = self.Owner:EyeAngles()
 	local MuzzlePos2 = MuzzlePos + angs:Forward() * self.AimOffset.x + angs:Right() * self.AimOffset.y
 	local MuzzleVecFinal = self:inaccuracy(MuzzleVec, self.Inaccuracy)
-	/*
-	self.BulletData["Pos"] = MuzzlePos
-	self.BulletData["Flight"] = MuzzleVecFinal * 100// + self.Owner:GetVelocity()
-	self.BulletData["Owner"] = self.Owner
-	self.BulletData["Gun"] = self
-	
-	XCF_CreateDumbMissile(self.BulletData, true)
-	//XCF_CreateBulletSWEP(self.BulletData, self)
-	//*/
 	
 	//printByName(self.BulletData)
 	
@@ -140,6 +128,8 @@ function SWEP:FireBullet()
 	XCF_CreateBulletSWEP(self.BulletData, self)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
+	
+	self.Owner:LagCompensation( false )
 	
 	debugoverlay.Line(MuzzlePos, MuzzlePos + MuzzleVecFinal * 100, 60, Color(200, 200, 255, 255),  true)
 	

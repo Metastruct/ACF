@@ -390,6 +390,9 @@ function ENT:FireShell()
 			
 			self:MuzzleEffect( MuzzlePos , MuzzleVec )
 			
+			//print("\n\n\nfiredata\n\n\n")
+			//PrintTable(AmmoEnt.BulletData)
+			
 			self.BulletData["Pos"] = MuzzlePos
 			self.BulletData["Flight"] = (MuzzleVec+Inaccuracy):GetNormalized() * self.BulletData["MuzzleVel"] * 39.37 + self:GetVelocity()
 			self.BulletData["Owner"] = self.User
@@ -455,6 +458,7 @@ function ENT:LoadAmmo( AddTime, Reload )
 	
 	if AmmoEnt then
 		AmmoEnt.Ammo = AmmoEnt.Ammo - 1
+		
 		self.BulletData = AmmoEnt.BulletData
 		self.BulletData["Crate"] = AmmoEnt:EntIndex()
 		

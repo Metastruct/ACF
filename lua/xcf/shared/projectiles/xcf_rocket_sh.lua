@@ -58,23 +58,20 @@ end
 
 
 function this.GetExpanded(rocket)
-
-	//printByName(rocket)
 	
-	local input = {}
-	local input2 = rocket
-		input["Id"] = 			input2["Id"] or "85mmRK"
-		input["Type"] = 		input2["Type"] or "AP"
-		input["PropLength"] = 	input2["PropLength"] or 0
-		input["ProjLength"] = 	input2["ProjLength"] or 0
-		input["Data5"] = 		input2["FillerVol"] or 0
-		input["Data6"] = 		input2["ConeAng"] or 0
-		input["Data7"] = 		0
-		input["Data8"] = 		0
-		input["Data9"] = 		0
-		input["Data10"] = 		input2["Tracer"] or 0
+	local toconvert = {}
+	toconvert["Id"] = 			rocket["Id"] or "85mmRK"
+	toconvert["Type"] = 		rocket["Type"] or "AP"
+	toconvert["PropLength"] = 	rocket["PropLength"] or 0
+	toconvert["ProjLength"] = 	rocket["ProjLength"] or 0
+	toconvert["Data5"] = 		rocket["FillerVol"] or rocket["Data5"] or 0
+	toconvert["Data6"] = 		rocket["ConeAng"] or rocket["Data6"] or 0
+	toconvert["Data7"] = 		rocket["Data7"] or 0
+	toconvert["Data8"] = 		rocket["Data8"] or 0
+	toconvert["Data9"] = 		rocket["Data9"] or 0
+	toconvert["Data10"] = 		rocket["Tracer"] or rocket["Data10"] or 0
 
-	local ret = XCF_GenerateMissileInfo( input, true )
+	local ret = XCF_GenerateMissileInfo( toconvert, true )
 	
 	ret.ProjClass = this
 	

@@ -1,5 +1,6 @@
 //TODO: sort out the details
 //print("hi there")
+/*
 local Rocket = {}
 	Rocket.spread = 1
 	Rocket.name = "Rocket"
@@ -9,3 +10,4 @@ local Rocket = {}
 	Rocket.sound = " "
 	Rocket.soundDistance = " "
 ACF.Classes.GunClass["RK"] = Rocket	
+//*/

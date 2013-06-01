@@ -74,9 +74,11 @@ end
 
 function SWEP:FireBullet()
 
+	self.Owner:LagCompensation( true )
+
 	local MuzzlePos = self.Owner:GetShootPos()
 	local MuzzleVec = self.Owner:GetAimVector()
-	local angs = self.Owner:EyeAngles()
+	local angs = self.Owner:EyeAngles()	
 	local MuzzlePos2 = MuzzlePos + angs:Forward() * self.AimOffset.x + angs:Right() * self.AimOffset.y
 	local MuzzleVecFinal = self:inaccuracy(MuzzleVec, self.Inaccuracy)
 	
@@ -88,6 +90,8 @@ function SWEP:FireBullet()
 	XCF_CreateBulletSWEP(self.BulletData, self)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
+	
+	self.Owner:LagCompensation( false )
 	
 	//debugoverlay.Line(MuzzlePos, MuzzlePos + MuzzleVecFinal * 10000, 60, Color(200, 200, 255, 255),  true)
 	
