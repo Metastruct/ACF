@@ -18,7 +18,7 @@ end
 
 local function findParticle(parent)
 	local parts = ents.FindByClassAndParent("info_particle_system", parent)
-	PrintTable(parts)
+	//PrintTable(parts)
 	//for k, v in pairs(parts) do
 		//if v:GetParent() == parent then return v end
 	//end
@@ -37,7 +37,7 @@ function EFFECT:Config(Rocket)
 	local rkclass = ACF.Weapons.Guns[Rocket.Id]
 		
 	self:SetModel(rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL) 
-	print("rocketmodel", rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL)
+	//print("rocketmodel", rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL)
 		
 	self:SetPos( Rocket.Pos )	--Moving the effect to the calculated position
 	self:SetAngles( Rocket.Flight:Angle() )

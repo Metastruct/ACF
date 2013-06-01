@@ -204,10 +204,10 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	
 	//*
 	local guntable = ACF.Weapons.Guns
-	local gun = guntable[self.RoundId]
+	local gun = guntable[self.RoundId] or {}
 	local roundclass = XCF.ProjClasses[gun.roundclass or "Shell"] or error("Unrecognized projectile class " .. (gun.roundclass or "Shell") .. "!")
-	print("made a", gun.roundclass or "Shell", "crate!", roundclass)
-	
+	//print("made a", gun.roundclass or "Shell", "crate!", roundclass)
+	/*
 	print("\n\n\nbefore\n\n\n")
 	PrintTable(PlayerData)
 	self.BulletData = roundclass.GetExpanded(PlayerData)
