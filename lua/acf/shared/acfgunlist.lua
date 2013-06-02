@@ -846,26 +846,22 @@ GunTable["40mmSL"] = SL40mm
 
 
 
-
-
-
-
 local dumbfire = // it's a dumb hellfire.
 {
-	["id"]			= "170mmRK",
+	["id"]			= "170mmRT",
 	["ent"]			= "acf_gun",
 	["type"]		= "Guns",
-	["name"]		= "170mm Rocket",
-	["desc"]		= "An unguided multi-purpose rocket, able to carry almost any effective anti-tank warhead.  Best employed in aircraft.",
+	["name"]		= "170mm Tube Rocket",
+	["desc"]		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
 	["model"]		= "models/mortar/mortar_200mm.mdl",
 	["caliber"]		= 17,
-	["gunclass"]	= "RK",
+	["gunclass"]	= "RT",
 	["weight"]		= 350,
 	["year"]		= 1970,
 	["roundclass"]	= "Rocket",
 	["round"]		= 
 	{
-		["id"]			= "170mmRK",
+		["id"]			= "170mmRT",
 		["model"]		= "models/missiles/micro.mdl",
 		["maxlength"]	= 160,
 		["maxweight"]	= 50,
@@ -882,20 +878,20 @@ GunTable[dumbfire.id] = dumbfire
 
 local pg7v = // it's an rpg rocket
 {
-	["id"]			= "85mmRK",
+	["id"]			= "85mmRT",
 	["ent"]			= "acf_gun",
 	["type"]		= "Guns",
-	["name"]		= "85mm RPG Round",
-	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles, can be deployed in man-portable launchers or rocket pods.",
+	["name"]		= "85mm Tube Rocket",
+	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
 	["model"]		= "models/mortar/mortar_80mm.mdl",
 	["caliber"]		= 8.5,
-	["gunclass"]	= "RK",
+	["gunclass"]	= "RT",
 	["weight"]		= 120,
 	["year"]		= 1960,
 	["roundclass"]	= "Rocket",
 	["round"]		= 
 	{
-		["id"]			= "85mmRK",
+		["id"]			= "85mmRT",
 		["model"]		= "models/missiles/70mmffar.mdl",
 		["maxlength"]	= 24*2.54,
 		["maxweight"]	= 2.6,
@@ -908,6 +904,68 @@ local pg7v = // it's an rpg rocket
 	}
 }
 GunTable[pg7v.id] = pg7v
+
+
+
+
+local dumbfirerack = // it's a dumb hellfire.
+{
+	["id"]			= "170mmR4",
+	["ent"]			= "acf_rack",
+	["type"]		= "Guns",
+	["name"]		= "170mm Rack Rocket",
+	["desc"]		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	["model"]		= "models/missiles/rack_quad.mdl",
+	["caliber"]		= 17,
+	["gunclass"]	= "R4",
+	["weight"]		= 75,
+	["year"]		= 1970,
+	["roundclass"]	= "Rocket",
+	["round"]		= 
+	{
+		["id"]			= "170mmR4",
+		["model"]		= "models/missiles/micro.mdl",
+		["maxlength"]	= 160,
+		["maxweight"]	= 50,
+		["casing"]		= 0.5,	// thickness of missile casing, cm
+			// rough calculations from hellfire M120E3 motor
+		["propweight"]	= 13,	// motor mass - motor casing
+		["thrust"]		= 6200*39.37,	// average thrust - kg*in/s^2
+		["burnrate"]	= 2300,	// cm^3/s at average chamber pressure
+		["muzzlevel"]	= 1*39.37	// fudged it.
+	}
+}
+GunTable[dumbfirerack.id] = dumbfirerack
+
+
+local pg7vrack = // it's an rpg rocket
+{
+	["id"]			= "85mmR4",
+	["ent"]			= "acf_rack",
+	["type"]		= "Guns",
+	["name"]		= "85mm Rack Rocket",
+	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	["model"]		= "models/missiles/rack_quad.mdl",
+	["caliber"]		= 8.5,
+	["gunclass"]	= "R4",
+	["weight"]		= 75,
+	["year"]		= 1960,
+	["roundclass"]	= "Rocket",
+	["round"]		= 
+	{
+		["id"]			= "85mmR4",
+		["model"]		= "models/missiles/70mmffar.mdl",
+		["maxlength"]	= 24*2.54,
+		["maxweight"]	= 2.6,
+		["casing"]		= 0.2,	// thickness of missile casing, cm
+			// rough calculations from hellfire M120E3 motor
+		["propweight"]	= 1.7,	// motor mass - motor casing
+		["thrust"]		= 2000*39.37,	// average thrust - kg*in/s^2
+		["burnrate"]	= 3000,	// cm^3/s at average chamber pressure
+		["muzzlevel"]	= 114	// fudged it.
+	}
+}
+GunTable[pg7vrack.id] = pg7vrack
 
 
 
@@ -1033,17 +1091,26 @@ local SmokeLauncher = {}
 GunClass["SL"] = SmokeLauncher	
 
 
+local rocketTube = {}
+	rocketTube.spread = 3
+	rocketTube.name = "Rocket Tube"
+	rocketTube.muzzleflash = "40mm_muzzleflash_noscale"
+	rocketTube.rofmod = 1
+	rocketTube.sound = "weapons/grenade_launcher1.wav"
+	rocketTube.soundDistance = " "
+	rocketTube.soundNormal = " "
+GunClass["RT"] = rocketTube
 
 
-local rocket = {}
-	rocket.spread = 2
-	rocket.name = "Rocket Launcher"
-	rocket.muzzleflash = "40mm_muzzleflash_noscale"
-	rocket.rofmod = 1
-	rocket.sound = "weapons/grenade_launcher1.wav"
-	rocket.soundDistance = " "
-	rocket.soundNormal = " "
-GunClass["RK"] = rocket
+local munitionRack4x = {}
+	munitionRack4x.spread = 3
+	munitionRack4x.name = "Munition Rack 4x"
+	munitionRack4x.muzzleflash = "40mm_muzzleflash_noscale"
+	munitionRack4x.rofmod = 1
+	munitionRack4x.sound = "acf_extra/airfx/rocket_fire2.wav"
+	munitionRack4x.soundDistance = " "
+	munitionRack4x.soundNormal = " "
+GunClass["R4"] = munitionRack4x
 
 
 

@@ -48,6 +48,7 @@ else
 	-- list of entity classes this tool is allowed to spawn.
 	TOOL.AllowedTypes = {}
 	TOOL.AllowedTypes["acf_gun"] 		= true
+	TOOL.AllowedTypes["acf_rack"] 		= true
 	TOOL.AllowedTypes["acf_ammo"] 		= true
 	TOOL.AllowedTypes["acf_engine"] 	= true
 	TOOL.AllowedTypes["acf_gearbox"] 	= true
@@ -101,6 +102,7 @@ if SERVER then
 	local translateEntToType = 
 	{
 		["acf_gun"] = "Guns",
+		["acf_rack"] = "Guns",
 		["acf_ammo"] = "Ammo",
 		["acf_engine"] = "Mobility",
 		["acf_gearbox"] = "Mobility"

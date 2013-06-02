@@ -256,8 +256,7 @@ end
 
 function RetDist( enta, entb )
 	if not ((enta and enta:IsValid()) or (entb and entb:IsValid())) then return 0 end
-	disp = enta:GetPos() - entb:GetPos()
-	dist = math.sqrt( disp.x * disp.x + disp.y * disp.y + disp.z * disp.z )
+	disp = enta:GetPos():Distance(entb:GetPos())
 	return dist
 end
 
