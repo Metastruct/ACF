@@ -557,7 +557,7 @@ __e2setcost( 10 )
 e2function number entity:acfPropHealth()
 	if not validPhysics(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
-	if not ACF_Check(this) then return 0 end
+	if not XCF_Check(self, this) then return 0 end
 	return math.Round(this.ACF.Health or 0,3)
 end
 
@@ -565,7 +565,7 @@ end
 e2function number entity:acfPropArmor()
 	if not validPhysics(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
-	if not ACF_Check(this) then return 0 end
+	if not XCF_Check(self, this) then return 0 end
 	return math.Round(this.ACF.Armour or 0,3)
 end
 
@@ -573,7 +573,7 @@ end
 e2function number entity:acfPropHealthMax()
 	if not validPhysics(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
-	if not ACF_Check(this) then return 0 end
+	if not XCF_Check(self, this) then return 0 end
 	return math.Round(this.ACF.MaxHealth or 0,3)
 end
 
@@ -581,7 +581,7 @@ end
 e2function number entity:acfPropArmorMax()
 	if not validPhysics(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
-	if not ACF_Check(this) then return 0 end
+	if not XCF_Check(self, this) then return 0 end
 	return math.Round(this.ACF.MaxArmour or 0,3)
 end
 
@@ -589,7 +589,7 @@ end
 e2function number entity:acfPropDuctility()
 	if not validPhysics(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
-	if not ACF_Check(this) then return 0 end
+	if not XCF_Check(self, this) then return 0 end
 	return (this.ACF.Ductility or 0)*100
 end
 
