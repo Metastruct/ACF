@@ -920,6 +920,7 @@ local dumbfirerack = // it's a dumb hellfire.
 	["gunclass"]	= "R4",
 	["weight"]		= 75,
 	["year"]		= 1970,
+	["magsize"]		= 4,
 	["roundclass"]	= "Rocket",
 	["round"]		= 
 	{
@@ -950,6 +951,7 @@ local pg7vrack = // it's an rpg rocket
 	["gunclass"]	= "R4",
 	["weight"]		= 75,
 	["year"]		= 1960,
+	["magsize"]		= 4,
 	["roundclass"]	= "Rocket",
 	["round"]		= 
 	{
