@@ -52,8 +52,8 @@ function ENT:Link( Target )
 	
 	MakeACF_Rack(self.Owner, self:GetPos(), self:GetAngles(), Target.BulletData.Id, self, Target.BulletData)
 	
-	self.ReloadTime = ( ( Target.BulletData["RoundVolume"] / 500 ) ^ 0.60 ) * self.RoFmod * self.PGRoFmod
-	self.RateOfFire = 60 / self.ReloadTime
+	//self.ReloadTime = ( ( Target.BulletData["RoundVolume"] / 500 ) ^ 0.60 ) * self.RoFmod * self.PGRoFmod
+	//self.RateOfFire = 60 / self.ReloadTime
 	Wire_TriggerOutput( self, "Fire Rate", self.RateOfFire )
 	Wire_TriggerOutput( self, "Muzzle Weight", math.floor( Target.BulletData["ProjMass"] * 1000 ) )
 	Wire_TriggerOutput( self, "Muzzle Velocity", math.floor( Target.BulletData["MuzzleVel"] * ACF.VelScale ) )
@@ -276,6 +276,12 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 		Rack.BulletData = table.Copy(UpdateBullet)
 	end
 	
+	local volume = Rack.BulletData["RoundVolume"]
+	if volume then
+		Rack.ReloadTime = ( ( volume / 500 ) ^ 0.60 ) * Rack.RoFmod * Rack.PGRoFmod
+		Rack.RateOfFire = 60 / Rack.ReloadTime
+	end
+	
 	return Rack
 	
 end
@@ -405,6 +411,7 @@ function ENT:PreEntityCopy()
 	local projclass = self.BulletData.ProjClass// or error("Tried to copy an ACF Rack but it was loaded with invalid ammo! (" .. tostring(self.BulletData.Id) .. ", " .. tostring(self.BulletData.Type) .. ")")
 	if projclass then
 		local squashedammo = projclass.GetCompact(self.BulletData)
+		printByName(squashedammo)
 		duplicator.StoreEntityModifier( self, "ACFRackAmmo", squashedammo )
 	end
 	
@@ -421,19 +428,21 @@ end
 
 function ENT:PostEntityPaste( Player, Ent, CreatedEntities )
 
-	local squashedammo = Ent.EntityMods.ACFRackAmmo
-	if Ent.EntityMods and squashedammo then
+	if(Ent.EntityMods and Ent.EntityMods.WireDupeInfo) then
+		WireLib.ApplyDupeInfo(Player, Ent, Ent.EntityMods.WireDupeInfo, function(id) return CreatedEntities[id] end)
+	end
+
+	local squashedammo = Ent.EntityMods and Ent.EntityMods.ACFRackAmmo or nil
+	if squashedammo then
 		local ammoclass = XCF.ProjClasses[squashedammo.ProjClass]// or error("Tried to copy an ACF Rack but it was loaded with invalid ammo! (" .. tostring(squashedammo.ProjClass) ", " .. tostring(squashedammo.Id) .. ", " .. tostring(squashedammo.Type) .. ")")
 		if ammoclass then
 			self.BulletData = ammoclass.GetExpanded(squashedammo)
+			printByName(self.BulletData)
 			Ent.EntityMods.ACFRackAmmo = nil
 		end
 	end
 	
-	//Wire dupe info
-	if(Ent.EntityMods and Ent.EntityMods.WireDupeInfo) then
-		WireLib.ApplyDupeInfo(Player, Ent, Ent.EntityMods.WireDupeInfo, function(id) return CreatedEntities[id] end)
-	end
+	MakeACF_Rack(self.Owner, self:GetPos(), self:GetAngles(), self.BulletData.Id, self, self.BulletData)
 
 end
 
