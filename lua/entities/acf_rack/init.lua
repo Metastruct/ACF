@@ -346,7 +346,7 @@ function ENT:FireMissile()
 			local CreateShell = ACF.RoundTypes[self.BulletData["Type"]]["create"]
 			CreateShell( self, self.BulletData )
 			
-			self:MuzzleEffect( MuzzlePos , MuzzleVec )
+			self:MuzzleEffect( attach )
 		
 			//TODO: simulate backblast
 			/*
@@ -378,12 +378,13 @@ end
 
 
 
-function ENT:MuzzleEffect()
+function ENT:MuzzleEffect( attach )
 	
 	local Effect = EffectData()
 		Effect:SetEntity( self )
 		Effect:SetScale( self.BulletData["PropMass"] )
 		Effect:SetMagnitude( self.ReloadTime )
+		Effect:SetRadius(attach or 0)
 		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData["Type"]]["netid"]  )	--Encoding the ammo type into a table index
 	util.Effect( "ACF_MuzzleFlash", Effect, true, true )
 
