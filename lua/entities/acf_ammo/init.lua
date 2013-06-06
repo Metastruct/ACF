@@ -275,6 +275,73 @@ function ENT:FirstLoad()
 	
 end
 
+
+
+local doSupply = 
+{
+	["acf_ammo"] = function(self, Ammo, dist)
+		local dist = self:GetPos():Distance(Ammo:GetPos())
+		if dist > ACF.RefillDistance then return end
+	
+		if Ammo.Capacity > Ammo.Ammo then
+			self.SupplyingTo = self.SupplyingTo or {}
+			if not table.HasValue( self.SupplyingTo, Ammo:EntIndex() ) then
+				table.insert(self.SupplyingTo, Ammo:EntIndex())
+				self:RefillEffect( Ammo )
+			end
+					
+			print("ammo doing supply")
+					
+			local Supply = math.ceil((50000/((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000))/dist)
+			--Msg(tostring(50000).."/"..((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000).."/"..dist.."="..Supply.."\n")
+			local Transfert = math.min(Supply , Ammo.Capacity - Ammo.Ammo)
+			Ammo.Ammo = Ammo.Ammo + Transfert
+			self.Ammo = self.Ammo - Transfert
+				
+			Ammo.Supplied = true
+			Ammo.Entity:EmitSound( "items/ammo_pickup.wav" , 500, 80 )
+		end
+	end,
+	
+	["acf_rack"] = function(self, Rack, dist)
+		local dist = self:GetPos():Distance(Rack:GetPos())
+		if dist > ACF.RefillDistance then return end
+	
+		if Rack.BulletData.Type ~= "Empty" and Rack.MagSize and (Rack.MagSize - Rack.CurrentShot < Rack.MagSize) or Rack.CurrentShot ~= 0 then
+			self.SupplyingTo = self.SupplyingTo or {}
+			if not table.HasValue( self.SupplyingTo, Rack:EntIndex() ) then
+				table.insert(self.SupplyingTo, Rack:EntIndex())
+				self:RefillEffect( Rack )
+			end
+					
+			local Supply = math.ceil((50000/((Rack.BulletData["ProjMass"] + Rack.BulletData["PropMass"]) * 1000)) / dist)
+			--Msg(tostring(50000).."/"..((Rack.BulletData["ProjMass"]+Rack.BulletData["PropMass"])*1000).."/"..dist.."="..Supply.."\n")
+			local Transfert = math.min(Supply , Rack.CurrentShot)
+			if Rack:LoadAmmo( 0, Transfert ) then
+				self.Ammo = self.Ammo - Transfert
+				
+				Rack.Supplied = true
+				Rack.Entity:EmitSound( "items/ammo_pickup.wav" , 500, 80 )
+			end
+		end
+	end
+}
+
+
+local getFull = 
+{
+	["acf_ammo"] = function(Ammo)
+		return Ammo.Capacity <= Ammo.Ammo
+	end,
+	
+	["acf_rack"] = function(Rack)
+		return Rack.CurrentShot == 0
+	end
+}
+
+
+
+
 function ENT:Think()
 	local AmmoMass = self:AmmoMass()
 	self.Mass = math.max(self.EmptyMass, self:GetPhysicsObject():GetMass() - AmmoMass) + AmmoMass*(self.Ammo/math.max(self.Capacity,1))
@@ -320,31 +387,20 @@ function ENT:Think()
 			end
 			self:NextThink( CurTime() + 0.01 + self.BulletData["RoundVolume"]^0.5/100 )
 		end
-	elseif self.RoundType == "Refill" and self.Ammo > 0 then // Completely new, fresh, genius, beautiful, flawless refill system.
+		
+	elseif self.RoundType == "Refill" and self.Ammo > 0 then // Even newer, fresher, more genius, beautiful and flawless refill system.
 		if self.Load then
 			for _,Ammo in pairs( ACF.AmmoCrates ) do
 				if Ammo.RoundType ~= "Refill" then
 					local dist = self:GetPos():Distance(Ammo:GetPos())
 					if dist < ACF.RefillDistance then
-					
-						if Ammo.Capacity > Ammo.Ammo then
-							self.SupplyingTo = self.SupplyingTo or {}
-							if not table.HasValue( self.SupplyingTo, Ammo:EntIndex() ) then
-								table.insert(self.SupplyingTo, Ammo:EntIndex())
-								self:RefillEffect( Ammo )
-							end
-									
-							local Supply = math.ceil((50000/((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000))/dist)
-							--Msg(tostring(50000).."/"..((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000).."/"..dist.."="..Supply.."\n")
-							local Transfert = math.min(Supply , Ammo.Capacity - Ammo.Ammo)
-							Ammo.Ammo = Ammo.Ammo + Transfert
-							self.Ammo = self.Ammo - Transfert
-								
-							Ammo.Supplied = true
-							Ammo.Entity:EmitSound( "items/ammo_pickup.wav" , 500, 80 )
-						end
+						doSupply["acf_ammo"](self, Ammo, dist)
 					end
 				end
+			end
+			
+			for _, rack in pairs(ents.FindByClass("acf_rack")) do
+				doSupply["acf_rack"](self, rack, dist)
 			end
 		end
 	end
@@ -357,7 +413,7 @@ function ENT:Think()
 				self:StopRefillEffect( Ammo )
 			else
 				local dist = self:GetPos():Distance(Ammo:GetPos())
-				if dist > ACF.RefillDistance or Ammo.Capacity <= Ammo.Ammo or self.Damaged or not self.Load then // If ammo crate is out of refill max distance or is full or our refill crate is damaged or just in-active then stop refiliing it.
+				if dist > ACF.RefillDistance or getFull[Ammo:GetClass()](Ammo) or self.Damaged or not self.Load then // If ammo crate is out of refill max distance or is full or our refill crate is damaged or just in-active then stop refiliing it.
 					table.remove(self.SupplyingTo, k)
 					self:StopRefillEffect( Ammo )
 				end
@@ -370,11 +426,26 @@ function ENT:Think()
 
 end
 
+
+
+local getWeapon = 
+{
+	["acf_ammo"] = function(ammo)
+		return ammo.RoundId
+	end,
+	
+	["acf_rack"] = function(rack)
+		return rack.BulletData.Id
+	end
+}
+
+
+
 function ENT:RefillEffect( Target )
 	umsg.Start("ACF_RefillEffect")
 		umsg.Float( self:EntIndex() )
 		umsg.Float( Target:EntIndex() )
-		umsg.String( Target.RoundType )
+		umsg.String( getWeapon[Target:GetClass()](Target) )
 	umsg.End()
 end
 

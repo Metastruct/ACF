@@ -21,7 +21,7 @@ function ENT:GetOverlayText()
 	local RoundType = self:GetNetworkedBeamString("Type")
 	local FireRate = self:GetNetworkedBeamInt("FireRate")
 	local Mass = self:GetNetworkedBeamInt("Mass")/100
-	local Filler =self:GetNetworkedBeamInt("Filler")/100
+	local Filler = self:GetNetworkedBeamInt("Filler")/100
 	local Propellant = self:GetNetworkedBeamInt("Propellant")/1000
 	local txt = GunType.." : "..Ammo.." : \nRound Type : "..RoundType.."\nRound Mass : "..Mass.."\nFiller Mass : "..Filler.."\nPropellant : "..Propellant.."\nRounds Per Minute: "..FireRate or ""
 	if (not game.SinglePlayer()) then

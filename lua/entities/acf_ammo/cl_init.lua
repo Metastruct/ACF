@@ -93,10 +93,10 @@ function ENT:Think()
 end
 
 usermessage.Hook("ACF_RefillEffect", function( msg )
-	local EntFrom, EntTo, Index = ents.GetByIndex( msg:ReadFloat() ), ents.GetByIndex( msg:ReadFloat() ), msg:ReadString()
+	local EntFrom, EntTo, Weapon = ents.GetByIndex( msg:ReadFloat() ), ents.GetByIndex( msg:ReadFloat() ), msg:ReadString()
 	if not IsValid( EntFrom ) or not IsValid( EntTo ) then return end
-	local List = list.Get( "ACFRoundTypes")
-	local Mdl = List[Index].model or "models/munitions/round_100mm_shot.mdl"
+	//local List = list.Get( "ACFRoundTypes")	
+	local Mdl = ACF.Weapons.Guns[Weapon].round.model or "models/munitions/round_100mm_shot.mdl"
 	EntFrom.RefillAmmoEffect = EntFrom.RefillAmmoEffect or {}
 	table.insert( EntFrom.RefillAmmoEffect, {EntFrom = EntFrom, EntTo = EntTo, Model = Mdl, StTime = SysTime()} )
 

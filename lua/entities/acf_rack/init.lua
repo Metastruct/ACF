@@ -147,17 +147,16 @@ function ENT:Think()
 
 	local Time = CurTime()
 	if self.LastSend+1 <= Time then
-		if( self.MagSize ) then
-			Wire_TriggerOutput(self, "Shots Left", self.MagSize - self.CurrentShot)
-		else
-			Wire_TriggerOutput(self, "Shots Left", 1)
-		end
+		local Ammo = (self.MagSize or 1) - self.CurrentShot
+		
+		Wire_TriggerOutput(self, "Shots Left", Ammo)
 		
 		self:SetNetworkedBeamString("GunType",self.Id)
 		self:SetNetworkedBeamInt("Ammo",Ammo)
 		self:SetNetworkedBeamString("Type",self.BulletData["Type"])
 		self:SetNetworkedBeamInt("Mass",self.BulletData["ProjMass"]*100)
 		self:SetNetworkedBeamInt("Propellant",self.BulletData["PropMass"]*1000)
+		self:SetNetworkedBeamInt("Filler",self.BulletData["FillerMass"]*1000)
 		self:SetNetworkedBeamInt("FireRate",self.RateOfFire)
 		
 		self.LastSend = Time
@@ -183,13 +182,16 @@ end
 function ENT:LoadAmmo( AddTime, Reload )
 		
 	if self.CurrentShot == 0 then return false end
+	local Ammo = (self.MagSize or 1) - self.CurrentShot
+	if not (self.Ready or Ammo == 0) then return false end
 		
-	self.CurrentShot = math.Clamp(self.CurrentShot - 1, 0, self.MagSize)
+	self.CurrentShot = math.Clamp(self.CurrentShot - Reload, 0, self.MagSize)
 	
 	self.NextFire = CurTime() + self.ReloadTime
 	if AddTime then
 		self.NextFire = CurTime() + self.ReloadTime + AddTime
 	end
+	self.Ready = false
 	
 	self:OnLoaded()
 	
