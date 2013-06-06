@@ -19,6 +19,7 @@ function ENT:Initialize()
 	
 	self.BulletData = {}
 		self.BulletData["Type"] = "Empty"
+		self.BulletData["FillerMass"] = 0
 		self.BulletData["PropMass"] = 0
 		self.BulletData["ProjMass"] = 0
 	
@@ -414,7 +415,7 @@ function ENT:PreEntityCopy()
 	local projclass = self.BulletData.ProjClass// or error("Tried to copy an ACF Rack but it was loaded with invalid ammo! (" .. tostring(self.BulletData.Id) .. ", " .. tostring(self.BulletData.Type) .. ")")
 	if projclass then
 		local squashedammo = projclass.GetCompact(self.BulletData)
-		printByName(squashedammo)
+		//printByName(squashedammo)
 		duplicator.StoreEntityModifier( self, "ACFRackAmmo", squashedammo )
 	end
 	
@@ -440,7 +441,7 @@ function ENT:PostEntityPaste( Player, Ent, CreatedEntities )
 		local ammoclass = XCF.ProjClasses[squashedammo.ProjClass]// or error("Tried to copy an ACF Rack but it was loaded with invalid ammo! (" .. tostring(squashedammo.ProjClass) ", " .. tostring(squashedammo.Id) .. ", " .. tostring(squashedammo.Type) .. ")")
 		if ammoclass then
 			self.BulletData = ammoclass.GetExpanded(squashedammo)
-			printByName(self.BulletData)
+			//printByName(self.BulletData)
 			Ent.EntityMods.ACFRackAmmo = nil
 		end
 	end

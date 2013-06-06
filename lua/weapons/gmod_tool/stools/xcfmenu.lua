@@ -151,18 +151,18 @@ if SERVER then
 			
 			
 			-- check if we're updating an existing entity or making a new one
-			local Feedback = nil
 			if ( trace.Entity:GetClass() == Type and trace.Entity.CanUpdate ) then
 				table.insert(ArgTable,1,ply)
-				Feedback = trace.Entity:Update( ArgTable )
+				status, Feedback = trace.Entity:Update( ArgTable )
+				ACF_SendNotify( ply, status, Feedback )
 			else
 				local Ent = DupeClass.Func(ply, unpack(ArgTable))		--Using the Duplicator entity register to find the right factory function
 				if IsValid(Ent) then
 					Ent:Activate()
 					Ent:GetPhysicsObject():Wake()
       
-					print(Type, Id)
-					PrintTable(infotable)
+					//print(Type, Id)
+					//PrintTable(infotable)
 					
 					local enttype = translateEntToType[Type]
 	  
@@ -171,10 +171,6 @@ if SERVER then
         				undo.SetPlayer( ply )
       				undo.Finish()
 				end
-			end
-			
-			if Feedback != nil then
-				ply:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", Feedback, "NOTIFY_ERROR" ) )
 			end
 				
 			return true
@@ -212,21 +208,18 @@ function TOOL:RightClick( trace )
 
 	if (CLIENT) then return true end
 	
-	if self:GetOwner():KeyDown( IN_USE ) then
+	local ply = self:GetOwner()
+	
+	if ply:KeyDown( IN_USE ) then
 	
 		if (self:GetStage() == 0) and trace.Entity.IsMaster then
 			self.Master = trace.Entity
 			self:SetStage(1)
 			return true
 		elseif self:GetStage() == 1 then
-			local Error = self.Master:Unlink( trace.Entity )
-			if !Error then
-				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Unlink Succesful', NOTIFY_GENERIC, 7);" )
-			elseif Error != nil then
-				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", tostring(Error), "NOTIFY_ERROR" ) )
-			else
-				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Unlink Failed', NOTIFY_GENERIC, 7);" )
-			end
+			local status, Feedback = self.Master:Unlink( trace.Entity )
+			ACF_SendNotify( ply, status, Feedback )
+			
 			self:SetStage(0)
 			self.Master = nil
 			return true
@@ -241,14 +234,9 @@ function TOOL:RightClick( trace )
 			self:SetStage(1)
 			return true
 		elseif self:GetStage() == 1 then
-			local Error = self.Master:Link( trace.Entity )
-			if !Error then
-				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Link Succesful', NOTIFY_GENERIC, 7);" )
-			elseif Error != nil then
-				self:GetOwner():SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", tostring(Error), "NOTIFY_ERROR" ) )
-			else
-				self:GetOwner():SendLua( "GAMEMODE:AddNotify('Link Failed', NOTIFY_GENERIC, 7);" )
-			end
+			local status, Feedback = self.Master:Link( trace.Entity )
+			ACF_SendNotify( ply, status, Feedback )
+			
 			self:SetStage(0)
 			self.Master = nil
 			return true

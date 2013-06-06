@@ -142,7 +142,7 @@ function XCF_MoveMissile(Bullet, noreturn)
 		
 		Drag = Vector(0,0,0)//((Bullet.Dir * Speed^2) / 10000) * Bullet.DragCoef
 		local Motor = Bullet.Dir * math.abs(Bullet.Motor * 39.37)
-		print("Motor ", Motor)
+		//print("Motor ", Motor)
 		//Drift = VectorRand() * Bullet.Drift * Step	//TODO: random seed based on networked var so client missile is synched
 		//local fuk = (Bullet.Accel + Motor - Drag + Drift) * DeltaTime
 		local fuk = Bullet.Accel

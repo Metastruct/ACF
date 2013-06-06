@@ -208,11 +208,11 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	local roundclass = XCF.ProjClasses[gun.roundclass or "Shell"] or error("Unrecognized projectile class " .. (gun.roundclass or "Shell") .. "!")
 	//print("made a", gun.roundclass or "Shell", "crate!", roundclass)
 	//*
-	print("\n\n\nbefore\n\n\n")
-	PrintTable(PlayerData)
+	//print("\n\n\nbefore\n\n\n")
+	//PrintTable(PlayerData)
 	self.BulletData = roundclass.GetExpanded(PlayerData)
-	print("\n\n\nafter\n\n\n")
-	PrintTable(self.BulletData)
+	//print("\n\n\nafter\n\n\n")
+	//PrintTable(self.BulletData)
 	//*/
 	
 	
@@ -290,7 +290,7 @@ local doSupply =
 				self:RefillEffect( Ammo )
 			end
 					
-			print("ammo doing supply")
+			//print("ammo doing supply")
 					
 			local Supply = math.ceil((50000/((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000))/dist)
 			--Msg(tostring(50000).."/"..((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000).."/"..dist.."="..Supply.."\n")

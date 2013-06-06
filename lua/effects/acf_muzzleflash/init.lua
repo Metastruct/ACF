@@ -12,7 +12,7 @@
 	local ReloadTime = data:GetMagnitude()
 	local Attachment = math.Round(data:GetRadius())
 	if Attachment == 0 then Attachment = nil end
-	print(data:GetRadius(), Attachment)
+	
 	local Class = Gun:GetNWString( "Class" )
 	local RoundType = ACF.IdRounds[data:GetSurfaceProp()]
 		
