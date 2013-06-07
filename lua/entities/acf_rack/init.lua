@@ -29,6 +29,7 @@ function ENT:Initialize()
 	self.Outputs = WireLib.CreateSpecialOutputs( self, 	{ "Ready",	"Entity",	"Shots Left",	"Fire Rate",	"Muzzle Weight",	"Muzzle Velocity" },
 														{ "NORMAL",	"ENTITY",	"NORMAL",		"NORMAL",		"NORMAL",			"NORMAL" } )
 	Wire_TriggerOutput(self, "Entity", self)
+	Wire_TriggerOutput(self, "Ready", 1)
 	self.WireDebugName = "ACF Rack"
 end
 
@@ -148,17 +149,17 @@ function ENT:Think()
 
 	local Time = CurTime()
 	if self.LastSend+1 <= Time then
-		local Ammo = (self.MagSize or 1) - self.CurrentShot
+		local Ammo = self.MagSize - self.CurrentShot
 		
 		Wire_TriggerOutput(self, "Shots Left", Ammo)
 		
-		self:SetNetworkedBeamString("GunType",self.Id)
-		self:SetNetworkedBeamInt("Ammo",Ammo)
-		self:SetNetworkedBeamString("Type",self.BulletData["Type"])
-		self:SetNetworkedBeamInt("Mass",self.BulletData["ProjMass"]*100)
-		self:SetNetworkedBeamInt("Propellant",self.BulletData["PropMass"]*1000)
-		self:SetNetworkedBeamInt("Filler",self.BulletData["FillerMass"]*1000)
-		self:SetNetworkedBeamInt("FireRate",self.RateOfFire)
+		self:SetNetworkedBeamString("GunType",		self.Id)
+		self:SetNetworkedBeamInt(	"Ammo",			Ammo)
+		self:SetNetworkedBeamString("Type",			self.BulletData["Type"])
+		self:SetNetworkedBeamInt(	"Mass",			self.BulletData["ProjMass"]*100)
+		self:SetNetworkedBeamInt(	"Propellant",	self.BulletData["PropMass"]*1000)
+		self:SetNetworkedBeamInt(	"Filler", 		(self.BulletData["FillerMass"] or 0)*1000)
+		self:SetNetworkedBeamInt(	"FireRate",		self.RateOfFire)
 		
 		self.LastSend = Time
 	
@@ -183,16 +184,26 @@ end
 function ENT:LoadAmmo( AddTime, Reload )
 		
 	if self.CurrentShot == 0 then return false end
-	local Ammo = (self.MagSize or 1) - self.CurrentShot
-	if not (self.Ready or Ammo == 0) then return false end
+	local Ammo = self.MagSize - self.CurrentShot
+	local curtime = CurTime()
+	if not self.Ready and not (Ammo == 0 and curtime > self.NextFire) then return false end
 		
 	self.CurrentShot = math.Clamp(self.CurrentShot - Reload, 0, self.MagSize)
 	
-	self.NextFire = CurTime() + self.ReloadTime
+	Ammo = self.MagSize - self.CurrentShot
+	self:SetNetworkedBeamInt("Ammo",	Ammo)
+	
+	local phys = self:GetPhysicsObject()  	
+	if (phys:IsValid()) then 
+		phys:SetMass(self.Mass + (self.BulletData.ProjMass or 0) * Ammo)
+	end 
+	
+	self.NextFire = curtime + self.ReloadTime
 	if AddTime then
-		self.NextFire = CurTime() + self.ReloadTime + AddTime
+		self.NextFire = curtime + self.ReloadTime + AddTime
 	end
 	self.Ready = false
+	Wire_TriggerOutput(self, "Ready", 0)
 	
 	self:OnLoaded()
 	
@@ -230,6 +241,7 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	Rack:SetPlayer(Owner)
 	Rack.Owner = Owner
 	Rack.Id = Id
+	Rack.BulletData.Id = Id
 	Rack.Caliber	= List["Guns"][Id]["caliber"]
 	Rack.Model = List["Guns"][Id]["model"]
 	Rack.Mass = List["Guns"][Id]["weight"]
@@ -243,7 +255,7 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	Rack.CurrentShot = 0
 	Rack.MagSize = 1
 	if(List["Guns"][Id]["magsize"]) then
-		Rack.MagSize = math.max(Rack.MagSize, List["Guns"][Id]["magsize"])
+		Rack.MagSize = math.max(Rack.MagSize, List["Guns"][Id]["magsize"] or 1)
 	end
 	Rack.MagReload = 0
 	if(List["Guns"][Id]["magreload"]) then
@@ -270,14 +282,14 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	local Attach, Muzzle = Rack:GetNextLaunchMuzzle()
 	Rack.Muzzle = Rack:WorldToLocal(Muzzle.Pos)
 	
-	local phys = Rack:GetPhysicsObject()  	
-	if (phys:IsValid()) then 
-		phys:SetMass( Rack.Mass ) 
-	end 
-	
 	if UpdateBullet then
 		Rack.BulletData = table.Copy(UpdateBullet)
 	end
+	
+	local phys = Rack:GetPhysicsObject()  	
+	if (phys:IsValid()) then 
+		phys:SetMass(Rack.Mass + (Rack.BulletData.ProjMass or 0) * Rack.MagSize)
+	end 	
 	
 	local volume = Rack.BulletData["RoundVolume"]
 	if volume then
@@ -360,16 +372,23 @@ function ENT:FireMissile()
 			//*/
 			
 			self.Ready = false
-			self.CurrentShot = math.min(self.CurrentShot + 1, self.MagSize)
 			Wire_TriggerOutput(self, "Ready", 0)
+			self.CurrentShot = math.min(self.CurrentShot + 1, self.MagSize)
 			self.NextFire = CurTime() + self.ReloadTime
 			
+			Ammo = self.MagSize - self.CurrentShot
+			self:SetNetworkedBeamInt("Ammo",	Ammo)
+			
+			local phys = self:GetPhysicsObject()  	
+			if (phys:IsValid()) then 
+				phys:SetMass(self.Mass + (self.BulletData.ProjMass or 0) * Ammo)
+			end 
 			
 		else
-			self.CurrentShot = 0
+			//self.CurrentShot = 0
 			self.Ready = false
-			self.NextFire = CurTime() + self.ReloadTime
 			Wire_TriggerOutput(self, "Ready", 0)
+			self.NextFire = CurTime() + self.ReloadTime
 			self:LoadAmmo(false, true)	
 		end
 	else
@@ -445,6 +464,8 @@ function ENT:PostEntityPaste( Player, Ent, CreatedEntities )
 			Ent.EntityMods.ACFRackAmmo = nil
 		end
 	end
+	
+	//printByName(self.BulletData)
 	
 	MakeACF_Rack(self.Owner, self:GetPos(), self:GetAngles(), self.BulletData.Id, self, self.BulletData)
 
