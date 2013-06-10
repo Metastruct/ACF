@@ -26,14 +26,27 @@ local modedescription = "Disables all ACF damage unless the owner permits it."
 //*/
 local function modepermission(owner, attacker, ent)
 	
-	if not CPPI then return true end
-	if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then return true end
+	if not CPPI then
+		--print("no cppi")
+		return true
+	end
 	
-	if not (attacker and IsValid(attacker) and attacker:IsPlayer()) then return false end
+	if IsValid(ent) and ent:IsPlayer() or ent:IsNPC() then 
+		--print("is squishy")
+		return true
+	end
+	
+	if not (attacker and IsValid(attacker) and attacker:IsPlayer()) then
+		--print("bad attacker")
+		return false
+	end
+	
 	if not (owner and IsValid(owner) and owner:IsPlayer()) then 
 		if IsValid(ent) and ent:IsPlayer() then 
 			owner = ent
+			--print("ent is owner")
 		else 
+			--print("bad owner")
 			return false
 		end
 	end
@@ -45,18 +58,20 @@ local function modepermission(owner, attacker, ent)
 	
 	local ownerid = owner:SteamID()
 	local attackerid = attacker:SteamID()
+	local ownerperms = XCF.GetDamagePermissions(ownerid)
 	
-	--if ownerid == attackerid then
-	--	return XCF.Permissions.Selfkill
-	--end
-	
-	if not XCF.Permissions[ownerid] then
-		XCF.Permissions[ownerid] = {}
+	if ownerperms[attackerid] then
+		--print("permitted")
+		return true
 	end
 	
-	if XCF.Permissions[ownerid][attackerid] then return true end
-	
+	--print("disallowed")
 	return false
+end
+
+
+if not CPPI then
+	print("WARNING: XCF protection mode \"build\" requires a CPPI-compliant prop protection script.  Try NADMOD!")
 end
 
 
