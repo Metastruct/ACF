@@ -406,20 +406,33 @@ hook.Call("XCF_ProtectionModeChanged", GAMEMODE, "default", nil)
 
 
 
-function XCF.AddDamagePermission(owner, attacker)
+function XCF.GetDamagePermissions(ownerid)
 	if not XCF.Permissions[ownerid] then
-		XCF.Permissions[ownerid] = {}
+		XCF.Permissions[ownerid] = {[ownerid] = true}
 	end
+
+	return XCF.Permissions[ownerid]
+end
+
+
+
+function XCF.AddDamagePermission(owner, attacker)
+	local ownerid = owner:SteamID()
+	local attackerid = attacker:SteamID()
+
+	local ownerprefs = XCF.GetDamagePermissions(ownerid)
 	
-	XCF.Permissions[ownerid][attackerid] = true
+	ownerprefs[attackerid] = true
 end
 
 
 
 
 function XCF.RemoveDamagePermission(owner, attacker)
+	local ownerid = owner:SteamID()
 	if not XCF.Permissions[ownerid] then return end
 	
+	local attackerid = attacker:SteamID()
 	XCF.Permissions[ownerid][attackerid] = nil
 end
 
@@ -427,6 +440,7 @@ end
 
 
 function XCF.ClearDamagePermissions(owner)
+	local ownerid = owner:SteamID()
 	if not XCF.Permissions[ownerid] then return end
 	
 	XCF.Permissions[ownerid] = nil
@@ -438,14 +452,12 @@ end
 function XCF.PermissionsRaw(ownerid, attackerid, value)
 	if not ownerid then return end
 	
-	if not XCF.Permissions[ownerid] then
-		XCF.Permissions[ownerid] = {}
-	end
+	local ownerprefs = XCF.GetDamagePermissions(ownerid)
 	
 	if attackerid then
-		local old = XCF.Permissions[ownerid][attackerid] and true or nil
+		local old = ownerprefs[attackerid] and true or nil
 		local new = value and true or nil
-		XCF.Permissions[ownerid][attackerid] = new
+		ownerprefs[attackerid] = new
 		return old != new
 	end
 	
@@ -525,7 +537,7 @@ net.Receive("xcf_refreshfriends", function(len, ply)
 	//Msg("\nsv refreshfriends\n")
 	if not ply:IsValid() then return end
 
-	local perms = XCF.Permissions[ply:SteamID()] or {}
+	local perms = XCF.GetDamagePermissions(ply:SteamID())
 	
 	net.Start("xcf_refreshfriends")
 		net.WriteTable(perms)
