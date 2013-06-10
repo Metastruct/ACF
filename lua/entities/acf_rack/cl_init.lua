@@ -66,6 +66,7 @@ function ENT:Think()
 			visEnt:SetModel(visModel)
 			visEnt:Spawn()
 			visEnt:SetNoDraw(true)
+			visEnt:SetParent(self)
 			self.munitionVis[i] = visEnt
 		end
 		
