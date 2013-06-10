@@ -1,5 +1,5 @@
-// Code modified from the NADMOD client permissions menu, by Nebual
-// http://www.facepunch.com/showthread.php?t=1221183
+-- Code modified from the NADMOD client permissions menu, by Nebual
+-- http://www.facepunch.com/showthread.php?t=1221183
 
 
 XCF = XCF or {}
@@ -9,11 +9,11 @@ local getPanelChecks = function() return {} end
 
 
 net.Receive("xcf_refreshfriends", function(len)
-	//Msg("\ncl refreshfriends\n")
+	--Msg("\ncl refreshfriends\n")
 	local perms = net.ReadTable()
 	local checks = getPanelChecks()
 	
-	//PrintTable(perms)
+	--PrintTable(perms)
 	
 	for k, check in pairs(checks) do
 		if perms[check.steamid] then
@@ -69,6 +69,10 @@ function XCF.ClientPanel(Panel)
 	txt:SetContentAlignment( TEXT_ALIGN_CENTER )
 	txt:SetFont("DermaDefaultBold")
 	txt:SetAutoStretchVertical(false)
+
+	local txt = Panel:Help("These preferences are only active during Build mode.")
+	txt:SetContentAlignment( TEXT_ALIGN_CENTER )
+	txt:SetAutoStretchVertical(false)
 	
 	Panel.playerChecks = {}
 	local checks = Panel.playerChecks
@@ -76,19 +80,16 @@ function XCF.ClientPanel(Panel)
 	getPanelChecks = function() return checks end
 	
 	local Players = player.GetAll()
-	if(table.Count(Players) == 1) then
-		Panel:Help("No Other Players Are Online")
-	else
-		for _, tar in pairs(Players) do
-			if(IsValid(tar) and tar != LocalPlayer()) then
-				local check = Panel:CheckBox(tar:Nick())
-				check.steamid = tar:SteamID()
-				checks[#checks+1] = check
-			end
+	for _, tar in pairs(Players) do
+		if(IsValid(tar)) then
+			local check = Panel:CheckBox(tar:Nick())
+			check.steamid = tar:SteamID()
+			--if tar == LocalPlayer() then check:SetChecked(true) end
+			checks[#checks+1] = check
 		end
-		local button = Panel:Button("Give Damage Permission")
-		button.DoClick = function() XCFApplyPermissions(Panel.playerChecks) end
 	end
+	local button = Panel:Button("Give Damage Permission")
+	button.DoClick = function() XCFApplyPermissions(Panel.playerChecks) end
 	
 	net.Start("xcf_refreshfriends")
 		net.WriteBit(true)

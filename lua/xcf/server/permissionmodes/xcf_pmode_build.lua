@@ -3,6 +3,7 @@
 		This mode blocks all damage to entities without the owner's permission.
 		Owners can permit damage from specific players.
 		Players and NPCs remain vulnerable to damage.  This is what admin mods are for.
+		This mode requires a CPPI-compatible prop-protector to function properly.
 //*/
 
 
@@ -45,9 +46,9 @@ local function modepermission(owner, attacker, ent)
 	local ownerid = owner:SteamID()
 	local attackerid = attacker:SteamID()
 	
-	if ownerid == attackerid then
-		return XCF.Permissions.Selfkill
-	end
+	--if ownerid == attackerid then
+	--	return XCF.Permissions.Selfkill
+	--end
 	
 	if not XCF.Permissions[ownerid] then
 		XCF.Permissions[ownerid] = {}
