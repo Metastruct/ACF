@@ -849,29 +849,29 @@ GunTable["40mmSL"] = SL40mm
 
 local RT170mm = // it's a dumb hellfire.
 {
-	["id"]			= "170mmRT",
-	["ent"]			= "acf_gun",
-	["type"]		= "Guns",
-	["name"]		= "170mm Tube Rocket",
-	["desc"]		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Someone put a tube around it so it doesn't get shot up.  How thoughtful!",
-	["model"]		= "models/mortar/mortar_200mm.mdl",
-	["caliber"]		= 17,
-	["gunclass"]	= "RT",
-	["weight"]		= 350,
-	["year"]		= 1970,
-	["roundclass"]	= "Rocket",
-	["round"]		= 
+	id			= "170mmRT",
+	ent			= "acf_gun",
+	type		= "Guns",
+	name		= "170mm Tube Rocket",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Someone put a tube around it so it doesn't get shot up.  How thoughtful!",
+	model		= "models/mortar/mortar_200mm.mdl",
+	caliber		= 17,
+	gunclass	= "RT",
+	weight		= 350,
+	year		= 1970,
+	roundclass	= "Rocket",
+	round		= 
 	{
-		["id"]			= "170mmRT",
-		["model"]		= "models/missiles/micro.mdl",
-		["maxlength"]	= 160,
-		["maxweight"]	= 50,
-		["casing"]		= 0.5,	// thickness of missile casing, cm
+		id			= "170mmRT",
+		model		= "models/missiles/micro.mdl",
+		maxlength	= 160,
+		maxweight	= 50,
+		casing		= 0.5,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
-		["propweight"]	= 13,	// motor mass - motor casing
-		["thrust"]		= 6200*39.37,	// average thrust - kg*in/s^2
-		["burnrate"]	= 2300,	// cm^3/s at average chamber pressure
-		["muzzlevel"]	= 1*39.37	// fudged it.
+		propweight	= 13,	// motor mass - motor casing
+		thrust		= 6200*39.37,	// average thrust - kg*in/s^2
+		burnrate	= 2300,	// cm^3/s at average chamber pressure
+		muzzlevel	= 1*39.37	// fudged it.
 	}
 }
 GunTable[RT170mm.id] = RT170mm
@@ -879,29 +879,29 @@ GunTable[RT170mm.id] = RT170mm
 
 local RT85mm = // it's an rpg rocket
 {
-	["id"]			= "85mmRT",
-	["ent"]			= "acf_gun",
-	["type"]		= "Guns",
-	["name"]		= "85mm Tube Rocket",
-	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.  Fits in tube.",
-	["model"]		= "models/mortar/mortar_80mm.mdl",
-	["caliber"]		= 8.5,
-	["gunclass"]	= "RT",
-	["weight"]		= 120,
-	["year"]		= 1960,
-	["roundclass"]	= "Rocket",
-	["round"]		= 
+	id			= "85mmRT",
+	ent			= "acf_gun",
+	type		= "Guns",
+	name		= "85mm Tube Rocket",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.  Fits in tube.",
+	model		= "models/mortar/mortar_80mm.mdl",
+	caliber		= 8.5,
+	gunclass	= "RT",
+	weight		= 120,
+	year		= 1960,
+	roundclass	= "Rocket",
+	round		= 
 	{
-		["id"]			= "85mmRT",
-		["model"]		= "models/missiles/70mmffar.mdl",
-		["maxlength"]	= 24*2.54,
-		["maxweight"]	= 2.6,
-		["casing"]		= 0.2,	// thickness of missile casing, cm
+		id			= "85mmRT",
+		model		= "models/missiles/70mmffar.mdl",
+		maxlength	= 24*2.54,
+		maxweight	= 2.6,
+		casing		= 0.2,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
-		["propweight"]	= 1.7,	// motor mass - motor casing
-		["thrust"]		= 2000*39.37,	// average thrust - kg*in/s^2
-		["burnrate"]	= 3000,	// cm^3/s at average chamber pressure
-		["muzzlevel"]	= 114	// fudged it.
+		propweight	= 1.7,	// motor mass - motor casing
+		thrust		= 2000*39.37,	// average thrust - kg*in/s^2
+		burnrate	= 3000,	// cm^3/s at average chamber pressure
+		muzzlevel	= 114	// fudged it.
 	}
 }
 GunTable[RT85mm.id] = RT85mm
@@ -909,29 +909,29 @@ GunTable[RT85mm.id] = RT85mm
 
 local RT40mm = // it's an rpg rocket
 {
-	["id"]			= "40mmRT",
-	["ent"]			= "acf_gun",
-	["type"]		= "Guns",
-	["name"]		= "40mm Tube Rocket",
-	["desc"]		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Now in single-tube form!",
-	["model"]		= "models/mortar/mortar_60mm.mdl",
-	["caliber"]		= 4,
-	["gunclass"]	= "RT",
-	["weight"]		= 80,
-	["year"]		= 1960,
-	["roundclass"]	= "Rocket",
-	["round"]		= 
+	id			= "40mmRT",
+	ent			= "acf_gun",
+	type		= "Guns",
+	name		= "40mm Tube Rocket",
+	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Now in single-tube form!",
+	model		= "models/mortar/mortar_60mm.mdl",
+	caliber		= 4,
+	gunclass	= "RT",
+	weight		= 80,
+	year		= 1960,
+	roundclass	= "Rocket",
+	round		= 
 	{
-		["id"]			= "40mmRT",
-		["model"]		= "models/missiles/ffar_40mm.mdl",
-		["maxlength"]	= 26,
-		["maxweight"]	= 3,
-		["casing"]		= 0.2,	// thickness of missile casing, cm
+		id			= "40mmRT",
+		model		= "models/missiles/ffar_40mm.mdl",
+		maxlength	= 26,
+		maxweight	= 3,
+		casing		= 0.2,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
-		["propweight"]	= 1,	// motor mass - motor casing
-		["thrust"]		= 200*39.37,	// average thrust - kg*in/s^2
-		["burnrate"]	= 300,	// cm^3/s at average chamber pressure
-		["muzzlevel"]	= 50	// fudged it.
+		propweight	= 1,	// motor mass - motor casing
+		thrust		= 200*39.37,	// average thrust - kg*in/s^2
+		burnrate	= 300,	// cm^3/s at average chamber pressure
+		muzzlevel	= 50	// fudged it.
 	}
 }
 GunTable[RT40mm.id] = RT40mm
@@ -942,14 +942,14 @@ GunTable[RT40mm.id] = RT40mm
 local R4_MASS = 75
 local R4_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R4_170mm, {
-	["id"]			= "170mmR4",
-	["ent"]			= "acf_rack",
-	["name"]		= "170mm Rack Rocket",
-	["desc"]		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
-	["model"]		= "models/missiles/rack_quad.mdl",
-	["gunclass"]	= "R4",
-	["weight"]		= R4_MASS,
-	["magsize"]		= 4
+	id			= "170mmR4",
+	ent			= "acf_rack",
+	name		= "170mm Rack Rocket",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	model		= "models/missiles/rack_quad.mdl",
+	gunclass	= "R4",
+	weight		= R4_MASS,
+	magsize		= 4
 })
 R4_170mm.round.id = "170mmR4"
 
@@ -958,14 +958,14 @@ GunTable[R4_170mm.id] = R4_170mm
 
 local R4_85mm = table.Copy(RT85mm)// it's an rpg rocket
 table.Merge(R4_85mm, {
-	["id"]			= "85mmR4",
-	["ent"]			= "acf_rack",
-	["name"]		= "85mm Rack Rocket",
-	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
-	["model"]		= "models/missiles/rack_quad.mdl",
-	["gunclass"]	= "R4",
-	["weight"]		= R4_MASS,
-	["magsize"]		= 4
+	id			= "85mmR4",
+	ent			= "acf_rack",
+	name		= "85mm Rack Rocket",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	model		= "models/missiles/rack_quad.mdl",
+	gunclass	= "R4",
+	weight		= R4_MASS,
+	magsize		= 4
 })
 R4_85mm.round.id = "85mmR4"
 
@@ -974,14 +974,14 @@ GunTable[R4_85mm.id] = R4_85mm
 
 local R4_40mm = table.Copy(RT40mm)// it's a dumb hellfire.
 table.Merge(R4_40mm, {
-	["id"]			= "40mmR4",
-	["ent"]			= "acf_rack",
-	["name"]		= "40mm Rack Rocket",
-	["desc"]		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Rack up the rockets, rack up the kills.",
-	["model"]		= "models/missiles/rack_quad.mdl",
-	["gunclass"]	= "R4",
-	["weight"]		= R4_MASS,
-	["magsize"]		= 4
+	id			= "40mmR4",
+	ent			= "acf_rack",
+	name		= "40mm Rack Rocket",
+	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Rack up the rockets, rack up the kills.",
+	model		= "models/missiles/rack_quad.mdl",
+	gunclass	= "R4",
+	weight		= R4_MASS,
+	magsize		= 4
 })
 R4_40mm.round.id = "40mmR4"
 
@@ -993,14 +993,14 @@ GunTable[R4_40mm.id] = R4_40mm
 local R2_MASS = 75
 local R2_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R2_170mm, {
-	["id"]			= "170mmR2",
-	["ent"]			= "acf_rack",
-	["name"]		= "170mm Rack Rocket",
-	["desc"]		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
-	["model"]		= "models/missiles/rack_double.mdl",
-	["gunclass"]	= "R2",
-	["weight"]		= R2_MASS,
-	["magsize"]		= 2
+	id			= "170mmR2",
+	ent			= "acf_rack",
+	name		= "170mm Rack Rocket",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	model		= "models/missiles/rack_double.mdl",
+	gunclass	= "R2",
+	weight		= R2_MASS,
+	magsize		= 2
 })
 R2_170mm.round.id = "170mmR2"
 
@@ -1009,14 +1009,14 @@ GunTable[R2_170mm.id] = R2_170mm
 
 local R2_85mm = table.Copy(RT85mm)// it's an rpg rocket
 table.Merge(R2_85mm, {
-	["id"]			= "85mmR2",
-	["ent"]			= "acf_rack",
-	["name"]		= "85mm Rack Rocket",
-	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
-	["model"]		= "models/missiles/rack_double.mdl",
-	["gunclass"]	= "R2",
-	["weight"]		= R2_MASS,
-	["magsize"]		= 2
+	id			= "85mmR2",
+	ent			= "acf_rack",
+	name		= "85mm Rack Rocket",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	model		= "models/missiles/rack_double.mdl",
+	gunclass	= "R2",
+	weight		= R2_MASS,
+	magsize		= 2
 })
 R2_85mm.round.id = "85mmR2"
 
@@ -1028,14 +1028,14 @@ GunTable[R2_85mm.id] = R2_85mm
 local R1_MASS = 30
 local R1_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R1_170mm, {
-	["id"]			= "170mmR1",
-	["ent"]			= "acf_rack",
-	["name"]		= "170mm Rack Rocket",
-	["desc"]		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
-	["model"]		= "models/missiles/rack_single.mdl",
-	["gunclass"]	= "R1",
-	["weight"]		= R1_MASS,
-	["magsize"]		= 1
+	id			= "170mmR1",
+	ent			= "acf_rack",
+	name		= "170mm Rack Rocket",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	model		= "models/missiles/rack_single.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 1
 })
 R1_170mm.round.id = "170mmR1"
 
@@ -1044,14 +1044,14 @@ GunTable[R1_170mm.id] = R1_170mm
 
 local R1_85mm = table.Copy(RT85mm)// it's an rpg rocket
 table.Merge(R1_85mm, {
-	["id"]			= "85mmR1",
-	["ent"]			= "acf_rack",
-	["name"]		= "85mm Rack Rocket",
-	["desc"]		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
-	["model"]		= "models/missiles/rack_single.mdl",
-	["gunclass"]	= "R1",
-	["weight"]		= R1_MASS,
-	["magsize"]		= 1
+	id			= "85mmR1",
+	ent			= "acf_rack",
+	name		= "85mm Rack Rocket",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	model		= "models/missiles/rack_single.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 1
 })
 R1_85mm.round.id = "85mmR1"
 
