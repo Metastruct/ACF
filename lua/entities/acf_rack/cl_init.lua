@@ -51,7 +51,8 @@ end
 function ENT:Think()
 	local gunType = self:GetNetworkedBeamString("GunType")
 	if gunType and gunType ~= self.gunType then
-		local visModel = ACF.Weapons.Guns[gunType].round.model or "models/munitions/round_100mm_shot.mdl"
+		local guntbl = ACF.Weapons.Guns[gunType] or {round = {}}
+		local visModel = guntbl.round.rackmdl or guntbl.round.model or "models/munitions/round_100mm_shot.mdl"
 		//print(visModel)
 		if self.munitionVis then
 			for i, mdl in pairs(self.munitionVis) do
