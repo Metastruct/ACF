@@ -124,7 +124,13 @@ end
 -- Returns the power in kW of an ACF engine
 e2function number entity:acfMaxPower()
 	if not isEngine(this) then return 0 end
-	return (math.floor(this.PeakTorque * this.PeakMaxRPM / 9548.8)) or 0
+	local peakpower
+	if this.iselec then
+		peakpower = math.floor(this.PeakTorque * this.LimitRPM / (4*9548.8))
+	else
+		peakpower = math.floor(this.PeakTorque * this.PeakMaxRPM / 9548.8)
+	end
+	return peakpower or 0
 end
 
 -- Returns the idle rpm of an ACF engine
@@ -284,6 +290,14 @@ end
 e2function number entity:acfTorqueOut()
 	if not isGearbox(this) then return 0 end
 	return math.min(this.TotalReqTq or 0, this.MaxTorque or 0) / (this.GearRatio or 1)
+end
+
+-- Sets the gear ratio of a CVT, set to 0 to use built-in algorithm
+e2function void entity:acfCVTRatio( number ratio )
+	if not isGearbox(this) then return end
+	if restrictInfo(self, this) then return end
+	if not this.CVT then return end
+	this.CVTRatio = math.Clamp(ratio,0,1)
 end
 
 __e2setcost( 5 )
