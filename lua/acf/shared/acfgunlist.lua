@@ -907,7 +907,7 @@ local RT85mm = // it's an rpg rocket
 GunTable[RT85mm.id] = RT85mm
 
 
-local RT40mm = // it's an rpg rocket
+local RT40mm = // it's a tiny hydra
 {
 	id			= "40mmRT",
 	ent			= "acf_gun",
@@ -932,10 +932,42 @@ local RT40mm = // it's an rpg rocket
 		propweight	= 1,	// motor mass - motor casing
 		thrust		= 200*39.37,	// average thrust - kg*in/s^2
 		burnrate	= 300,	// cm^3/s at average chamber pressure
-		muzzlevel	= 50	// fudged it.
+		muzzlevel	= 25	// fudged it.
 	}
 }
 GunTable[RT40mm.id] = RT40mm
+
+
+
+local RT70mm = // it's a hydra!
+{
+	id			= "70mmRT",
+	ent			= "acf_gun",
+	type		= "Guns",
+	name		= "70mm Tube Rocket",
+	desc		= "A small, unguided rocket.  Useful against light vehicles and infantry.  Lubed and tubed.",
+	model		= "models/mortar/mortar_60mm.mdl",
+	caliber		= 4,
+	gunclass	= "RT",
+	weight		= 80*1.75,
+	year		= 1960,
+	roundclass	= "Rocket",
+	round		= 
+	{
+		id			= "70mmRT",
+		model		= "models/missiles/ffar_70mm.mdl",
+		rackmdl		= "models/missiles/ffar_70mm_closed.mdl",
+		maxlength	= 26*1.75,
+		maxweight	= 3*1.75,
+		casing		= 0.2,	// thickness of missile casing, cm
+			// rough calculations from hellfire M120E3 motor
+		propweight	= 1.75,	// motor mass - motor casing
+		thrust		= 200*39.37,	// average thrust - kg*in/s^2
+		burnrate	= 300,	// cm^3/s at average chamber pressure
+		muzzlevel	= 25	// fudged it.
+	}
+}
+GunTable[RT70mm.id] = RT70mm
 
 
 -- -- -- -- R7 pods -- -- -- --
@@ -955,6 +987,22 @@ table.Merge(R7_40mm, {
 R7_40mm.round.id = "40mmR7"
 
 GunTable[R7_40mm.id] = R7_40mm
+
+
+local R7_70mm = table.Copy(RT70mm)// it's a dumb hellfire.
+table.Merge(R7_70mm, {
+	id			= "70mmR7",
+	ent			= "acf_rack",
+	name		= "70mm Pod Rocket",
+	desc		= "A small, unguided rocket.  Useful against light vehicles and infantry.  Folding fins allow the rocket to be stored in this inaccurate, rapid-fire pod.",
+	model		= "models/missiles/launcher7_70mm.mdl",
+	gunclass	= "R7",
+	weight		= R7_MASS*1.75,
+	magsize		= 7
+})
+R7_70mm.round.id = "70mmR7"
+
+GunTable[R7_70mm.id] = R7_70mm
 
 
 -- -- -- -- R4 racks -- -- -- --

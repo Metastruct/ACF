@@ -5,7 +5,9 @@ function PANEL:Init( )
 
 	this = self.Panel
 	
-	self.Tabs = vgui.Create( "DPropertySheet", self )
+	self.Scroll = vgui.Create( "DScrollPanel", self )
+	self.Tabs = vgui.Create( "DPropertySheet", self.Scroll )
+	self.Scroll:AddItem(self.Tabs)
 	
 	
 	-- gun selection tab
@@ -63,8 +65,9 @@ end
 function PANEL:PerformLayout()
 	
 	-- min resolution X x 720
-	self.Tabs:SetSize(self:GetWide(), 720)
 	self:SetTall(720)
+	self.Tabs:SetSize(self:GetWide()-10, 1000)
+	self.Scroll:SetSize(self:GetWide(), 720)
 	
 end
 

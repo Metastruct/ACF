@@ -432,81 +432,81 @@ local modifyControlsWith = {}
 
 -- for some reason i had the idea that filler and cavity were represented as the same thing.  keeping this assumption in place in case i had a good reason to believe it.
 modifyControlsWith["MaxFillerVol"] = function(self, val)
-	if self.FillerSlider then
+	if self.FillerSlider and IsValid(self.FillerSlider) then
 		self.FillerSlider:SetMax(val)
 	end
-	if self.CavitySlider then
+	if self.CavitySlider and IsValid(self.CavitySlider) then
 		self.CavitySlider:SetMax(val)
 	end
 end
 
 
 modifyControlsWith["MinFillerVol"] = function(self, val)
-	if self.FillerSlider then
+	if self.FillerSlider and IsValid(self.FillerSlider) then
 		self.FillerSlider:SetMin(val)
 	end
-	if self.CavitySlider then
+	if self.CavitySlider and IsValid(self.CavitySlider) then
 		self.CavitySlider:SetMin(val)
 	end
 end
 
 
 modifyControlsWith["MaxCavVol"] = function(self, val)
-	if self.FillerSlider then
+	if self.FillerSlider and IsValid(self.FillerSlider) then
 		self.FillerSlider:SetMax(val)
 	end
-	if self.CavitySlider then
+	if self.CavitySlider and IsValid(self.CavitySlider) then
 		self.CavitySlider:SetMax(val)
 	end
 end
 
 
 modifyControlsWith["MinCavVol"] = function(self, val)
-	if self.FillerSlider then
+	if self.FillerSlider and IsValid(self.FillerSlider) then
 		self.FillerSlider:SetMin(val)
 	end
-	if self.CavitySlider then
+	if self.CavitySlider and IsValid(self.CavitySlider) then
 		self.CavitySlider:SetMin(val)
 	end
 end
 
 
 modifyControlsWith["MaxProjLength"] = function(self, val)
-	if self.ProjLengthSlider then
+	if self.ProjLengthSlider and IsValid(self.ProjLengthSlider) then
 		self.ProjLengthSlider:SetMax(val)
 	end
 end
 
 
 modifyControlsWith["MinProjLength"] = function(self, val)
-	if self.ProjLengthSlider then
+	if self.ProjLengthSlider and IsValid(self.ProjLengthSlider) then
 		self.ProjLengthSlider:SetMin(val)
 	end
 end
 
 
 modifyControlsWith["MaxPropLength"] = function(self, val)
-	if self.PropLengthSlider then
+	if self.PropLengthSlider and IsValid(self.PropLengthSlider) then
 		self.PropLengthSlider:SetMax(val)
 	end
 end
 
 
 modifyControlsWith["MinPropLength"] = function(self, val)
-	if self.PropLengthSlider then
+	if self.PropLengthSlider and IsValid(self.PropLengthSlider) then
 		self.PropLengthSlider:SetMin(val)
 	end
 end
 
 
 modifyControlsWith["MaxConeAng"] = function(self, val)
-	if self.CrushSlider then
+	if self.CrushSlider and IsValid(self.CrushSlider) then
 		self.CrushSlider:SetMax(val)
 	end
 end
 
 modifyControlsWith["MinConeAng"] = function(self, val)
-	if self.CrushSlider then
+	if self.CrushSlider and IsValid(self.CrushSlider) then
 		self.CrushSlider:SetMin(val)
 	end
 end
@@ -520,14 +520,14 @@ local kinetictext = "Max. Energy Transfer (KJ)"
 
 
 modifyControlsWith["MaxPen"] = function(self, val)
-	if self.PenLabel then
+	if self.PenLabel and IsValid(self.PenLabel) then
 		self.PenLabel:SetText(pentext .. ": " .. math.Round(val))
 		self.PenLabel:SizeToContents()
 	end
 end
 
 modifyControlsWith["MuzzleVel"] = function(self, val)
-	if self.VelLabel then
+	if self.VelLabel and IsValid(self.VelLabel) then
 		self.VelLabel:SetText(veltext .. ": " .. math.Round(val, 1))
 		self.VelLabel:SizeToContents()
 	end
@@ -535,14 +535,14 @@ end
 
 -- blast radius is meters*10 for some reason?
 modifyControlsWith["BlastRadius"] = function(self, val)
-	if self.BoomRadLabel then
+	if self.BoomRadLabel and IsValid(self.BoomRadLabel) then
 		self.BoomRadLabel:SetText(boomradtext .. ": " .. math.Round(val/10, 1))
 		self.BoomRadLabel:SizeToContents()
 	end
 end
 
 modifyControlsWith["MaxKETransfert"] = function(self, val)
-	if self.KineticLabel then
+	if self.KineticLabel and IsValid(self.KineticLabel) then
 		self.KineticLabel:SetText(kinetictext .. ": " .. math.Round(val, 1))
 		self.KineticLabel:SizeToContents()
 	end
@@ -566,6 +566,8 @@ local function constructAmmoTypeList(self, ammolist)
 		ammolist:AddChoice(verbose[v] or v, v)
 		ammos[v] = true
 	end
+	ammolist:AddChoice(verbose["Refill"] or "Refill", "Refill")
+	ammos["Refill"] = true
 end
 
 
@@ -668,7 +670,7 @@ function PANEL:SetGunAmmo(guntable, ammotype)
 	end
 	
 	-- replace gun info panel with info about this gun.
-	if self.ClassPanel then 
+	if self.ClassPanel and IsValid(self.ClassPanel) then 
 		self.ClassPanel:Remove()
 		self.ClassPanel = nil
 	end
@@ -743,7 +745,7 @@ function PANEL:SetGunAmmo(guntable, ammotype)
 	
 	
 	local function createSaveMenu()
-		if self.fileDialogue then
+		if self.fileDialogue and IsValid(self.fileDialogue) then
 			if self.fileDialogue != NULL then 
 				self.fileDialogue:Close()
 			end
@@ -800,7 +802,7 @@ function PANEL:SetGunAmmo(guntable, ammotype)
 				v:SetValue(input[k])
 			end
 			
-			if self.TracerBox then
+			if self.TracerBox and IsValid(self.TracerBox) then
 				self.TracerBox:SetChecked(conttable[10] == 1 and true or false)
 			end
 				
@@ -811,7 +813,7 @@ function PANEL:SetGunAmmo(guntable, ammotype)
 	
 	
 	local function createLoadMenu()
-		if self.fileDialogue then
+		if self.fileDialogue and IsValid(self.fileDialogue) then
 			if self.fileDialogue != NULL then 
 				self.fileDialogue:Close()
 			end
@@ -878,19 +880,18 @@ function PANEL:GetAmmoData(input2)
 	input2 = input2 or {}
 		input["Id"] = 			input2["Id"] or self.Gun.id
 		input["Type"] = 		input2["Type"] or self.Ammo
-		input["PropLength"] = 	input2["PropLength"] or (self.PropLengthSlider and self.PropLengthSlider:GetValue() or 0)
-		input["ProjLength"] = 	input2["ProjLength"] or (self.ProjLengthSlider and self.ProjLengthSlider:GetValue() or 0)
-		input["Data5"] = 		input2["Data5"] or (self.FillerSlider and self.FillerSlider:GetValue() or self.CavitySlider and self.CavitySlider:GetValue() or 0)
-		input["Data6"] = 		input2["Data6"] or (self.CrushSlider and self.CrushSlider:GetValue() or 0)
+		input["PropLength"] = 	input2["PropLength"] or (self.PropLengthSlider and IsValid(self.PropLengthSlider) and self.PropLengthSlider:GetValue() or 0)
+		input["ProjLength"] = 	input2["ProjLength"] or (self.ProjLengthSlider and IsValid(self.ProjLengthSlider) and self.ProjLengthSlider:GetValue() or 0)
+		input["Data5"] = 		input2["Data5"] or (self.FillerSlider and IsValid(self.FillerSlider) and self.FillerSlider:GetValue() or self.CavitySlider and IsValid(self.CavitySlider) and self.CavitySlider:GetValue() or 0)
+		input["Data6"] = 		input2["Data6"] or (self.CrushSlider and IsValid(self.CrushSlider) and self.CrushSlider:GetValue() or 0)
 		input["Data7"] = 		0
 		input["Data8"] = 		0
 		input["Data9"] = 		0
-		input["Data10"] = 		input2["Data10"] or (self.TracerBox and self.TracerBox:GetChecked() and 1 or 0)
+		input["Data10"] = 		input2["Data10"] or (self.TracerBox and IsValid(self.TracerBox) and self.TracerBox:GetChecked() and 1 or 0)
 	local conversion = ACF.RoundTypes[self.Ammo].convert
 	
 	if not conversion then return nil end
 	return conversion( nil, input ), input
-	
 end
 
 
@@ -917,7 +918,7 @@ function PANEL:PerformLayout()
 	
 	ypos = ypos + self.AmmoTypeList:GetTall()
 	
-	if self.ClassPanel then
+	if self.ClassPanel and IsValid(self.ClassPanel) then
 		self.ClassPanel:SetPos(0, ypos)
 		self.ClassPanel:SizeToContents()
 		self.ClassPanel:SetWide(self:GetWide())
@@ -959,6 +960,8 @@ end
 function PANEL:WatchSliders()
 	local last, val
 	for k, v in pairs(self.SliderWatchList) do
+		//print(k, v)
+		if not (v and IsValid(v)) then continue end
 		last = v.lastValWatched or 0
 		val = v:GetValue()
 		

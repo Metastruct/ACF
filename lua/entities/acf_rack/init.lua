@@ -44,7 +44,7 @@ function ENT:Link( Target )
 	end
 	
 	-- Don't link if it's a refill crate
-	if Target.BulletData["RoundType"] == "Refill" then
+	if Target.BulletData["RoundType"] == "Refill" or Target.BulletData["Type"] == "Refill" then
 		return false, "Refill crates cannot be linked!"
 	end
 	
