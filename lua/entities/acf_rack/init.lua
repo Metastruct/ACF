@@ -35,6 +35,41 @@ end
 
 
 
+/* TODO
+function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )	--This function needs to return HitRes
+
+	local HitRes = ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor )	--Calling the standard damage prop function
+	
+	if self.Exploding or not self.IsExplosive then return HitRes end
+	if HitRes.Kill then
+		local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
+		if CanDo == false then return HitRes end
+		self.Exploding = true
+		if( Inflictor and Inflictor:IsValid() and Inflictor:IsPlayer() ) then
+			self.Inflictor = Inflictor
+		end
+		if self.Ammo > 1 then
+			ACF_AmmoExplosion( self , self:GetPos() )
+		else
+			ACF_HEKill( self , VectorRand() )
+		end
+	end
+	
+	if self.Damaged then return HitRes end
+	local Ratio = (HitRes.Damage/self.BulletData["RoundVolume"])^0.2
+	--print(Ratio)
+	if ( Ratio * self.Capacity/self.Ammo ) > math.Rand(0,1) then  
+		self.Inflictor = Inflictor
+		self.Damaged = CurTime() + (5 - Ratio*3)
+		Wire_TriggerOutput(self, "On Fire", 1)
+	end
+	
+	return HitRes --This function needs to return HitRes
+end
+//*/
+
+
+
 
 function ENT:Link( Target )
 
@@ -334,15 +369,12 @@ function ENT:FireMissile()
 	if CanDo == false then return end
 	
 	if self.Ready and self:GetPhysicsObject():GetMass() >= self.Mass and not self:GetParent():IsValid() then
-	
-		Blacklist = {}
-		if not ACF.AmmoBlacklist[self.BulletData["Type"]] then
-			Blacklist = {}
-		else
-			Blacklist = ACF.AmmoBlacklist[self.BulletData["Type"]]	
-		end
 		
-		if ( ACF.RoundTypes[self.BulletData["Type"]] and !table.HasValue( Blacklist, self.Class ) ) then		--Check if the roundtype loaded actually exists
+		local type = self.BulletData["Type"]
+		local Blacklist = ACF.AmmoBlacklist[type] or {}
+		local ammoblist = ACF.Weapons.Guns[self.BulletData["Id"]].blacklist or {}
+		
+		if ACF.RoundTypes[type] and not table.HasValue( Blacklist, self.Class ) and not ammoblist[type] then		--Check if the roundtype loaded actually exists
 		
 			local attach, muzzle = self:GetNextLaunchMuzzle()
 			//PrintTable(muzzle)
@@ -358,7 +390,7 @@ function ENT:FireMissile()
 			self.BulletData["Owner"] = self.User
 			self.BulletData["Gun"] = self
 			self.BulletData["Filter"] = {self}
-			local CreateShell = ACF.RoundTypes[self.BulletData["Type"]]["create"]
+			local CreateShell = ACF.RoundTypes[type]["create"]
 			CreateShell( self, self.BulletData )
 			
 			self:MuzzleEffect( attach )
