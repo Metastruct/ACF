@@ -42,6 +42,7 @@ end
 
 function this.createProjNow(Index, Proj)
 	
+	//printByName(Proj)
 	Proj.ProjClass.CreateEffect(Proj)
 	XCF.Projectiles[Index] = Proj
 	Proj.Index = Index

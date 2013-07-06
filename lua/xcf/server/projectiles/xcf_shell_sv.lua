@@ -70,6 +70,13 @@ function this.Prepare(BulletData)
 	BulletData.Filter[#BulletData.Filter + 1] = BulletData["Gun"] 
 	BulletData.ProjClass = this
 	
+	if BulletData.Tracer and BulletData.Tracer > 0 and BulletData.Crate then
+		local crate = Entity(BulletData.Crate)
+		if IsValid(crate) then
+			BulletData.Colour = crate:GetColor()
+		end
+	end
+	
 	return BulletData
 end
 
@@ -98,7 +105,7 @@ function this.DoFlight(self, isRetry)
 	self.NextPos = self.Pos + (self.Flight * ACF.VelScale * DeltaTime)		--Calculates the next shell position
 	self.Flight = self.Flight + (self.Accel - Drag)*DeltaTime				--Calculates the next shell vector
 	
-	local traceback = self.InvalidateTraceback and VEC_0 or -self.Flight:GetNormalized() * math.min(ACF.PhysMaxVel * DeltaTime, self.FlightTime * Speed - self.TraceBackComp * DeltaTime)
+	local traceback = self.InvalidateTraceback and Vector(0,0,0) or -self.Flight:GetNormalized() * math.min(ACF.PhysMaxVel * DeltaTime, self.FlightTime * Speed - self.TraceBackComp * DeltaTime)
 	self.InvalidateTraceback = nil
 	
 	self.StartTrace = self.Pos + traceback

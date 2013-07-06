@@ -35,9 +35,11 @@ function this.GetCompact(bullet)
 	if hasfiller then
 		hasfiller = bullet.FillerVol or bullet.CavVol or bullet.FillerMass / ACF.HEDensity * fillerdensity[bullet.Type]
 	end
-	
-	return
-	{
+	//*
+	print("\n\nBEFORE COMPACT:\n")
+	printByName(bullet)
+	//*/
+	local ret = {
 		["Id"] 		= bullet.Id,
 		["Type"] 	= bullet.Type,
 		["PropLength"]	= bullet.PropLength,
@@ -45,13 +47,20 @@ function this.GetCompact(bullet)
 		//TODO: remove this hack when warheads are implemented
 		["FillerVol"]	= hasfiller,
 		["ConeAng"]		= bullet.ConeAng,
-		["Tracer"]		= bullet.Tracer,
+		["Tracer"]		= (bullet.Tracer and bullet.Tracer > 0) and bullet.Tracer or nil,
+		["Colour"]		= bullet.Colour or nil,
 		
 		["Pos"]			= bullet.Pos,
 		["Flight"]		= bullet.Flight,
 		
 		["ProjClass"]	= "Shell"
 	}
+	
+	//*
+	print("\n\nAFTER COMPACT:\n")
+	printByName(ret)
+	//*/
+	return ret
 end
 
 
@@ -59,6 +68,11 @@ end
 	
 //*/
 function this.GetExpanded(bullet)
+
+	//*
+	print("\n\nBEFORE EXPAND:\n")
+	printByName(bullet)
+	//*/
 
 	local toconvert = {}
 	toconvert["Id"] = 			bullet["Id"] or "12.7mmMG"
@@ -71,6 +85,12 @@ function this.GetExpanded(bullet)
 	toconvert["Data8"] = 		bullet["Data8"] or 0
 	toconvert["Data9"] = 		bullet["Data9"] or 0
 	toconvert["Data10"] = 		bullet["Tracer"] or bullet["Data10"] or 0
+	toconvert["Colour"] = 		bullet["Colour"] or Color(255, 255, 255)
+		
+	//*
+	print("\n\nTO EXPAND:\n")
+	printByName(toconvert)
+	//*/
 		
 	local conversion = ACF.RoundTypes[bullet.Type].convert
 	
@@ -85,6 +105,12 @@ function this.GetExpanded(bullet)
 	
 	local cvarGrav = GetConVar("sv_gravity")
 	ret.Accel = Vector(0,0,cvarGrav:GetInt()*-1)
+	if ret.Tracer == 0 and bullet["Tracer"] and bullet["Tracer"] > 0 then ret.Tracer = bullet["Tracer"] end
+	ret.Colour = toconvert["Colour"]
+	//*
+	print("\n\nAFTER EXPAND:\n")
+	printByName(ret)
+	//*/
 	
 	return ret
 

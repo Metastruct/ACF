@@ -15,13 +15,15 @@ end
 function EFFECT:Config(Bullet)
 
 	self.Bullet = Bullet
+	print("\n\n\nBULLET EFFECT DATA:\n")
+	printByName(Bullet)
 		
-	//xcf_dbgprint("Tracer in:", tostring(Bullet.Tracer))
+	print("Tracer in:", tostring(Bullet.Tracer))
 	if Bullet.Tracer and Bullet.Tracer != 0 then
 		Bullet.Tracer = ParticleEmitter( Bullet.Pos )
-		Bullet.Color = Bullet.Color or Color(255, 255, 255)
+		Bullet.Colour = Bullet.Colour or Color(255, 255, 255)
 	end
-	//xcf_dbgprint("Tracer out:", tostring(Bullet.Tracer), Bullet.Color and (Bullet.Color.r .. "," .. Bullet.Color.g .. "," .. Bullet.Color.b) or "no colour")
+	print("Tracer out:", tostring(Bullet.Tracer), Bullet.Colour and (Bullet.Colour.r .. "," .. Bullet.Colour.g .. "," .. Bullet.Colour.b) or "no colour")
 		
 	Bullet.Effect = self.Entity
 		
@@ -150,7 +152,7 @@ function EFFECT:ApplyMovement( Bullet )
 			if (Light) then		
 				Light:SetAngles( Bullet.Flight:Angle() )
 				Light:SetVelocity( Bullet.Flight:GetNormalized() )
-				Light:SetColor( Bullet.Color.r, Bullet.Color.g, Bullet.Color.b )
+				Light:SetColor( Bullet.Colour.r, Bullet.Colour.g, Bullet.Colour.b )
 				Light:SetDieTime( 0.1 )
 				Light:SetStartAlpha( 255 )
 				Light:SetEndAlpha( 155 )
