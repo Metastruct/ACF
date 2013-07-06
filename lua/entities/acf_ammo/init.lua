@@ -95,6 +95,12 @@ function MakeACF_Ammo(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, 
 
 	if not Owner:CheckLimit("_acf_ammo") then return false end
 	
+	//print(Id, Data1, Data2)
+	local weapon = ACF.Weapons.Guns[Data1]
+	if weapon and weapon.blacklist and weapon.blacklist[Data2] then
+		return false, "Ammo for " .. Data1 .. " does not support " .. Data2 .. " warheads!"
+	end
+	
 	local Ammo = ents.Create("ACF_Ammo")
 	if not Ammo:IsValid() then return false end
 	Ammo:SetAngles(Angle)

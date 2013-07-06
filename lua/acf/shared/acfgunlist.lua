@@ -847,6 +847,8 @@ GunTable["40mmSL"] = SL40mm
 
 -- -- -- -- Rocket tubes -- -- -- --
 
+nonsmoke = {["SM"] = true}
+
 local RT170mm = // it's a dumb hellfire.
 {
 	id			= "170mmRT",
@@ -872,7 +874,8 @@ local RT170mm = // it's a dumb hellfire.
 		thrust		= 6200*39.37,	// average thrust - kg*in/s^2
 		burnrate	= 2300,	// cm^3/s at average chamber pressure
 		muzzlevel	= 1*39.37	// fudged it.
-	}
+	},
+	blacklist = nonsmoke
 }
 GunTable[RT170mm.id] = RT170mm
 
@@ -902,7 +905,8 @@ local RT85mm = // it's an rpg rocket
 		thrust		= 2000*39.37,	// average thrust - kg*in/s^2
 		burnrate	= 3000,	// cm^3/s at average chamber pressure
 		muzzlevel	= 114	// fudged it.
-	}
+	},
+	blacklist = nonsmoke
 }
 GunTable[RT85mm.id] = RT85mm
 
@@ -965,7 +969,8 @@ local RT70mm = // it's a hydra!
 		thrust		= 200*39.37,	// average thrust - kg*in/s^2
 		burnrate	= 300,	// cm^3/s at average chamber pressure
 		muzzlevel	= 25	// fudged it.
-	}
+	},
+	blacklist = nonsmoke
 }
 GunTable[RT70mm.id] = RT70mm
 

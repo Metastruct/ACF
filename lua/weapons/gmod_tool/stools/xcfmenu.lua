@@ -156,7 +156,7 @@ if SERVER then
 				status, Feedback = trace.Entity:Update( ArgTable )
 				ACF_SendNotify( ply, status, Feedback )
 			else
-				local Ent = DupeClass.Func(ply, unpack(ArgTable))		--Using the Duplicator entity register to find the right factory function
+				local Ent, reason = DupeClass.Func(ply, unpack(ArgTable))		--Using the Duplicator entity register to find the right factory function
 				if IsValid(Ent) then
 					Ent:Activate()
 					Ent:GetPhysicsObject():Wake()
@@ -170,6 +170,8 @@ if SERVER then
         				undo.AddEntity( Ent )
         				undo.SetPlayer( ply )
       				undo.Finish()
+				elseif not Ent then
+					ACF_SendNotify( ply, Ent, reason )
 				end
 			end
 				

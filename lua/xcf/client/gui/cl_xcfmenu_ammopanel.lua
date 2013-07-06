@@ -557,9 +557,10 @@ local function constructAmmoTypeList(self, ammolist)
 	self.AmmoChoices = {}
 	local ammos = self.AmmoChoices
 
-	local blacklist = XCF.AmmoBlacklist[self.Gun.gunclass]
+	local blacklist = XCF.AmmoBlacklist[self.Gun.gunclass] or {}
+	local roundblst = self.Gun.blacklist or {}
 	for k, v in pairsByKeys(ACF.IdRounds) do
-		if blacklist and blacklist[v] then
+		if blacklist[v] or roundblst[v] then
 			continue
 		end
 		
