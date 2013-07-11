@@ -190,7 +190,7 @@ end
 
 function TOOL:LeftClick( trace )
 
-	if (CLIENT or SERVER and game.SinglePlayer()) then
+	if CLIENT then
 		
 		self:TransmitSelection()
 		return true
