@@ -25,10 +25,11 @@ function ENT:GetOverlayText()
 	
 	local name = self:GetNetworkedString( "WireName" )
 	local id = self:GetNetworkedBeamString( "ID" )
-	local txt = (List["Mobility"][id] or nullgear)["name"].."\n"
+	local list = List["Mobility"][id] or nullgear
+	local txt = list["name"].."\n"
 	local cvt
-	if List["Mobility"][id]["cvt"] then cvt = 1 else cvt = 0 end
-	for i = 1+cvt, List["Mobility"][id]["gears"] do
+	if list["cvt"] then cvt = 1 else cvt = 0 end
+	for i = 1+cvt, list["gears"] do
 		local gear = math.Round( self:GetNetworkedBeamFloat( "Gear" .. i ) or 0, 3 )
 		txt = txt .. "Gear " .. i .. ": " .. tostring( gear ) .. "\n"
 	end
@@ -41,7 +42,7 @@ function ENT:GetOverlayText()
 		txt = txt.."Min Target RPM: " .. tostring( targetminrpm ) .. "\nMax Target RPM: " .. tostring( targetmaxrpm ) .. "\n"
 	end
 	
-	local maxtq = List["Mobility"][id]["maxtq"] or 0
+	local maxtq = list["maxtq"] or 0
 	txt = txt .. "Maximum Torque Rating: " .. tostring( maxtq ) .. "n-m / " .. tostring( math.Round( maxtq * 0.73 ) ) .. "ft-lb"
 	if (not game.SinglePlayer()) then
 		local PlayerName = self:GetPlayerName()

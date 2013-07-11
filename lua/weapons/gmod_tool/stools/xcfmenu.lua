@@ -43,33 +43,38 @@ if CLIENT then
 		CPanel:AddPanel(XCF.GUI)
 	end
 	
-else
-	
-	-- list of entity classes this tool is allowed to spawn.
+end
+
+-- list of entity classes this tool is allowed to spawn.
 	TOOL.AllowedTypes = {}
 	TOOL.AllowedTypes["acf_gun"] 		= true
 	TOOL.AllowedTypes["acf_ammo"] 		= true
 	TOOL.AllowedTypes["acf_engine"] 	= true
 	TOOL.AllowedTypes["acf_gearbox"] 	= true
-	
-end
 
 
 
-function TOOL:TransmitSelection()
+function TOOL:GetSelection()
 	if SERVER then return end
 	
 	local gui = XCF.GUI.Tabs
 	if not gui then error("Didn't find tool GUI") return end
 	
 	local tab = gui:GetActiveTab():GetPanel().EditPanel or error("Didn't find edit panel")
-	local info = tab:GetInfoTable()
-	
-	//PrintTable(info)
+	return tab:GetInfoTable()
+end
+
+
+
+function TOOL:TransmitSelection()
+
+	local info = self:GetSelection()
+	if not info then error("Didn't get selection table from tool.") return end
 	
 	net.Start("xcfmenu_transmit")
 		net.WriteTable(info)
 	net.SendToServer()
+	
 end
 
 
@@ -113,6 +118,7 @@ if SERVER then
 		if not (IsValid(ply) and ply:IsPlayer()) then return end
 		
 		local now = CurTime()
+		print(now - lastreceive, delay)
 		if (now - lastreceive < delay) then lastreceive = now return end
 		lastreceive = now
 		
@@ -149,18 +155,18 @@ if SERVER then
 			
 			
 			-- check if we're updating an existing entity or making a new one
-			local Feedback = nil
+			local success, Feedback
 			if ( trace.Entity:GetClass() == Type and trace.Entity.CanUpdate ) then
 				table.insert(ArgTable,1,ply)
-				Feedback = trace.Entity:Update( ArgTable )
+				success, Feedback = trace.Entity:Update( ArgTable )
 			else
 				local Ent = DupeClass.Func(ply, unpack(ArgTable))		--Using the Duplicator entity register to find the right factory function
 				if IsValid(Ent) then
 					Ent:Activate()
 					Ent:GetPhysicsObject():Wake()
       
-					print(Type, Id)
-					PrintTable(infotable)
+					//print(Type, Id)
+					//PrintTable(infotable)
 					
 					local enttype = translateEntToType[Type]
 	  
@@ -171,7 +177,7 @@ if SERVER then
 				end
 			end
 			
-			if Feedback != nil then
+			if Feedback then
 				ply:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", Feedback, "NOTIFY_ERROR" ) )
 			end
 				
@@ -270,7 +276,7 @@ end
 
 function TOOL:UpdateGhostXCF( ent, player )
 
-	if CLIENT then return end
+	if not CLIENT then return end
 
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
@@ -308,20 +314,22 @@ end
 
 function TOOL:Think()
 
-	if CLIENT then return end
-	
-	if not self.GhostEntity then
-		local gun = self:GetClientInfo("id")
-		gun = ACF.Weapons.Guns[gun]
-		
-		if not gun then
-			gun = {model = "models/machinegun/machinegun_127mm.mdl"}
+	if CLIENT then	
+		if not self.GhostEntity then
+			local info = self:GetSelection()
+			local gun = info.id
+			gun = ACF.Weapons.Guns[gun]
+			
+			if not gun then
+				gun = {model = "models/machinegun/machinegun_127mm.mdl"}
+			end
+			
+			self:MakeGhostEntity( gun.model, Vector(0,0,0), Angle(0,0,0) )
+			//print(self.GhostEntity)
 		end
-		
-		self:MakeGhostEntity( gun.model, Vector(0,0,0), Angle(0,0,0) )
-	end
 	
-	self:UpdateGhostXCF( self.GhostEntity, self:GetOwner() )
+		self:UpdateGhostXCF( self.GhostEntity, self:GetOwner() )
+	end
 	
 end
 
