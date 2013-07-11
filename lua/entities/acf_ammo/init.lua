@@ -220,6 +220,7 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	//print("\n\n\nafter\n\n\n")
 	//PrintTable(self.BulletData)
 	//*/
+	self.BulletData = roundclass.GetExpanded(PlayerData)
 	
 	
 	local Size = (self:OBBMaxs() - self:OBBMins())

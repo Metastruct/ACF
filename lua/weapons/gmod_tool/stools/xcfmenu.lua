@@ -43,34 +43,49 @@ if CLIENT then
 		CPanel:AddPanel(XCF.GUI)
 	end
 	
-else
-	
-	-- list of entity classes this tool is allowed to spawn.
-	TOOL.AllowedTypes = {}
-	TOOL.AllowedTypes["acf_gun"] 		= true
-	TOOL.AllowedTypes["acf_rack"] 		= true
-	TOOL.AllowedTypes["acf_ammo"] 		= true
-	TOOL.AllowedTypes["acf_engine"] 	= true
-	TOOL.AllowedTypes["acf_gearbox"] 	= true
-	
 end
 
+-- list of entity classes this tool is allowed to spawn.
+TOOL.AllowedTypes = {}
+TOOL.AllowedTypes["acf_gun"] 		= true
+TOOL.AllowedTypes["acf_rack"] 		= true
+TOOL.AllowedTypes["acf_ammo"] 		= true
+TOOL.AllowedTypes["acf_engine"] 	= true
+TOOL.AllowedTypes["acf_gearbox"] 	= true
 
 
-function TOOL:TransmitSelection()
+local translateEntToType = 
+{
+	["acf_gun"] = "Guns",
+	["acf_rack"] = "Guns",
+	["acf_ammo"] = "Ammo",
+	["acf_engine"] = "Mobility",
+	["acf_gearbox"] = "Mobility"
+}
+	
+
+
+function TOOL:GetSelection()
 	if SERVER then return end
 	
 	local gui = XCF.GUI.Tabs
 	if not gui then error("Didn't find tool GUI") return end
 	
 	local tab = gui:GetActiveTab():GetPanel().EditPanel or error("Didn't find edit panel")
-	local info = tab:GetInfoTable()
-	
-	//PrintTable(info)
+	return tab:GetInfoTable()
+end
+
+
+
+function TOOL:TransmitSelection()
+
+	local info = self:GetSelection()
+	if not info then error("Didn't get selection table from tool.") return end
 	
 	net.Start("xcfmenu_transmit")
 		net.WriteTable(info)
 	net.SendToServer()
+	
 end
 
 
@@ -99,22 +114,13 @@ if SERVER then
 	local delay = 0.1
 	
 	
-	local translateEntToType = 
-	{
-		["acf_gun"] = "Guns",
-		["acf_rack"] = "Guns",
-		["acf_ammo"] = "Ammo",
-		["acf_engine"] = "Mobility",
-		["acf_gearbox"] = "Mobility"
-	}
-	
-	
 	util.AddNetworkString("xcfmenu_transmit")
 	net.Receive("xcfmenu_transmit", function(len, ply)
 		
 		if not (IsValid(ply) and ply:IsPlayer()) then return end
 		
 		local now = CurTime()
+		//print(now - lastreceive, delay)
 		if (now - lastreceive < delay) then lastreceive = now return end
 		lastreceive = now
 		
@@ -123,8 +129,6 @@ if SERVER then
 		if not (trace.Entity:IsValid() or trace.Entity:IsWorld()) then return false end
 	
 		local infotable = net.ReadTable()
-	
-		//PrintTable(infotable)
 	
 		local Type = infotable["ent"]	-- entity class
 		local Id = infotable["id"]		-- acf short id for desired class
@@ -160,10 +164,6 @@ if SERVER then
 				if IsValid(Ent) then
 					Ent:Activate()
 					Ent:GetPhysicsObject():Wake()
-      
-					//print(Type, Id)
-					//PrintTable(infotable)
-					
 					local enttype = translateEntToType[Type]
 	  
       				undo.Create( ACF.Weapons[enttype][Id]["ent"] )
@@ -174,6 +174,7 @@ if SERVER then
 					ACF_SendNotify( ply, Ent, reason )
 				end
 			end
+				
 				
 			return true
 		else
@@ -189,9 +190,7 @@ end
 
 function TOOL:LeftClick( trace )
 
-	//print("CLIENT=", CLIENT, "SERVER=", SERVER)
-
-	if (CLIENT) then
+	if (CLIENT or SERVER and game.SinglePlayer()) then
 		
 		self:TransmitSelection()
 		return true
@@ -260,9 +259,9 @@ end
 
 
 
-function TOOL:UpdateGhostXCF( ent, player )
+function TOOL:UpdateGhostXCF( ent, player, info )
 
-	if CLIENT then return end
+	if not CLIENT then return end
 
 	if ( !ent ) then return end
 	if ( !ent:IsValid() ) then return end
@@ -271,7 +270,7 @@ function TOOL:UpdateGhostXCF( ent, player )
 	local trace 	= util.TraceLine( tr )
 	if (!trace.Hit) then return end
 	
-	if (trace.Entity && XCF.TOOL.AllowedTypes[trace.Entity:GetClass()] || trace.Entity:IsPlayer()) then
+	if (trace.Entity && trace.Entity:GetClass() == info.ent || trace.Entity:IsPlayer()) then
 		ent:SetNoDraw( true )
 		return
 	end
@@ -300,20 +299,21 @@ end
 
 function TOOL:Think()
 
-	if CLIENT then return end
+	if CLIENT then	
+		local info = self:GetSelection()
 	
-	if not self.GhostEntity then
-		local gun = self:GetClientInfo("id")
-		gun = ACF.Weapons.Guns[gun]
-		
-		if not gun then
-			gun = {model = "models/machinegun/machinegun_127mm.mdl"}
+		if not self.GhostEntity then
+			local type = ACF.Weapons[translateEntToType[info.ent] or "Guns"][info.id]
+			
+			if not type then
+				type = {model = "models/machinetype/machinetype_127mm.mdl"}
+			end
+			
+			self:MakeGhostEntity( type.model, Vector(0,0,0), Angle(0,0,0) )
 		end
-		
-		self:MakeGhostEntity( gun.model, Vector(0,0,0), Angle(0,0,0) )
-	end
 	
-	self:UpdateGhostXCF( self.GhostEntity, self:GetOwner() )
+		self:UpdateGhostXCF( self.GhostEntity, self:GetOwner(), info )
+	end
 	
 end
 
