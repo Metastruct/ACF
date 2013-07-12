@@ -6,6 +6,9 @@ AddCSLuaFile( "cl_init.lua" )
 include('shared.lua')
 
 function ENT:Initialize()
+
+	self.SpecialHealth = true	--If true needs a special ACF_Activate function
+	self.SpecialDamage = true	--If true needs a special ACF_OnDamage function
 	self.ReloadTime = 1
 	self.Ready = true
 	self.Firing = nil
@@ -35,12 +38,64 @@ end
 
 
 
-/* TODO
+function ENT:ACF_Activate( Recalc )
+	
+	local EmptyMass = self.Mass --math.max(self.Mass, self:GetPhysicsObject():GetMass() - self.Mass)
+
+	self.ACF = self.ACF or {} 
+	
+	local PhysObj = self:GetPhysicsObject()
+	if not self.ACF.Aera then
+		self.ACF.Aera = PhysObj:GetSurfaceArea() * 6.45
+	end
+	if not self.ACF.Volume then
+		self.ACF.Volume = PhysObj:GetVolume() * 16.38
+	end
+	
+	//print(self.ACF.Volume, ACF.Threshold)
+	
+	local Armour = EmptyMass*1000 / self.ACF.Aera / 0.78 --So we get the equivalent thickness of that prop in mm if all it's weight was a steel plate
+	local Health = self.ACF.Volume/ACF.Threshold							--Setting the threshold of the prop aera gone 
+	local Percent = 1 
+	
+	if Recalc and self.ACF.Health and self.ACF.MaxHealth then
+		Percent = self.ACF.Health/self.ACF.MaxHealth
+	end
+	
+	self.ACF.Health = Health * Percent
+	self.ACF.MaxHealth = Health
+	self.ACF.Armour = Armour * (0.5 + Percent/2)
+	self.ACF.MaxArmour = Armour
+	self.ACF.Type = nil
+	self.ACF.Mass = self.Mass
+	self.ACF.Density = (self:GetPhysicsObject():GetMass()*1000) / self.ACF.Volume
+	self.ACF.Type = "Prop"
+	
+end
+
+
+
+//* TODO
 function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )	--This function needs to return HitRes
 
 	local HitRes = ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor )	--Calling the standard damage prop function
 	
-	if self.Exploding or not self.IsExplosive then return HitRes end
+	//printByName(HitRes)
+	
+	local curammo = self.MagSize - self.CurrentShot
+	
+	// Detonate rack if damage causes ammo rupture, or a penetrating shot hits some ammo.
+	if not HitRes.Kill then
+		local Ratio = (HitRes.Damage * (self.ACF.MaxHealth - self.ACF.Health) / self.ACF.MaxHealth)^0.2
+		local ammoRatio = self.MagSize / curammo
+		local chance = math.Rand(0,1)
+		//print(Ratio, ammoRatio, chance, ( Ratio * ammoRatio ) > chance, HitRes.Overkill > 0 and chance > (1 - ammoRatio))
+		if ( Ratio * ammoRatio ) > chance or HitRes.Overkill > 0 and chance > (1 - ammoRatio) then  
+			self.Inflictor = Inflictor
+			HitRes.Kill = true
+		end
+	end
+	
 	if HitRes.Kill then
 		local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
 		if CanDo == false then return HitRes end
@@ -48,20 +103,12 @@ function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )	--This
 		if( Inflictor and Inflictor:IsValid() and Inflictor:IsPlayer() ) then
 			self.Inflictor = Inflictor
 		end
-		if self.Ammo > 1 then
+		if curammo > 0 then
+			self.Ammo = curammo
 			ACF_AmmoExplosion( self , self:GetPos() )
 		else
 			ACF_HEKill( self , VectorRand() )
 		end
-	end
-	
-	if self.Damaged then return HitRes end
-	local Ratio = (HitRes.Damage/self.BulletData["RoundVolume"])^0.2
-	--print(Ratio)
-	if ( Ratio * self.Capacity/self.Ammo ) > math.Rand(0,1) then  
-		self.Inflictor = Inflictor
-		self.Damaged = CurTime() + (5 - Ratio*3)
-		Wire_TriggerOutput(self, "On Fire", 1)
 	end
 	
 	return HitRes --This function needs to return HitRes

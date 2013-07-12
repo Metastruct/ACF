@@ -15,15 +15,16 @@ end
 function EFFECT:Config(Bullet)
 
 	self.Bullet = Bullet
+	/*
 	print("\n\n\nBULLET EFFECT DATA:\n")
 	printByName(Bullet)
-		
 	print("Tracer in:", tostring(Bullet.Tracer))
+	//*/
 	if Bullet.Tracer and Bullet.Tracer != 0 then
 		Bullet.Tracer = ParticleEmitter( Bullet.Pos )
 		Bullet.Colour = Bullet.Colour or Color(255, 255, 255)
 	end
-	print("Tracer out:", tostring(Bullet.Tracer), Bullet.Colour and (Bullet.Colour.r .. "," .. Bullet.Colour.g .. "," .. Bullet.Colour.b) or "no colour")
+	//print("Tracer out:", tostring(Bullet.Tracer), Bullet.Colour and (Bullet.Colour.r .. "," .. Bullet.Colour.g .. "," .. Bullet.Colour.b) or "no colour")
 		
 	Bullet.Effect = self.Entity
 		

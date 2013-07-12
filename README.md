@@ -1,6 +1,7 @@
 # XCF: Extended/Experimental Combat Framework
 
-## Most/all of the changes in this repo are in the lua folder.  Download the lua.zip and apply it over an ACF installation!
+## All of the changes in this repo are in the lua, materials and models folder.  Download the lua.zip and unzip it over an ACF installation (delete + backup the original lua folder first)!
+## XCF IS NOT COMPATIBLE WITH SINGLEPLAYER!! USE A 2-PLAYER LAN SERVER INSTEAD!! (this might fix problems with other mods too)
 
 XCF is an extension to ACF which includes whatever I find interesting to add to it.
 
