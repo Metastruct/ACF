@@ -859,7 +859,7 @@ local RT170mm = // it's a dumb hellfire.
 	model		= "models/mortar/mortar_200mm.mdl",
 	caliber		= 17,
 	gunclass	= "RT",
-	weight		= 350,
+	weight		= 500,
 	year		= 1970,
 	roundclass	= "Rocket",
 	round		= 
@@ -873,7 +873,7 @@ local RT170mm = // it's a dumb hellfire.
 		propweight	= 13,	// motor mass - motor casing
 		thrust		= 6200*39.37,	// average thrust - kg*in/s^2
 		burnrate	= 2300,	// cm^3/s at average chamber pressure
-		muzzlevel	= 1*39.37	// fudged it.
+		muzzlevel	= 25	// fudged it.
 	},
 	blacklist = nonsmoke
 }
@@ -890,7 +890,7 @@ local RT85mm = // it's an rpg rocket
 	model		= "models/mortar/mortar_80mm.mdl",
 	caliber		= 8.5,
 	gunclass	= "RT",
-	weight		= 120,
+	weight		= 200,
 	year		= 1960,
 	roundclass	= "Rocket",
 	round		= 
@@ -901,10 +901,10 @@ local RT85mm = // it's an rpg rocket
 		maxweight	= 2.6,
 		casing		= 0.2,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
-		propweight	= 1.7,	// motor mass - motor casing
+		propweight	= 1,	// motor mass - motor casing
 		thrust		= 2000*39.37,	// average thrust - kg*in/s^2
 		burnrate	= 3000,	// cm^3/s at average chamber pressure
-		muzzlevel	= 114	// fudged it.
+		muzzlevel	= 25	// fudged it.
 	},
 	blacklist = nonsmoke
 }
@@ -977,13 +977,15 @@ GunTable[RT70mm.id] = RT70mm
 
 -- -- -- -- R7 pods -- -- -- --
 
-local R7_MASS = 130
+local rackdesc = "  Racks and pods allow rapid delivery of rockets, but are lightly armoured and vulnerable to damage."
+
+local R7_MASS = 100
 local R7_40mm = table.Copy(RT40mm)// it's a dumb hellfire.
 table.Merge(R7_40mm, {
 	id			= "40mmR7",
 	ent			= "acf_rack",
 	name		= "40mm Pod Rocket",
-	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Folding fins allow the rocket to be stored in this inaccurate, rapid-fire pod.",
+	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Folding fins allow the rocket to be stored in this inaccurate, rapid-fire pod." .. rackdesc,
 	model		= "models/missiles/launcher7_40mm.mdl",
 	gunclass	= "R7",
 	weight		= R7_MASS,
@@ -999,7 +1001,7 @@ table.Merge(R7_70mm, {
 	id			= "70mmR7",
 	ent			= "acf_rack",
 	name		= "70mm Pod Rocket",
-	desc		= "A small, unguided rocket.  Useful against light vehicles and infantry.  Folding fins allow the rocket to be stored in this inaccurate, rapid-fire pod.",
+	desc		= "A small, unguided rocket.  Useful against light vehicles and infantry.  Folding fins allow the rocket to be stored in this inaccurate, rapid-fire pod." .. rackdesc,
 	model		= "models/missiles/launcher7_70mm.mdl",
 	gunclass	= "R7",
 	weight		= R7_MASS*1.75,
@@ -1012,13 +1014,14 @@ GunTable[R7_70mm.id] = R7_70mm
 
 -- -- -- -- R4 racks -- -- -- --
 
-local R4_MASS = 75
+local R4_MASS = 125
+//*
 local R4_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R4_170mm, {
 	id			= "170mmR4",
 	ent			= "acf_rack",
 	name		= "170mm Rack Rocket",
-	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft." .. rackdesc,
 	model		= "models/missiles/rack_quad.mdl",
 	gunclass	= "R4",
 	weight		= R4_MASS,
@@ -1027,6 +1030,7 @@ table.Merge(R4_170mm, {
 R4_170mm.round.id = "170mmR4"
 
 GunTable[R4_170mm.id] = R4_170mm
+//*/
 
 
 local R4_85mm = table.Copy(RT85mm)// it's an rpg rocket
@@ -1034,7 +1038,7 @@ table.Merge(R4_85mm, {
 	id			= "85mmR4",
 	ent			= "acf_rack",
 	name		= "85mm Rack Rocket",
-	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia." .. rackdesc,
 	model		= "models/missiles/rack_quad.mdl",
 	gunclass	= "R4",
 	weight		= R4_MASS,
@@ -1045,31 +1049,15 @@ R4_85mm.round.id = "85mmR4"
 GunTable[R4_85mm.id] = R4_85mm
 
 
-local R4_40mm = table.Copy(RT40mm)// it's a dumb hellfire.
-table.Merge(R4_40mm, {
-	id			= "40mmR4",
-	ent			= "acf_rack",
-	name		= "40mm Rack Rocket",
-	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Rack up the rockets, rack up the kills.",
-	model		= "models/missiles/rack_quad.mdl",
-	gunclass	= "R4",
-	weight		= R4_MASS,
-	magsize		= 4
-})
-R4_40mm.round.id = "40mmR4"
-
-GunTable[R4_40mm.id] = R4_40mm
-
-
 -- -- -- -- R2 racks -- -- -- --
 
-local R2_MASS = 75
+local R2_MASS = 80
 local R2_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R2_170mm, {
 	id			= "170mmR2",
 	ent			= "acf_rack",
 	name		= "170mm Rack Rocket",
-	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft." .. rackdesc,
 	model		= "models/missiles/rack_double.mdl",
 	gunclass	= "R2",
 	weight		= R2_MASS,
@@ -1085,7 +1073,7 @@ table.Merge(R2_85mm, {
 	id			= "85mmR2",
 	ent			= "acf_rack",
 	name		= "85mm Rack Rocket",
-	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia." .. rackdesc,
 	model		= "models/missiles/rack_double.mdl",
 	gunclass	= "R2",
 	weight		= R2_MASS,
@@ -1098,13 +1086,13 @@ GunTable[R2_85mm.id] = R2_85mm
 
 -- -- -- -- R1 racks -- -- -- --
 
-local R1_MASS = 30
+local R1_MASS = 50
 local R1_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R1_170mm, {
 	id			= "170mmR1",
 	ent			= "acf_rack",
 	name		= "170mm Rack Rocket",
-	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft.",
+	desc		= "An unguided multi-purpose rocket, specifically designed to ruin days.  Usually found on attack aircraft." .. rackdesc,
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
@@ -1120,7 +1108,7 @@ table.Merge(R1_85mm, {
 	id			= "85mmR1",
 	ent			= "acf_rack",
 	name		= "85mm Rack Rocket",
-	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia.",
+	desc		= "A small, unguided propelled grenade.  Useful against light vehicles and blackhawks.  Made in Russia." .. rackdesc,
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
@@ -1129,6 +1117,40 @@ table.Merge(R1_85mm, {
 R1_85mm.round.id = "85mmR1"
 
 GunTable[R1_85mm.id] = R1_85mm
+
+
+local R1_70mm = table.Copy(RT70mm)// it's a dumb hellfire.
+table.Merge(R1_70mm, {
+	id			= "70mmR1",
+	ent			= "acf_rack",
+	name		= "70mm Rack Rocket",
+	desc		= "A small, unguided rocket.  Useful against light vehicles and infantry.  Comes in one-shot form for one-shot kills." .. rackdesc,
+	model		= "models/missiles/launcheR1_70mm.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 1
+})
+R1_70mm.round.id = "70mmR1"
+
+GunTable[R1_70mm.id] = R1_70mm
+
+
+//*
+local R1_40mm = table.Copy(RT40mm)// it's a dumb hellfire.
+table.Merge(R1_40mm, {
+	id			= "40mmR1",
+	ent			= "acf_rack",
+	name		= "40mm Rack Rocket",
+	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Rack up the rockets, rack up the kills." .. rackdesc,
+	model		= "models/missiles/rack_quad.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 1
+})
+R1_40mm.round.id = "40mmR1"
+
+GunTable[R1_40mm.id] = R1_40mm
+//*/
 
 
 	
@@ -1259,7 +1281,7 @@ local rocketTube = {}
 	rocketTube.spread = 3
 	rocketTube.name = "Rocket Tube"
 	rocketTube.muzzleflash = "40mm_muzzleflash_noscale"
-	rocketTube.rofmod = 1
+	rocketTube.rofmod = 2
 	rocketTube.sound = "weapons/grenade_launcher1.wav"
 	rocketTube.soundDistance = " "
 	rocketTube.soundNormal = " "
@@ -1291,7 +1313,7 @@ local munitionRack4x = {}
 	munitionRack4x.spread = 3
 	munitionRack4x.name = "Munition Rack (Quad)"
 	munitionRack4x.muzzleflash = "40mm_muzzleflash_noscale"
-	munitionRack4x.rofmod = 1
+	munitionRack4x.rofmod = 2.2
 	munitionRack4x.sound = "acf_extra/airfx/rocket_fire2.wav"
 	munitionRack4x.soundDistance = " "
 	munitionRack4x.soundNormal = " "
@@ -1309,7 +1331,7 @@ local munitionRack2x = {}
 	munitionRack2x.spread = 3
 	munitionRack2x.name = "Munition Rack (Dual)"
 	munitionRack2x.muzzleflash = "40mm_muzzleflash_noscale"
-	munitionRack2x.rofmod = 1
+	munitionRack2x.rofmod = 2.2
 	munitionRack2x.sound = "acf_extra/airfx/rocket_fire2.wav"
 	munitionRack2x.soundDistance = " "
 	munitionRack2x.soundNormal = " "
@@ -1325,7 +1347,7 @@ local munitionRack1x = {}
 	munitionRack1x.spread = 3
 	munitionRack1x.name = "Munition Rack (Single)"
 	munitionRack1x.muzzleflash = "40mm_muzzleflash_noscale"
-	munitionRack1x.rofmod = 1
+	munitionRack1x.rofmod = 2.2
 	munitionRack1x.sound = "acf_extra/airfx/rocket_fire2.wav"
 	munitionRack1x.soundDistance = " "
 	munitionRack1x.soundNormal = " "
