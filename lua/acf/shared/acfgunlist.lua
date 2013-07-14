@@ -1153,6 +1153,197 @@ GunTable[R1_40mm.id] = R1_40mm
 //*/
 
 
+
+
+-- -- -- -- -- Bombs! -- -- -- -- --
+
+local nofunallowed = {["SM"] = true, ["HEAT"] = true}
+
+
+
+
+-- quad racks
+
+local B4_100kg =
+{
+	id			= "100kgB4",
+	ent			= "acf_rack",
+	type		= "Guns",
+	name		= "12cm Bomb, 100kg",
+	desc		= "An unguided small-capacity bomb.  Which is actually large-capacity by usual standards.  Attach to plane, bring pain.",
+	model		= "models/missiles/rack_quad.mdl",
+	caliber		= 12,
+	gunclass	= "R4",
+	weight		= R4_MASS,
+	year		= 1940,
+	roundclass	= "Bomb",
+	round		= 
+	{
+		id			= "100kgB4",
+		model		= "models/missiles/micro.mdl",
+		maxlength	= 48,
+		maxweight	= 100,
+		propweight	= 0
+	},
+	blacklist = nosmoke
+}
+GunTable[B4_100kg.id] = B4_100kg
+
+
+local B4_50kg =
+{
+	id			= "50kgB4",
+	ent			= "acf_rack",
+	type		= "Guns",
+	name		= "8cm Bomb, 50kg",
+	desc		= "A tiny, unguided bomb.  Use on fighter planes to deliver regards on an individual basis, or in carpet-bombers to write dirty words upon enemy nations.",
+	model		= "models/missiles/rack_quad.mdl",
+	caliber		= 8,
+	gunclass	= "R4",
+	weight		= R4_MASS,
+	year		= 1940,
+	roundclass	= "Bomb",
+	round		= 
+	{
+		id			= "50kgB4",
+		model		= "models/missiles/micro.mdl",
+		maxlength	= 24,
+		maxweight	= 50,
+		propweight	= 0
+	},
+}
+GunTable[B4_50kg.id] = B4_50kg
+
+
+
+
+-- dual racks
+
+local B2_250kg =
+{
+	id			= "250kgB2",
+	ent			= "acf_rack",
+	type		= "Guns",
+	name		= "20cm Bomb, 250kg",
+	desc		= "An unguided medium-capacity bomb.  Effective against everything which has wheels, and some things which don't.  Use these in a dogfight for instant man-points.",
+	model		= "models/missiles/rack_dual.mdl",
+	caliber		= 20,
+	gunclass	= "R2",
+	weight		= 250,
+	year		= 1940,
+	roundclass	= "Bomb",
+	round		= 
+	{
+		id			= "250kgB2",
+		model		= "models/missiles/micro.mdl",
+		maxlength	= 80,
+		maxweight	= 250,
+		propweight	= 0
+	},
+	blacklist = nofunallowed
+}
+GunTable[B2_250kg.id] = B2_250kg
+
+
+local B2_100kg = table.Copy(B4_100kg)
+table.Merge(B2_100kg, {	
+	id			= "100kgB2",
+	model		= "models/missiles/rack_dual.mdl",
+	gunclass	= "R2",
+	weight		= R2_MASS,
+	magsize		= 2
+})
+B2_100kg.round.id = "100kgB2"
+
+GunTable[B2_100kg.id] = B2_100kg
+
+
+local B2_50kg = table.Copy(B4_50kg)
+table.Merge(B2_50kg, {	
+	id			= "50kgB2",
+	model		= "models/missiles/rack_dual.mdl",
+	gunclass	= "R2",
+	weight		= R2_MASS,
+	magsize		= 2
+})
+B2_50kg.round.id = "50kgB2"
+
+GunTable[B2_50kg.id] = B2_50kg
+
+
+
+
+-- single racks
+
+
+local B1_500kg =
+{
+	id			= "500kgB1",
+	ent			= "acf_rack",
+	type		= "Guns",
+	name		= "30cm Bomb, 500kg",
+	desc		= "An unguided large-capacity bomb, designed to inspire a fear of gravity into ceilings everywhere - from buildings to battleships.  HEAT warheads were outlawed after the first bomb test was found to have penetrated the target vehicle, the earth's surface, several circles of hell and Satan's morning coffee.",
+	model		= "models/missiles/rack_single.mdl",
+	caliber		= 30,
+	gunclass	= "R1",
+	weight		= 500,
+	year		= 1940,
+	roundclass	= "Bomb",
+	round		= 
+	{
+		id			= "500kgB1",
+		model		= "models/missiles/micro.mdl",
+		maxlength	= 150,
+		maxweight	= 500,
+		propweight	= 0
+	},
+	blacklist = nofunallowed
+}
+GunTable[B1_500kg.id] = B1_500kg
+
+
+local B1_250kg = table.Copy(B2_250kg)// it's a dumb hellfire.
+table.Merge(B1_250kg, {	
+	id			= "250kgB1",
+	model		= "models/missiles/rack_single.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 2
+})
+B1_250kg.round.id = "250kgB1"
+
+GunTable[B1_250kg.id] = B1_250kg
+
+
+local B1_100kg = table.Copy(B4_100kg)// it's a dumb hellfire.
+table.Merge(B1_100kg, {	
+	id			= "100kgB1",
+	model		= "models/missiles/rack_single.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 2
+})
+B1_100kg.round.id = "100kgB1"
+
+GunTable[B1_100kg.id] = B1_100kg
+
+
+local B1_50kg = table.Copy(B4_50kg)// it's a dumb hellfire.
+table.Merge(B1_50kg, {	
+	id			= "50kgB1",
+	model		= "models/missiles/rack_single.mdl",
+	gunclass	= "R1",
+	weight		= R1_MASS,
+	magsize		= 2
+})
+B1_50kg.round.id = "50kgB1"
+
+GunTable[B1_50kg.id] = B1_50kg
+
+
+
+
+
 	
 list.Set( "ACFEnts", "Guns", GunTable )
 
