@@ -866,13 +866,13 @@ local RT170mm = // it's a dumb hellfire.
 	{
 		id			= "170mmRT",
 		model		= "models/missiles/micro.mdl",
-		maxlength	= 160,
-		maxweight	= 50,
-		casing		= 0.5,	// thickness of missile casing, cm
+		maxlength	= 140,
+		maxweight	= 45,
+		casing		= 1,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
 		propweight	= 13,	// motor mass - motor casing
 		thrust		= 6200*39.37,	// average thrust - kg*in/s^2
-		burnrate	= 2300,	// cm^3/s at average chamber pressure
+		burnrate	= 1900,	// cm^3/s at average chamber pressure
 		muzzlevel	= 25	// fudged it.
 	},
 	blacklist = nonsmoke
@@ -1281,7 +1281,7 @@ local rocketTube = {}
 	rocketTube.spread = 3
 	rocketTube.name = "Rocket Tube"
 	rocketTube.muzzleflash = "40mm_muzzleflash_noscale"
-	rocketTube.rofmod = 2
+	rocketTube.rofmod = 1.8
 	rocketTube.sound = "weapons/grenade_launcher1.wav"
 	rocketTube.soundDistance = " "
 	rocketTube.soundNormal = " "
