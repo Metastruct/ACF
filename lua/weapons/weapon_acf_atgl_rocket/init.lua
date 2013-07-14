@@ -28,7 +28,7 @@ function SWEP:Initialize()
 	self.BulletData["FillerMass"]			= 1.2305305970856
 	self.BulletData["FillerVol"]			= 50000
 	self.BulletData["FrAera"]			= 56.74515
-	self.BulletData["Id"]			= "85mmRK"
+	self.BulletData["Id"]			= "85mmRT"
 	self.BulletData["KETransfert"]			= 0.1
 	self.BulletData["LimitVel"]			= 100
 	self.BulletData["Mass"]			= 3.2262311046069
