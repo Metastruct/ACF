@@ -12,6 +12,7 @@ local projcs = XCF.ProjClasses
 
 projcs[classname] = projcs[classname] and projcs[classname].super and projcs[classname] or XCF.inheritsFrom(projcs.Base)
 local this = projcs[classname]
+this.Class = classname
 
 local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
 
@@ -51,7 +52,7 @@ function this.GetCompact(bullet)
 		["Pos"]			= bullet.Pos,
 		["Flight"]		= bullet.Flight,
 		
-		["ProjClass"]	= "Shell"
+		["ProjClass"]	= "Bomb"
 	}
 	
 	/*

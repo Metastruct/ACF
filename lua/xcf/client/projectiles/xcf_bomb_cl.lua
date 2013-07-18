@@ -20,7 +20,7 @@ local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
 
 function this:CreateEffect()
 	local effectdata = EffectData()
-	local effect = util.ClientsideEffect( "XCF_BombEffect", effectdata )
+	local effect = util.ClientsideEffect( "XCF_ShellEffect", effectdata )
 	
 	effect:Config(self)
 	

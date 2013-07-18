@@ -5,6 +5,14 @@ AddCSLuaFile( "cl_init.lua" )
 
 include('shared.lua')
 
+
+local permittedRackAmmo = 
+{
+	Rocket = true,
+	Bomb = true
+}
+
+
 function ENT:Initialize()
 
 	self.SpecialHealth = true	--If true needs a special ACF_Activate function
@@ -535,9 +543,12 @@ function ENT:PostEntityPaste( Player, Ent, CreatedEntities )
 	end
 
 	local squashedammo = Ent.EntityMods and Ent.EntityMods.ACFRackAmmo or nil
+	print("SQUASHED AMMO:")
+	printByName(squashedammo)
 	if squashedammo then
 		local ammoclass = XCF.ProjClasses[squashedammo.ProjClass]// or error("Tried to copy an ACF Rack but it was loaded with invalid ammo! (" .. tostring(squashedammo.ProjClass) ", " .. tostring(squashedammo.Id) .. ", " .. tostring(squashedammo.Type) .. ")")
-		if ammoclass then
+		print(squashedammo.ProjClass, permittedRackAmmo[squashedammo.ProjClass])
+		if ammoclass and permittedRackAmmo[squashedammo.ProjClass] then
 			self.BulletData = ammoclass.GetExpanded(squashedammo)
 			//printByName(self.BulletData)
 			Ent.EntityMods.ACFRackAmmo = nil

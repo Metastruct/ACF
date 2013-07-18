@@ -1177,6 +1177,7 @@ local B4_100kg =
 	weight		= R4_MASS,
 	year		= 1940,
 	roundclass	= "Bomb",
+	magsize		= 4,
 	round		= 
 	{
 		id			= "100kgB4",
@@ -1203,6 +1204,7 @@ local B4_50kg =
 	weight		= R4_MASS,
 	year		= 1940,
 	roundclass	= "Bomb",
+	magsize		= 4,
 	round		= 
 	{
 		id			= "50kgB4",
@@ -1232,6 +1234,7 @@ local B2_250kg =
 	weight		= 250,
 	year		= 1940,
 	roundclass	= "Bomb",
+	magsize		= 2,
 	round		= 
 	{
 		id			= "250kgB2",
@@ -1289,6 +1292,7 @@ local B1_500kg =
 	weight		= 500,
 	year		= 1940,
 	roundclass	= "Bomb",
+	magsize		= 1,
 	round		= 
 	{
 		id			= "500kgB1",
@@ -1308,7 +1312,7 @@ table.Merge(B1_250kg, {
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
-	magsize		= 2
+	magsize		= 1
 })
 B1_250kg.round.id = "250kgB1"
 
@@ -1321,7 +1325,7 @@ table.Merge(B1_100kg, {
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
-	magsize		= 2
+	magsize		= 1
 })
 B1_100kg.round.id = "100kgB1"
 
@@ -1334,7 +1338,7 @@ table.Merge(B1_50kg, {
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
-	magsize		= 2
+	magsize		= 1
 })
 B1_50kg.round.id = "50kgB1"
 
