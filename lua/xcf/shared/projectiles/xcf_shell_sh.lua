@@ -35,7 +35,7 @@ function this.GetCompact(bullet)
 	if hasfiller then
 		hasfiller = bullet.FillerVol or bullet.CavVol or bullet.FillerMass / ACF.HEDensity * fillerdensity[bullet.Type]
 	end
-	/*
+	//*
 	print("\n\nBEFORE COMPACT:\n")
 	printByName(bullet)
 	//*/
@@ -56,7 +56,7 @@ function this.GetCompact(bullet)
 		["ProjClass"]	= "Shell"
 	}
 	
-	/*
+	//*
 	print("\n\nAFTER COMPACT:\n")
 	printByName(ret)
 	//*/
@@ -69,7 +69,7 @@ end
 //*/
 function this.GetExpanded(bullet)
 
-	/*
+	//*
 	print("\n\nBEFORE EXPAND:\n")
 	printByName(bullet)
 	//*/
@@ -87,7 +87,7 @@ function this.GetExpanded(bullet)
 	toconvert["Data10"] = 		bullet["Tracer"] or bullet["Data10"] or 0
 	toconvert["Colour"] = 		bullet["Colour"] or Color(255, 255, 255)
 		
-	/*
+	//*
 	print("\n\nTO EXPAND:\n")
 	printByName(toconvert)
 	//*/
@@ -95,7 +95,7 @@ function this.GetExpanded(bullet)
 	local conversion = ACF.RoundTypes[bullet.Type].convert
 	
 	if not conversion then return nil end
-	local ret = conversion( nil, bullet )
+	local ret = conversion( nil, toconvert )
 	
 	ret.ProjClass = this
 	
@@ -107,7 +107,7 @@ function this.GetExpanded(bullet)
 	ret.Accel = Vector(0,0,cvarGrav:GetInt()*-1)
 	if ret.Tracer == 0 and bullet["Tracer"] and bullet["Tracer"] > 0 then ret.Tracer = bullet["Tracer"] end
 	ret.Colour = toconvert["Colour"]
-	/*
+	//*
 	print("\n\nAFTER EXPAND:\n")
 	printByName(ret)
 	//*/
