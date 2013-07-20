@@ -2,7 +2,7 @@ ACF = {}
 ACF.AmmoTypes = {}
 ACF.MenuFunc = {}
 ACF.AmmoBlacklist = {}
-ACF.Version = 401 -- Make sure to change this as the version goes up or the update check is for nothing! -wrex
+ACF.Version = 9999 -- hey bubbus i think my xcf is out of date??
 ACF.CurrentVersion = 0 -- just defining a variable, do not change
 
 ACF.Threshold = 225	--Health Divisor
