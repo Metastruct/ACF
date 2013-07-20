@@ -96,7 +96,7 @@ function this.GetExpanded(bullet)
 	local conversion = ACF.RoundTypes[bullet.Type].convert
 	
 	if not conversion then return nil end
-	local ret = conversion( nil, bullet )
+	local ret = conversion( nil, toconvert )
 	
 	ret.ProjClass = this
 	
