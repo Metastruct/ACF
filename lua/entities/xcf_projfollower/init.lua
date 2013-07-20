@@ -48,7 +48,7 @@ function ENT:RegisterTo(bullet)
 	
 	local Time = CurTime()
 	
-	//self:NextThink( Time + self.ThinkDelay )
+	self:NextThink( Time + 100000000 )
 	self:Think()
 	
 end
@@ -73,11 +73,12 @@ function ENT:Think()
 	end
 	
 	debugoverlay.Line( self.lastPos, newpos, 20, Color(0, 255, 255), false )
-	if newforward then debugoverlay.Line( newpos, newpos + newforward * 100, 20, Color(255, 0, 0), false ) end
+	if newforward then debugoverlay.Line( newpos, newpos + newforward * 200, 20, Color(255, 0, 0), false ) end
 	
 	self.lastPos = newpos
 	self.lastForward = newforward
 	
+	timer.Simple(self.ThinkDelay, function() self:Think() end)
 	//self:NextThink( CurTime() + self.ThinkDelay )
 end
 

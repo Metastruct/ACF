@@ -90,10 +90,12 @@ function this.Launched(self)
 	//self.RotDecay = 1 - (0.000197 * inchcaliber * inchlength / 4) -- resistance-factor of fins at normal air-density (1.96644768 × 10-5 kg / in^3)
 	//print("Bomb specs:", "Inertia: " .. self.Inertia, "TorqueMul: " .. self.TorqueMul)//, "RotDecay: " .. self.RotDecay)
 	
+	/*
 	local follower = ents.Create("xcf_projfollower")
 	follower:Spawn()
 	follower:RegisterTo(self)
 	self.Filter[#self.Filter + 1] = follower
+	//*/
 end
 //*/
 
