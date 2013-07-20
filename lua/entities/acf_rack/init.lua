@@ -543,11 +543,13 @@ function ENT:PostEntityPaste( Player, Ent, CreatedEntities )
 	end
 
 	local squashedammo = Ent.EntityMods and Ent.EntityMods.ACFRackAmmo or nil
+	/*
 	print("SQUASHED AMMO:")
 	printByName(squashedammo)
+	//*/
 	if squashedammo then
 		local ammoclass = XCF.ProjClasses[squashedammo.ProjClass]// or error("Tried to copy an ACF Rack but it was loaded with invalid ammo! (" .. tostring(squashedammo.ProjClass) ", " .. tostring(squashedammo.Id) .. ", " .. tostring(squashedammo.Type) .. ")")
-		print(squashedammo.ProjClass, permittedRackAmmo[squashedammo.ProjClass])
+		//print(squashedammo.ProjClass, permittedRackAmmo[squashedammo.ProjClass])
 		if ammoclass and permittedRackAmmo[squashedammo.ProjClass] then
 			self.BulletData = ammoclass.GetExpanded(squashedammo)
 			//printByName(self.BulletData)

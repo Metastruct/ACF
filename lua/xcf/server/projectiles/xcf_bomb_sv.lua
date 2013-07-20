@@ -71,15 +71,12 @@ function this.Prepare(BulletData)
 	BulletData.Filter[#BulletData.Filter + 1] = BulletData["Gun"] 
 	BulletData.ProjClass = this
 	
-	print("omg jc a bomb")
-	
 	return BulletData
 end
 
 
 
 function this.Launched(self)
-	//printByName(self)
 	
 	self.LastThink = SysTime()
 	//*
@@ -91,7 +88,7 @@ function this.Launched(self)
 	self.Inertia = 0.08333 * mass * (3 * (inchcaliber / 2)^2 + inchlength) -- cylinder, non-roll axes
 	self.TorqueMul = inchlength / 3 * inchcaliber * inchlength / 2 -- square fins 1/5th the length of the bomb with center of mass at bomb center.
 	//self.RotDecay = 1 - (0.000197 * inchcaliber * inchlength / 4) -- resistance-factor of fins at normal air-density (1.96644768 × 10-5 kg / in^3)
-	print("Bomb specs:", "Inertia: " .. self.Inertia, "TorqueMul: " .. self.TorqueMul)//, "RotDecay: " .. self.RotDecay)
+	//print("Bomb specs:", "Inertia: " .. self.Inertia, "TorqueMul: " .. self.TorqueMul)//, "RotDecay: " .. self.RotDecay)
 	
 	local follower = ents.Create("xcf_projfollower")
 	follower:Spawn()
@@ -133,7 +130,7 @@ function this.DoFlight(self, isRetry)
 	end
 	self.RotAxis = self.RotAxis * 0.995 //TODO: real energy-loss function
 	
-	print(aimdot, angveldiff, self.RotAxis:Length())
+	//print(aimdot, angveldiff, self.RotAxis:Length())
 	
 	local newforward = self.Forward:Angle()
 	newforward:RotateAroundAxis(self.RotAxis, self.RotAxis:Length())

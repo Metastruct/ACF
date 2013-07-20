@@ -43,13 +43,13 @@ function this.Launch( Proj, ProjClass )
 	if not Proj then return end
 	
 	Proj = table.Copy(Proj)
-	
+	/*
 	print("\nPROJ:")
 	printByName(Proj)
 	print("PROJCLASS:")
 	printByName(Proj.ProjClass)
 	print("PROJ END")
-	
+	//*/
 	//xcf_dbgprint(XCF.LastProj, XCF.ProjectilesLimit, XCF.LastProj % XCF.ProjectilesLimit)
 	local curind = (XCF.LastProj % XCF.ProjectilesLimit) + 1 	// TODO: can improve efficiency by caching table length and updating upon add/remove
 	XCF.LastProj = curind
@@ -60,7 +60,7 @@ function this.Launch( Proj, ProjClass )
 		Proj.ProjClass = ProjClass or XCF.ProjClasses.Shell or error("Tried to create an old projectile, but default projectile class is undefined!")
 	end
 	
-	print("Launching a ", Proj.ProjClass.Class or "Unknown type", "!")
+	//print("Launching a ", Proj.ProjClass.Class or "Unknown type", "!")
 	
 	Proj.ProjClass.Prepare(Proj)
 	
