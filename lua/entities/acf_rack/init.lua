@@ -441,6 +441,7 @@ function ENT:FireMissile()
 			//PrintTable(self.BulletData)
 			
 			self.BulletData["Pos"] = MuzzlePos
+			self.BulletData["Forward"] = MuzzleVec
 			self.BulletData["Flight"] = (MuzzleVec+Inaccuracy):GetNormalized() * self.BulletData["MuzzleVel"] * 39.37 + self:GetVelocity()
 			self.BulletData["Owner"] = self.User
 			self.BulletData["Gun"] = self

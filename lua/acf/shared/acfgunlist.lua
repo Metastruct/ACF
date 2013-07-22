@@ -867,7 +867,7 @@ local RT170mm = // it's a dumb hellfire.
 		id			= "170mmRT",
 		model		= "models/missiles/micro.mdl",
 		maxlength	= 140,
-		maxweight	= 45,
+		--maxweight	= 45,
 		casing		= 1,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
 		propweight	= 13,	// motor mass - motor casing
@@ -898,7 +898,7 @@ local RT85mm = // it's an rpg rocket
 		id			= "85mmRT",
 		model		= "models/missiles/70mmffar.mdl",
 		maxlength	= 24*2.54,
-		maxweight	= 2.6,
+		--maxweight	= 2.6,
 		casing		= 0.2,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
 		propweight	= 1,	// motor mass - motor casing
@@ -930,7 +930,7 @@ local RT40mm = // it's a tiny hydra
 		model		= "models/missiles/ffar_40mm.mdl",
 		rackmdl		= "models/missiles/ffar_40mm_closed.mdl",
 		maxlength	= 26,
-		maxweight	= 3,
+		--maxweight	= 3,
 		casing		= 0.2,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
 		propweight	= 1,	// motor mass - motor casing
@@ -962,7 +962,7 @@ local RT70mm = // it's a hydra!
 		model		= "models/missiles/ffar_70mm.mdl",
 		rackmdl		= "models/missiles/ffar_70mm_closed.mdl",
 		maxlength	= 26*1.75,
-		maxweight	= 3*1.75,
+		--maxweight	= 3*1.75,
 		casing		= 0.2,	// thickness of missile casing, cm
 			// rough calculations from hellfire M120E3 motor
 		propweight	= 1.75,	// motor mass - motor casing
@@ -1125,7 +1125,7 @@ table.Merge(R1_70mm, {
 	ent			= "acf_rack",
 	name		= "70mm Rack Rocket",
 	desc		= "A small, unguided rocket.  Useful against light vehicles and infantry.  Comes in one-shot form for one-shot kills." .. rackdesc,
-	model		= "models/missiles/launcheR1_70mm.mdl",
+	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
 	magsize		= 1
@@ -1142,7 +1142,7 @@ table.Merge(R1_40mm, {
 	ent			= "acf_rack",
 	name		= "40mm Rack Rocket",
 	desc		= "A tiny, unguided rocket.  Useful for anti-infantry, smoke and suppression.  Rack up the rockets, rack up the kills." .. rackdesc,
-	model		= "models/missiles/rack_quad.mdl",
+	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
 	magsize		= 1
@@ -1164,13 +1164,13 @@ local nofunallowed = {["SM"] = true, ["HEAT"] = true}
 
 -- quad racks
 
-local B4_100kg =
+local B4_12cm =
 {
-	id			= "100kgB4",
+	id			= "12cmB4",
 	ent			= "acf_rack",
 	type		= "Guns",
-	name		= "12cm Bomb, 100kg",
-	desc		= "An unguided small-capacity bomb.  Which is actually large-capacity by usual standards.  Attach to plane, bring pain.",
+	name		= "12cm Bomb",
+	desc		= "An unguided small-capacity bomb.  Which is large-capacity by usual standards.  Attach to plane, bring pain.",
 	model		= "models/missiles/rack_quad.mdl",
 	caliber		= 12,
 	gunclass	= "R4",
@@ -1178,25 +1178,26 @@ local B4_100kg =
 	year		= 1940,
 	roundclass	= "Bomb",
 	magsize		= 4,
+	rofmod		= 0.5,
 	round		= 
 	{
-		id			= "100kgB4",
+		id			= "12cmB4",
 		model		= "models/missiles/micro.mdl",
 		maxlength	= 48,
-		maxweight	= 100,
+		--maxweight	= 100,
 		propweight	= 0
 	},
 	blacklist = nosmoke
 }
-GunTable[B4_100kg.id] = B4_100kg
+GunTable[B4_12cm.id] = B4_12cm
 
 
-local B4_50kg =
+local B4_8cm =
 {
-	id			= "50kgB4",
+	id			= "8cmB4",
 	ent			= "acf_rack",
 	type		= "Guns",
-	name		= "8cm Bomb, 50kg",
+	name		= "8cm Bomb",
 	desc		= "A tiny, unguided bomb.  Use on fighter planes to deliver regards on an individual basis, or in carpet-bombers to write dirty words upon enemy nations.",
 	model		= "models/missiles/rack_quad.mdl",
 	caliber		= 8,
@@ -1205,73 +1206,75 @@ local B4_50kg =
 	year		= 1940,
 	roundclass	= "Bomb",
 	magsize		= 4,
+	rofmod		= 0.5,
 	round		= 
 	{
-		id			= "50kgB4",
+		id			= "8cmB4",
 		model		= "models/missiles/micro.mdl",
-		maxlength	= 24,
-		maxweight	= 50,
+		maxlength	= 32,
+		--maxweight	= 50,
 		propweight	= 0
 	},
 }
-GunTable[B4_50kg.id] = B4_50kg
+GunTable[B4_8cm.id] = B4_8cm
 
 
 
 
 -- dual racks
 
-local B2_250kg =
+local B2_20cm =
 {
-	id			= "250kgB2",
+	id			= "20cmB2",
 	ent			= "acf_rack",
 	type		= "Guns",
-	name		= "20cm Bomb, 250kg",
+	name		= "20cm Bomb",
 	desc		= "An unguided medium-capacity bomb.  Effective against everything which has wheels, and some things which don't.  Use these in a dogfight for instant man-points.",
-	model		= "models/missiles/rack_dual.mdl",
+	model		= "models/missiles/rack_double.mdl",
 	caliber		= 20,
 	gunclass	= "R2",
-	weight		= 250,
+	weight		= R2_MASS,
 	year		= 1940,
 	roundclass	= "Bomb",
 	magsize		= 2,
+	rofmod		= 0.5,
 	round		= 
 	{
-		id			= "250kgB2",
+		id			= "20cmB2",
 		model		= "models/missiles/micro.mdl",
-		maxlength	= 80,
-		maxweight	= 250,
+		maxlength	= 70,
+		--maxweight	= 250,
 		propweight	= 0
 	},
 	blacklist = nofunallowed
 }
-GunTable[B2_250kg.id] = B2_250kg
+GunTable[B2_20cm.id] = B2_20cm
 
 
-local B2_100kg = table.Copy(B4_100kg)
-table.Merge(B2_100kg, {	
-	id			= "100kgB2",
-	model		= "models/missiles/rack_dual.mdl",
+local B2_12cm = table.Copy(B4_12cm)
+table.Merge(B2_12cm, {	
+	id			= "12cmB2",
+	model		= "models/missiles/rack_double.mdl",
 	gunclass	= "R2",
 	weight		= R2_MASS,
 	magsize		= 2
 })
-B2_100kg.round.id = "100kgB2"
+B2_12cm.round.id = "12cmB2"
 
-GunTable[B2_100kg.id] = B2_100kg
+GunTable[B2_12cm.id] = B2_12cm
 
 
-local B2_50kg = table.Copy(B4_50kg)
-table.Merge(B2_50kg, {	
-	id			= "50kgB2",
-	model		= "models/missiles/rack_dual.mdl",
+local B2_8cm = table.Copy(B4_8cm)
+table.Merge(B2_8cm, {	
+	id			= "8cmB2",
+	model		= "models/missiles/rack_double.mdl",
 	gunclass	= "R2",
 	weight		= R2_MASS,
 	magsize		= 2
 })
-B2_50kg.round.id = "50kgB2"
+B2_8cm.round.id = "8cmB2"
 
-GunTable[B2_50kg.id] = B2_50kg
+GunTable[B2_8cm.id] = B2_8cm
 
 
 
@@ -1279,70 +1282,71 @@ GunTable[B2_50kg.id] = B2_50kg
 -- single racks
 
 
-local B1_500kg =
+local B1_30cm =
 {
-	id			= "500kgB1",
+	id			= "30cmB1",
 	ent			= "acf_rack",
 	type		= "Guns",
-	name		= "30cm Bomb, 500kg",
+	name		= "30cm Bomb",
 	desc		= "An unguided large-capacity bomb, designed to inspire a fear of gravity into ceilings everywhere - from buildings to battleships.  HEAT warheads were outlawed after the first bomb test was found to have penetrated the target vehicle, the earth's surface, several circles of hell and Satan's morning coffee.",
 	model		= "models/missiles/rack_single.mdl",
 	caliber		= 30,
 	gunclass	= "R1",
-	weight		= 500,
+	weight		= R1_MASS,
 	year		= 1940,
 	roundclass	= "Bomb",
 	magsize		= 1,
+	rofmod		= 0.5,
 	round		= 
 	{
-		id			= "500kgB1",
+		id			= "30cmB1",
 		model		= "models/missiles/micro.mdl",
-		maxlength	= 150,
-		maxweight	= 500,
+		maxlength	= 90,
+		--maxweight	= 500,
 		propweight	= 0
 	},
 	blacklist = nofunallowed
 }
-GunTable[B1_500kg.id] = B1_500kg
+GunTable[B1_30cm.id] = B1_30cm
 
 
-local B1_250kg = table.Copy(B2_250kg)// it's a dumb hellfire.
-table.Merge(B1_250kg, {	
-	id			= "250kgB1",
+local B1_20cm = table.Copy(B2_20cm)// it's a dumb hellfire.
+table.Merge(B1_20cm, {	
+	id			= "20cmB1",
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
 	magsize		= 1
 })
-B1_250kg.round.id = "250kgB1"
+B1_20cm.round.id = "20cmB1"
 
-GunTable[B1_250kg.id] = B1_250kg
+GunTable[B1_20cm.id] = B1_20cm
 
 
-local B1_100kg = table.Copy(B4_100kg)// it's a dumb hellfire.
-table.Merge(B1_100kg, {	
-	id			= "100kgB1",
+local B1_12cm = table.Copy(B4_12cm)// it's a dumb hellfire.
+table.Merge(B1_12cm, {	
+	id			= "12cmB1",
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
 	magsize		= 1
 })
-B1_100kg.round.id = "100kgB1"
+B1_12cm.round.id = "12cmB1"
 
-GunTable[B1_100kg.id] = B1_100kg
+GunTable[B1_12cm.id] = B1_12cm
 
 
-local B1_50kg = table.Copy(B4_50kg)// it's a dumb hellfire.
-table.Merge(B1_50kg, {	
-	id			= "50kgB1",
+local B1_8cm = table.Copy(B4_8cm)// it's a dumb hellfire.
+table.Merge(B1_8cm, {	
+	id			= "8cmB1",
 	model		= "models/missiles/rack_single.mdl",
 	gunclass	= "R1",
 	weight		= R1_MASS,
 	magsize		= 1
 })
-B1_50kg.round.id = "50kgB1"
+B1_8cm.round.id = "8cmB1"
 
-GunTable[B1_50kg.id] = B1_50kg
+GunTable[B1_8cm.id] = B1_8cm
 
 
 

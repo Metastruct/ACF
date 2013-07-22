@@ -20,7 +20,7 @@ local balls = XCF.Ballistics or error("XCF: Ballistics hasn't been loaded yet!")
 
 function this:CreateEffect()
 	local effectdata = EffectData()
-	local effect = util.ClientsideEffect( "XCF_ShellEffect", effectdata )
+	local effect = util.ClientsideEffect( "XCF_BombEffect", effectdata )
 	
 	effect:Config(self)
 	
@@ -48,11 +48,23 @@ function this:Launch()
 	self.FlightTime = 0
 	self.Travelled = 0
 	
-	/*
-	print("LAUNCHING " .. tostring(self))
-	printByName(self)
-	//*/
+	//*
+	self.Forward = self.Forward or IsValid(self.Gun) and self.Gun:GetForward() or self.Flight:GetNormalized() or Vector(1, 0, 0)
+	self.RotAxis = Vector(0,0,0)
+	local inchlength = self.ProjLength / 2.54
+	local inchcaliber = self.Caliber / 2.54
+	local mass = self.RoundMass or self.ProjMass or 100
+	self.Inertia = 0.08333 * mass * (3 * (inchcaliber / 2)^2 + inchlength) -- cylinder, non-roll axes
+	self.TorqueMul = inchlength / 3 * inchcaliber * inchlength / 2 -- square fins 1/5th the length of the bomb with center of mass at bomb center.
+	//self.RotDecay = 1 - (0.000197 * inchcaliber * inchlength / 4) -- resistance-factor of fins at normal air-density (1.96644768 × 10-5 kg / in^3)
+	//print("Bomb specs:", "Inertia: " .. self.Inertia, "TorqueMul: " .. self.TorqueMul)//, "RotDecay: " .. self.RotDecay)
 	
+	/*
+	local follower = ents.Create("xcf_projfollower")
+	follower:Spawn()
+	follower:RegisterTo(self)
+	self.Filter[#self.Filter + 1] = follower
+	//*/
 end
 
 
@@ -68,6 +80,27 @@ function this:DoFlight()
 	local Drag = self.Flight:GetNormalized() * (self.DragCoef * Speed^2)/ACF.DragDiv
 	self.NextPos = self.Pos + (self.Flight * ACF.VelScale * DeltaTime)		--Calculates the next bomb position
 	self.Flight = self.Flight + (self.Accel - Drag)*DeltaTime				--Calculates the next bomb vector
+	
+	local flightnorm = self.Flight:GetNormalized()
+	//local aimdot = 1 - math.abs((-flightnorm):Dot(self.Forward))
+	local angveldiff
+	local aimdiff = self.Forward - flightnorm
+	local difflen = aimdiff:Length()
+	//if aimdot <= 0.99 then 
+	if difflen >= 0.01 then 
+		local torque = difflen * self.TorqueMul
+		angveldiff = torque / self.Inertia * DeltaTime
+		local diffaxis = aimdiff:Cross(self.Forward):GetNormalized()
+		self.RotAxis = self.RotAxis + diffaxis * angveldiff
+	end
+	self.RotAxis = self.RotAxis * 0.995 //TODO: real energy-loss function
+	
+	//print(aimdot, angveldiff, self.RotAxis:Length())
+	
+	local newforward = self.Forward:Angle()
+	newforward:RotateAroundAxis(self.RotAxis, self.RotAxis:Length())
+	self.Forward = newforward:Forward()
+	
 	self.StartTrace = self.Pos - self.Flight:GetNormalized()*math.min(ACF.PhysMaxVel*DeltaTime, self.FlightTime*Speed)
 	self.Travelled = self.Travelled + (self.NextPos:Distance(self.Pos))
 	self.Pos = self.NextPos
@@ -75,7 +108,8 @@ function this:DoFlight()
 	self.FlightTime = self.FlightTime + DeltaTime
 	
 	
-	debugoverlay.Line( self.StartTrace, self.NextPos, 4, Color(255, 255, 0), false )
+	debugoverlay.Line( self.Pos, self.Pos + self.Forward * 200, 20, Color(255, 255, 0), false )
+	--debugoverlay.Line( self.StartTrace, self.NextPos, 4, Color(255, 255, 0), false )
 	
 	return true
 end

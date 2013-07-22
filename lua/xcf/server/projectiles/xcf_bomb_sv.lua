@@ -80,7 +80,7 @@ function this.Launched(self)
 	
 	self.LastThink = SysTime()
 	//*
-	self.Forward = IsValid(self.Gun) and self.Gun:GetForward() or self.Flight:GetNormalized() or Vector(1, 0, 0)
+	self.Forward = self.Forward or IsValid(self.Gun) and self.Gun:GetForward() or self.Flight:GetNormalized() or Vector(1, 0, 0)
 	self.RotAxis = Vector(0,0,0)
 	local inchlength = self.ProjLength / 2.54
 	local inchcaliber = self.Caliber / 2.54
@@ -166,7 +166,8 @@ function this.DoTrace(self)
 	local FlightRes = util.TraceLine(FlightTr)					--Trace to see if it will hit anything
 	
 	
-	debugoverlay.Line( self.StartTrace, FlightRes.HitPos, 20, Color(0, 255, 255), false )
+	debugoverlay.Line( self.NextPos, self.NextPos + self.Forward * 100, 20, Color(0, 255, 255), false )
+	//debugoverlay.Line( self.StartTrace, FlightRes.HitPos, 20, Color(0, 255, 255), false )
 	
 	if not FlightRes.Hit or FlightRes.HitSky then 
 	
@@ -203,6 +204,47 @@ function this.DoTrace(self)
 	
 end
 
+
+
+
+function this.ShouldDud(Proj, TrRes)
+	if not TrRes.Hit then return false end
+	
+	local hitang = math.acos(TrRes.HitNormal:Dot(Proj.Forward))
+	local dudchance = hitang / math.pi
+	print("dudchance", dudchance)
+	
+	return math.random() > dudchance
+end
+
+
+
+function this.CreateDud(Proj, TrRes)
+
+	local HitNormal = TrRes.HitNormal
+	local Speed = Proj.Flight:Length()
+	local Angle = ACF_GetHitAngle( HitNormal, Proj.Flight )
+	local Ricochet = (Angle/100)
+	local Dir = Proj.Flight:GetNormalized()
+	local newflight = (Dir + HitNormal*(1-Ricochet+0.05) + VectorRand()*0.05):GetNormalized() * Speed * Ricochet
+
+	Dud = ents.Create("prop_physics")
+	Dud:SetPos( TrRes.HitPos - Dir*50 )
+	Dud:SetAngles( newflight:Angle() )
+	Dud:SetKeyValue( "model", ACF.Weapons.Guns[Proj.Id].round.model )
+	Dud:PhysicsInit( SOLID_VPHYSICS )
+	Dud:SetMoveType( MOVETYPE_VPHYSICS )
+	Dud:SetSolid( SOLID_VPHYSICS )
+	Dud:SetCollisionGroup( COLLISION_GROUP_WORLD )
+	Dud:Activate()
+	Dud:Spawn()
+	Dud:Fire("Kill", "", 10)
+	local phys = Dud:GetPhysicsObject()
+	if (phys:IsValid()) then
+		phys:SetVelocity(newflight)
+	end
+
+end
 
 
 /**
@@ -259,11 +301,20 @@ function this.EndFlight(Index, Proj, FlightRes)
 	//printByName(Proj.Filter)
 			
 	if Proj.CallbackEndFlight then Proj.CallbackEndFlight(Index, Proj, FlightRes) end
-	ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
+	
+	local willdud = this.ShouldDud(Proj, FlightRes)
+	if willdud then
+		print("bomb dudding!")
+		this.CreateDud(Proj, FlightRes)
+	else
+		ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
+	end
+	
 	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
 	debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	
 	local ret = this.GetUpdate(Proj)
+	//ret.UpdateType = willdud and hit.HIT_RICOCHET or hit.HIT_END
 	ret.UpdateType = hit.HIT_END
 	return ret, balls.PROJ_REMOVE
 end

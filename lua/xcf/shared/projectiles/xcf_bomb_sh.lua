@@ -51,6 +51,7 @@ function this.GetCompact(bullet)
 		
 		["Pos"]			= bullet.Pos,
 		["Flight"]		= bullet.Flight,
+		["Forward"]		= bullet.Forward or bullet.Flight,
 		
 		["ProjClass"]	= "Bomb"
 	}
@@ -99,6 +100,7 @@ function this.GetExpanded(bullet)
 	
 	ret.Pos = bullet.Pos or Vector(0,0,0)
 	ret.Flight = bullet.Flight or Vector(0,0,0)
+	ret.Forward = bullet.Forward or ret.Flight
 	ret.Type = ret.Type or bullet.Type
 	
 	local cvarGrav = GetConVar("sv_gravity")
