@@ -208,6 +208,8 @@ end
 
 
 function this.ShouldDud(Proj, TrRes)
+	return false
+	/*
 	if not TrRes.Hit then return false end
 	
 	local hitang = math.acos(TrRes.HitNormal:Dot(Proj.Forward))
@@ -215,6 +217,7 @@ function this.ShouldDud(Proj, TrRes)
 	print("dudchance", dudchance)
 	
 	return math.random() > dudchance
+	//*/
 end
 
 
