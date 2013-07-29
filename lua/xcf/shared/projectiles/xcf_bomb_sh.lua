@@ -100,8 +100,9 @@ function this.GetExpanded(bullet)
 	
 	ret.Pos = bullet.Pos or Vector(0,0,0)
 	ret.Flight = bullet.Flight or Vector(0,0,0)
-	ret.Forward = bullet.Forward or ret.Flight
-	ret.Type = ret.Type or bullet.Type
+	ret.Forward = bullet.Forward or ret.Flight:GetNormalized()
+	ret.Type = ret.Type or toconvert.Type
+	ret.Id = ret.Id or toconvert.Id
 	
 	local cvarGrav = GetConVar("sv_gravity")
 	ret.Accel = Vector(0,0,cvarGrav:GetInt()*-1)
