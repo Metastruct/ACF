@@ -40,6 +40,12 @@ ACF.RefillSpeed = 700 -- (ACF.RefillSpeed / RoundMass) / Distance
 
 ACF.Year = 1945
 
+ACF.DebrisScale = 20 -- Ignore debris that is less than this bounding radius.
+ACF.TorqueScale = 1/4
+ACF.SpreadScale = 4
+ACF.EngineHPMult = 1/8
+
+
 CreateConVar('sbox_max_acf_gun', 12)
 CreateConVar('sbox_max_acf_ammo', 32)
 CreateConVar('sbox_max_acf_misc', 32)
