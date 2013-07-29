@@ -2,7 +2,7 @@ ACF = {}
 ACF.AmmoTypes = {}
 ACF.MenuFunc = {}
 ACF.AmmoBlacklist = {}
-ACF.Version = 401 -- Make sure to change this as the version goes up or the update check is for nothing! -wrex
+ACF.Version = 406 -- REMEMBER TO CHANGE THIS FOR GODS SAKE, OMFG!!!!!!! -wrex
 ACF.CurrentVersion = 0 -- just defining a variable, do not change
 
 ACF.Threshold = 225	--Health Divisor
@@ -39,6 +39,12 @@ ACF.RefillDistance = 300 --Distance in which ammo crate starts refilling.
 ACF.RefillSpeed = 700 -- (ACF.RefillSpeed / RoundMass) / Distance 
 
 ACF.Year = 1945
+
+ACF.DebrisScale = 20 -- Ignore debris that is less than this bounding radius.
+ACF.TorqueScale = 1/4
+ACF.SpreadScale = 4
+ACF.EngineHPMult = 1/8
+
 
 CreateConVar('sbox_max_acf_gun', 12)
 CreateConVar('sbox_max_acf_ammo', 32)
