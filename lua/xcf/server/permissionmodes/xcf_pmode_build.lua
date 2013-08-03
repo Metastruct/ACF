@@ -76,4 +76,4 @@ end
 
 
 if not XCF or not XCF.Permissions or not XCF.Permissions.RegisterMode then error("XCF: Tried to load the " .. modename .. " permission-mode before the permission-core has loaded!") end
-XCF.Permissions.RegisterMode(modepermission, modename, modedescription)
+XCF.Permissions.RegisterMode(modepermission, modename, modedescription, true)

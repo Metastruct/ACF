@@ -13,7 +13,8 @@ XCF.Permissions.ModeDescs = {}
 
 //TODO: convar this
 local mapSZDir = "xcf/safezones/"
-
+local mapDPMDir = "xcf/permissions/"
+file.CreateDir(mapDPMDir)
 
 
 
@@ -111,6 +112,15 @@ local function getMapSZs()
 end
 
 
+local function SaveMapDPM(mode)
+	local mapname = string.gsub(game.GetMap(), "[^%a%d-_]", "_")
+	file.Write(mapDPMDir .. mapname .. ".txt", mode)
+end
+
+local function LoadMapDPM()
+	local mapname = string.gsub(game.GetMap(), "[^%a%d-_]", "_")
+	return file.Read(mapDPMDir .. mapname .. ".txt", "DATA")
+end
 
 
 hook.Add( "Initialize", "XCF_LoadSafesForMap", function()
@@ -118,8 +128,6 @@ hook.Add( "Initialize", "XCF_LoadSafesForMap", function()
 		print("!!!!!!!!!!!!!!!!!!\nWARNING: Safezone file " .. getMapFilename() .. " is missing, invalid or corrupt!  Safezones will not be restored this time.\n!!!!!!!!!!!!!!!!!!")
 	end
 end )
-
-
 
 
 local plyzones = {}
@@ -138,8 +146,6 @@ hook.Add("Think", "XCF_DetectSZTransition", function()
 		end
 	end
 end)
-
-
 
 
 concommand.Add( "xcf_addsafezone", function(ply, cmd, args, str)
@@ -231,8 +237,6 @@ concommand.Add( "xcf_removesafezone", function(ply, cmd, args, str)
 end)
 
 
-
-
 concommand.Add( "xcf_savesafezones", function(ply, cmd, args, str)
 	local validply = IsValid(ply)
 	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
@@ -259,8 +263,6 @@ concommand.Add( "xcf_savesafezones", function(ply, cmd, args, str)
 end)
 
 
-
-
 concommand.Add( "xcf_reloadsafezones", function(ply, cmd, args, str)
 	local validply = IsValid(ply)
 	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
@@ -280,8 +282,6 @@ concommand.Add( "xcf_reloadsafezones", function(ply, cmd, args, str)
 		return ret
 	end
 end)
-
-
 
 
 concommand.Add( "xcf_setpermissionmode", function(ply, cmd, args, str)
@@ -325,7 +325,6 @@ end)
 
 
 
-
 concommand.Add( "xcf_reloadpermissionmodes", function(ply, cmd, args, str)
 	local validply = IsValid(ply)
 	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
@@ -354,7 +353,6 @@ concommand.Add( "xcf_reloadpermissionmodes", function(ply, cmd, args, str)
 		return true
 	end
 end)
-
 
 
 
@@ -389,23 +387,22 @@ end
 
 
 
+function XCF.Permissions.RegisterMode(mode, name, desc, default)
 
-function XCF.Permissions.RegisterMode(mode, name, desc)
 	XCF.Permissions.Modes[name] = mode
 	XCF.Permissions.ModeDescs[name] = desc
-	
 	print("XCF: Registered damage permission mode \"" .. name .. "\"!")
+	
+	
+	if LoadMapDPM() == name or default then 
+		print("XCF: Setting permission mode to: "..name)
+		XCF.DamagePermission = XCF.Permissions.Modes[name]
+		XCF.DefaultPermission = name
+	end
+	
 end
 
-
-
-
-XCF.DamagePermission = function() return true end
-hook.Call("XCF_ProtectionModeChanged", GAMEMODE, "default", nil)
-
-
-
-
+ 
 function XCF.GetDamagePermissions(ownerid)
 	if not XCF.Permissions[ownerid] then
 		XCF.Permissions[ownerid] = {[ownerid] = true}
@@ -413,7 +410,6 @@ function XCF.GetDamagePermissions(ownerid)
 
 	return XCF.Permissions[ownerid]
 end
-
 
 
 function XCF.AddDamagePermission(owner, attacker)
@@ -426,8 +422,6 @@ function XCF.AddDamagePermission(owner, attacker)
 end
 
 
-
-
 function XCF.RemoveDamagePermission(owner, attacker)
 	local ownerid = owner:SteamID()
 	if not XCF.Permissions[ownerid] then return end
@@ -437,16 +431,12 @@ function XCF.RemoveDamagePermission(owner, attacker)
 end
 
 
-
-
 function XCF.ClearDamagePermissions(owner)
 	local ownerid = owner:SteamID()
 	if not XCF.Permissions[ownerid] then return end
 	
 	XCF.Permissions[ownerid] = nil
 end
-
-
 
 
 function XCF.PermissionsRaw(ownerid, attackerid, value)
@@ -463,8 +453,6 @@ function XCF.PermissionsRaw(ownerid, attackerid, value)
 	
 	return false
 end
-
-
 
 
 local function onDisconnect( ply )
@@ -542,4 +530,69 @@ net.Receive("xcf_refreshfriends", function(len, ply)
 	net.Start("xcf_refreshfriends")
 		net.WriteTable(perms)
 	net.Send(ply)
+end)
+
+
+util.AddNetworkString("xcf_refreshpermissions")
+net.Receive("xcf_refreshpermissions", function(len, ply)
+
+	local modes = XCF.Permissions.ModeDescs
+	local current = table.KeyFromValue(XCF.Permissions.Modes, XCF.DamagePermission)
+
+	net.Start("xcf_refreshpermissions")
+		net.WriteTable(modes)	
+		net.WriteString(current or XCF.DefaultPermission)
+		net.WriteString(XCF.DefaultPermission or "")
+	net.Send(ply)
+end)
+
+
+util.AddNetworkString("xcf_changepermissions")
+net.Receive("xcf_changepermissions",function(len, ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+	local validply = IsValid(ply)
+
+	
+	
+	local mode  = net.ReadString()
+	local default = net.ReadString()
+		
+	if validply and ply:IsAdmin() then
+		if not XCF.DefaultPermission == default then
+			SaveMapDPM(default)
+			XCF.DefaultPermission = default
+			printmsg(HUD_PRINTCONSOLE, "Default permission mode for "..game.GetMap().." set to: "..default)
+			for k,v in pairs(player.GetAll()) do
+				if v:IsAdmin() then
+					v:SendLua("chat.AddText(Color(255,0,0),\"Default permissions mode  for "..game.GetMap().." has been changed to " .. default .. " mode!\")") 
+				end
+			end
+		end
+	else
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+	end
+	
+	local oldmode = table.KeyFromValue(XCF.Permissions.Modes, XCF.DamagePermission)		
+	if not mode == oldmode then
+			
+		if validply and not ply:IsAdmin() then
+			printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+			return false
+			
+		else
+		
+			if not XCF.Permissions.Modes[mode] then
+				printmsg(HUD_PRINTCONSOLE, 
+				"Command unsuccessful: " .. mode .. " is not a valid permission mode!")
+				return false
+			end
+		
+			XCF.DamagePermission = XCF.Permissions.Modes[mode]
+			
+
+			printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Current damage permission policy is now " .. mode .. "!")
+			hook.Call("XCF_ProtectionModeChanged", GAMEMODE, mode, oldmode)
+				
+		end
+	end
 end)
