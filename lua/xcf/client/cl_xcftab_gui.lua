@@ -102,12 +102,31 @@ local function AddToolTab()
 	//spawnmenu.AddToolMenuOption("XCF", "Mobility", "Gearboxes", "Gearboxes",  InvokeXCFTool and "gmod_tool xcfmenu" or "", "", XCF.GearboxPanel)
 
 end
+hook.Add("AddToolMenuTabs", "XCFAddMenuTabs", AddToolTab);
 
-// XCF Tab Modules
-local tfiles,_ = file.Find("xcf/client/gui/xcftab_modules/*lua", "LUA")
-for _,file in pairs(tfiles) do
-	include("xcf/client/gui/xcftab_modules/"..file)
+
+function XCF.RegisterToolMenu(ITEM)
+	local cat = ITEM.Category
+	local item = ITEM.Name
+	local click = ITEM.OnMenuClick
+	local var  =  ITEM.Command
+	local hookname = string.Replace(item," ","_")
+	
+	hook.Add("PopulateToolMenu", "XCF.PopulateToolMenu."..hookname, function()
+		spawnmenu.AddToolMenuOption("XCF",cat, item, item, var, "", ITEM.MakePanel)
+	end)
+
 end
 
 
-hook.Add("AddToolMenuTabs", "XCFAddMenuTabs", AddToolTab);
+
+// XCF Tab Modules
+
+local tfiles,_ = file.Find("xcf/client/xcftab_modules/*lua", "LUA")
+for _,file in pairs(tfiles) do
+	include("xcf/client/xcftab_modules/"..file)
+end
+
+
+
+
