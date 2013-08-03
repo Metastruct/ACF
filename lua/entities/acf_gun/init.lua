@@ -47,34 +47,38 @@ function MakeACF_Gun(Owner, Pos, Angle, Id)
 	Gun:SetPlayer(Owner)
 	Gun.Owner = Owner
 	Gun.Id = Id
-	Gun.Caliber	= List["Guns"][Id]["caliber"]
-	Gun.Model = List["Guns"][Id]["model"]
-	Gun.Mass = List["Guns"][Id]["weight"]
-	Gun.Class = List["Guns"][Id]["gunclass"]
+	local gundef = List["Guns"][Id] or error("Couldn't find the " .. tostring(Id) .. " gun-definition in acfgunlist.lua!")
+	Gun.Caliber	= gundef["caliber"]
+	Gun.Model = gundef["model"]
+	Gun.Mass = gundef["weight"]
+	Gun.Class = gundef["gunclass"]
 	-- Custom BS for karbine. Per Gun ROF.
 	Gun.PGRoFmod = 1
-	if(List["Guns"][Id]["rofmod"]) then
-		Gun.PGRoFmod = math.max(0, List["Guns"][Id]["rofmod"])
+	if(gundef["rofmod"]) then
+		Gun.PGRoFmod = math.max(0, gundef["rofmod"])
 	end
 	-- Custom BS for karbine. Magazine Size, Mag reload Time
 	Gun.CurrentShot = 0
 	Gun.MagSize = 1
-	if(List["Guns"][Id]["magsize"]) then
-		Gun.MagSize = math.max(Gun.MagSize, List["Guns"][Id]["magsize"])
+	if(gundef["magsize"]) then
+		Gun.MagSize = math.max(Gun.MagSize, gundef["magsize"])
 	end
 	Gun.MagReload = 0
-	if(List["Guns"][Id]["magreload"]) then
-		Gun.MagReload = math.max(Gun.MagReload, List["Guns"][Id]["magreload"])
+	if(gundef["magreload"]) then
+		Gun.MagReload = math.max(Gun.MagReload, gundef["magreload"])
 	end
 	-- self.CurrentShot, self.MagSize, self.MagReload
 	
 	Gun:SetNWString( "Class" , Gun.Class )
 	Gun:SetNWString( "ID" , Gun.Id )
-	Gun.Muzzleflash = Classes["GunClass"][Gun.Class]["muzzleflash"]
-	Gun.RoFmod = Classes["GunClass"][Gun.Class]["rofmod"]
-	Gun.Sound = Classes["GunClass"][Gun.Class]["sound"]
+	
+	local gunclass = Classes["GunClass"][Gun.Class] or error("Couldn't find the " .. tostring(Gun.Class) .. " gun-class in acfgunlist.lua!")
+	
+	Gun.Muzzleflash = gundef.muzzleflash or gunclass.muzzleflash or ""
+	Gun.RoFmod = gunclass["rofmod"]
+	Gun.Sound = gundef.sound or gunclass.sound or "vo/npc/barney/ba_turret.wav"
 	Gun:SetNWString( "Sound", Gun.Sound )
-	Gun.Inaccuracy = Classes["GunClass"][Gun.Class]["spread"]
+	Gun.Inaccuracy = gunclass["spread"]
 	Gun:SetModel( Gun.Model )	
 	
 	Gun:PhysicsInit( SOLID_VPHYSICS )      	

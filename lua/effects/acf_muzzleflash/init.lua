@@ -13,21 +13,24 @@
 	local Attachment = math.Round(data:GetRadius())
 	if Attachment == 0 then Attachment = nil end
 	
-	local Class = Gun:GetNWString( "Class" )
+	local Class = Gun:GetNWString( "Class" ) or error("Couldn't find the gun's class while making a muzzleflash!")
+	local Id = Gun:GetNWString( "Id" ) or error("Couldn't find the gun's ID while making a muzzleflash!")
 	local RoundType = ACF.IdRounds[data:GetSurfaceProp()]
 		
 	if Gun:IsValid() then
 		if Propellant > 0 then
+			local pos = Gun:GetPos()
 			local SoundPressure = (Propellant*1000)^0.5
-			sound.Play( Sound, Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			sound.Play( Sound, Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			sound.Play( ACF.Classes["GunClass"][Class]["soundDistance"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			sound.Play( ACF.Classes["GunClass"][Class]["soundNormal"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-	
-	
+			sound.Play( Sound, pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
+			sound.Play( Sound, pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
+			//sound.Play( ACF.Classes["GunClass"][Class]["soundDistance"], pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
+			//sound.Play( ACF.Classes["GunClass"][Class]["soundNormal"], pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))	
 
 			local Muzzle = Gun:GetAttachment( Attachment or Gun:LookupAttachment( "muzzle" ) ) or {["Pos"] = Gun:GetPos(), ["Ang"] = Gun:GetAngles()}
-			ParticleEffect( ACF.Classes["GunClass"][Class]["muzzleflash"], Muzzle.Pos, Muzzle.Ang, Gun )
+			local flash = ACF.Weapons.Guns[Id].muzzleflash or ACF.Classes.GunClass[Class].muzzleflash
+			if flash and flash ~= "" then
+				ParticleEffect( flash, Muzzle.Pos, Muzzle.Ang, Gun )
+			end
 			Gun:Animate( Class, ReloadTime, false )
 		else
 			Gun:Animate( Class, ReloadTime, true )

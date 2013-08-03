@@ -1347,6 +1347,7 @@ local B4_12cm =
 	roundclass	= "Bomb",
 	magsize		= 4,
 	rofmod		= 0.5,
+	sound		= "phx/epicmetal_hard.wav",
 	round		= 
 	{
 		id			= "12cmB4",
@@ -1355,7 +1356,8 @@ local B4_12cm =
 		--maxweight	= 100,
 		propweight	= 0
 	},
-	blacklist = nosmoke
+	blacklist	= nosmoke,
+	muzzleflash	= ""
 }
 GunTable[B4_12cm.id] = B4_12cm
 
@@ -1375,6 +1377,7 @@ local B4_8cm =
 	roundclass	= "Bomb",
 	magsize		= 4,
 	rofmod		= 0.5,
+	sound		= "phx/epicmetal_hard.wav",
 	round		= 
 	{
 		id			= "8cmB4",
@@ -1383,6 +1386,7 @@ local B4_8cm =
 		--maxweight	= 50,
 		propweight	= 0
 	},
+	muzzleflash	= ""
 }
 GunTable[B4_8cm.id] = B4_8cm
 
@@ -1406,6 +1410,7 @@ local B2_20cm =
 	roundclass	= "Bomb",
 	magsize		= 2,
 	rofmod		= 0.5,
+	sound		= "phx/epicmetal_hard.wav",
 	round		= 
 	{
 		id			= "20cmB2",
@@ -1414,7 +1419,8 @@ local B2_20cm =
 		--maxweight	= 250,
 		propweight	= 0
 	},
-	blacklist = nofunallowed
+	blacklist	= nofunallowed,
+	muzzleflash	= ""
 }
 GunTable[B2_20cm.id] = B2_20cm
 
@@ -1465,6 +1471,7 @@ local B1_30cm =
 	roundclass	= "Bomb",
 	magsize		= 1,
 	rofmod		= 0.5,
+	sound		= "phx/epicmetal_hard.wav",
 	round		= 
 	{
 		id			= "30cmB1",
@@ -1473,7 +1480,8 @@ local B1_30cm =
 		--maxweight	= 500,
 		propweight	= 0
 	},
-	blacklist = nofunallowed
+	blacklist 	= nofunallowed,
+	muzzleflash	= ""
 }
 GunTable[B1_30cm.id] = B1_30cm
 
@@ -1649,7 +1657,7 @@ local rocketTube = {}
 	rocketTube.name = "Rocket Tube"
 	rocketTube.muzzleflash = "40mm_muzzleflash_noscale"
 	rocketTube.rofmod = 1.8
-	rocketTube.sound = "weapons/grenade_launcher1.wav"
+	rocketTube.sound = "acf_extra/airfx/rpg_fire.wav"
 	rocketTube.soundDistance = " "
 	rocketTube.soundNormal = " "
 GunClass["RT"] = rocketTube
@@ -1689,7 +1697,7 @@ local munitionRack4x = {}
 		["missile1"] = {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0,1,0)},
 		["missile2"] = {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0,-1,0)},
 		["missile3"] = {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0,0,-1)},
-		["missile4"] = {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0,1,-1)}
+		["missile4"] = {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0,0,-1)}
 	}
 GunClass["R4"] = munitionRack4x
 
@@ -1704,8 +1712,8 @@ local munitionRack2x = {}
 	munitionRack2x.soundNormal = " "
 	munitionRack2x.mountpoints = 
 	{
-		["missile1"] = {["offset"] = Vector(4, -1.5, -1.7),	["scaledir"] = Vector(0, 1, 0)},
-		["missile2"] = {["offset"] = Vector(4, 1.5, -1.7),	["scaledir"] = Vector(0, -1, 0)}
+		["missile1"] = {["offset"] = Vector(4, -1.5, -1.7),	["scaledir"] = Vector(0, -1, 0)},
+		["missile2"] = {["offset"] = Vector(4, 1.5, -1.7),	["scaledir"] = Vector(0, 1, 0)}
 	}
 GunClass["R2"] = munitionRack2x
 

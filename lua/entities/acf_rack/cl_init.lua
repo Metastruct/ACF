@@ -22,8 +22,8 @@ function ENT:Draw()
 			class = ACF.Weapons.Guns[self.gunType].gunclass
 			classtable = ACF.Classes.GunClass[class]
 			mountpoint = classtable.mountpoints[attachname] or {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0, 0, -1)}
-			angpos.Pos = angpos.Pos + self:LocalToWorld(mountpoint.offset) - self:GetPos()
-			//angpos.Pos = angpos.Pos + (self:LocalToWorld(mountpoint.scaledir) - self:GetPos()) * ACF.Weapons.Guns[self.gunType].caliber / 2.54
+			//angpos.Pos = angpos.Pos + self:LocalToWorld(mountpoint.offset) - self:GetPos()
+			angpos.Pos = angpos.Pos + (self:LocalToWorld(mountpoint.offset) - self:GetPos()) + (self:LocalToWorld(mountpoint.scaledir) - self:GetPos()) * ACF.Weapons.Guns[self.gunType].caliber / 2.54
 			
 			visEnt = self.munitionVis[i]
 			if IsValid(visEnt) then

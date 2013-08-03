@@ -332,34 +332,39 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	Rack.Owner = Owner
 	Rack.Id = Id
 	Rack.BulletData.Id = Id
-	Rack.Caliber	= List["Guns"][Id]["caliber"]
-	Rack.Model = List["Guns"][Id]["model"]
-	Rack.Mass = List["Guns"][Id]["weight"]
-	Rack.Class = List["Guns"][Id]["gunclass"]
+	
+	local gundef = List["Guns"][Id] or error("Couldn't find the " .. tostring(Id) .. " gun-definition in acfgunlist.lua!")
+	
+	Rack.Caliber	= gundef["caliber"]
+	Rack.Model = gundef["model"]
+	Rack.Mass = gundef["weight"]
+	Rack.Class = gundef["gunclass"]
 	-- Custom BS for karbine. Per Rack ROF.
 	Rack.PGRoFmod = 1
-	if(List["Guns"][Id]["rofmod"]) then
-		Rack.PGRoFmod = math.max(0, List["Guns"][Id]["rofmod"])
+	if(gundef["rofmod"]) then
+		Rack.PGRoFmod = math.max(0, gundef["rofmod"])
 	end
 	-- Custom BS for karbine. Magazine Size, Mag reload Time
 	Rack.CurrentShot = 0
 	Rack.MagSize = 1
-	if(List["Guns"][Id]["magsize"]) then
-		Rack.MagSize = math.max(Rack.MagSize, List["Guns"][Id]["magsize"] or 1)
+	if(gundef["magsize"]) then
+		Rack.MagSize = math.max(Rack.MagSize, gundef["magsize"] or 1)
 	end
 	Rack.MagReload = 0
-	if(List["Guns"][Id]["magreload"]) then
-		Rack.MagReload = math.max(Rack.MagReload, List["Guns"][Id]["magreload"])
+	if(gundef["magreload"]) then
+		Rack.MagReload = math.max(Rack.MagReload, gundef["magreload"])
 	end
 	-- self.CurrentShot, self.MagSize, self.MagReload
 	
+	local gunclass = Classes["GunClass"][Rack.Class] or error("Couldn't find the " .. tostring(Rack.Class) .. " gun-class in acfgunlist.lua!")
+	
 	Rack:SetNWString( "Class" , Rack.Class )
 	Rack:SetNWString( "ID" , Rack.Id )
-	Rack.Muzzleflash = Classes["GunClass"][Rack.Class]["muzzleflash"]
-	Rack.RoFmod = Classes["GunClass"][Rack.Class]["rofmod"]
-	Rack.Sound = Classes["GunClass"][Rack.Class]["sound"]
+	Rack.Muzzleflash = gundef.muzzleflash or gunclass.muzzleflash or ""
+	Rack.RoFmod = gunclass["rofmod"]
+	Rack.Sound = gundef.sound or gunclass.sound or "vo/npc/barney/ba_turret.wav"
 	Rack:SetNWString( "Sound", Rack.Sound )
-	Rack.Inaccuracy = Classes["GunClass"][Rack.Class]["spread"]
+	Rack.Inaccuracy = gunclass["spread"]
 	
 	if not UpdateRack or Rack.Model ~= Rack:GetModel() then
 		Rack:SetModel( Rack.Model )	
