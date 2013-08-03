@@ -429,6 +429,7 @@ function ACF_ScaledExplosion( ent )
 		Flash:SetRadius( math.max( Radius, 1 ) )
 	util.Effect( "ACF_Scaled_Explosion", Flash )
 end
+ACF_AmmoExplosion = ACF_ScaledExplosion -- backwards compatibility!
 
 function ACF_GetHitAngle( HitNormal , HitVector )
 	
