@@ -8,3 +8,4 @@ if not aaa_foldergen_wasloaded then include("autorun/aaa_foldergen.lua") end
 AddCSLuaFile("autorun/client/xcf_includes_cl.lua")
 aaa_IncludeClient("xcf/shared")
 aaa_IncludeClient("xcf/client")
+AddCSLuaFile("xcf/client/cl_xcftab_gui.lua")

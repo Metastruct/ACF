@@ -323,8 +323,53 @@ concommand.Add( "xcf_setpermissionmode", function(ply, cmd, args, str)
 	end
 end)
 
+concommand.Add( "xcf_setdefaultpermissionmode", function(ply, cmd, args, str)
 
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
 
+	if not args[1] then 
+		local modes = ""
+		for k, v in pairs(XCF.Permissions.Modes) do
+			modes = modes .. k .. " "
+		end
+		printmsg(HUD_PRINTCONSOLE,
+		" - Set damage permission behaviour mode." ..
+		"\n   Available modes: " .. modes)
+		return false
+	end
+	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
+		local mode = tostring(args[1])
+		if not XCF.Permissions.Modes[mode] then
+			printmsg(HUD_PRINTCONSOLE, 
+			"Command unsuccessful: " .. mode .. " is not a valid permission mode!" .. 
+			"\nUse this command without arguments to see all available modes.")
+			return false
+		end
+		
+		if XCF.DefaultPermission == mode then return false end
+		
+		SaveMapDPM(mode)
+		XCF.DefaultPermission = mode
+		
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Default permission mode for "..game.GetMap().." set to: "..mode)
+			
+		for k,v in pairs(player.GetAll()) do
+			if v:IsAdmin() then
+				v:SendLua("chat.AddText(Color(255,0,0),\"Default permissions mode  for "..game.GetMap().." has been changed to " .. mode .. " mode!\")") 
+			end
+		end
+		
+		return true
+	end
+end)
+
+	
 concommand.Add( "xcf_reloadpermissionmodes", function(ply, cmd, args, str)
 	local validply = IsValid(ply)
 	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
@@ -547,52 +592,5 @@ net.Receive("xcf_refreshpermissions", function(len, ply)
 end)
 
 
-util.AddNetworkString("xcf_changepermissions")
-net.Receive("xcf_changepermissions",function(len, ply)
-	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
-	local validply = IsValid(ply)
 
-	
-	
-	local mode  = net.ReadString()
-	local default = net.ReadString()
-		
-	if validply and ply:IsAdmin() then
-		if not XCF.DefaultPermission == default then
-			SaveMapDPM(default)
-			XCF.DefaultPermission = default
-			printmsg(HUD_PRINTCONSOLE, "Default permission mode for "..game.GetMap().." set to: "..default)
-			for k,v in pairs(player.GetAll()) do
-				if v:IsAdmin() then
-					v:SendLua("chat.AddText(Color(255,0,0),\"Default permissions mode  for "..game.GetMap().." has been changed to " .. default .. " mode!\")") 
-				end
-			end
-		end
-	else
-		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
-	end
-	
-	local oldmode = table.KeyFromValue(XCF.Permissions.Modes, XCF.DamagePermission)		
-	if not mode == oldmode then
-			
-		if validply and not ply:IsAdmin() then
-			printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
-			return false
-			
-		else
-		
-			if not XCF.Permissions.Modes[mode] then
-				printmsg(HUD_PRINTCONSOLE, 
-				"Command unsuccessful: " .. mode .. " is not a valid permission mode!")
-				return false
-			end
-		
-			XCF.DamagePermission = XCF.Permissions.Modes[mode]
-			
 
-			printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: Current damage permission policy is now " .. mode .. "!")
-			hook.Call("XCF_ProtectionModeChanged", GAMEMODE, mode, oldmode)
-				
-		end
-	end
-end)

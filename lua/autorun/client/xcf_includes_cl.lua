@@ -28,6 +28,7 @@ aaa_IncludeHere("xcf/client/projectiles")
 
 aaa_IncludeHere("xcf/client/gui")
 
+include("xcf/client/cl_xcftab_gui.lua")
 
 
 
