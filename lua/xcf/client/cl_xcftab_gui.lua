@@ -92,6 +92,7 @@ local function AddToolTab()
 
 	spawnmenu.AddToolTab("XCF","XCF")  
 
+	spawnmenu.AddToolCategory("XCF","Home","Home")
 	spawnmenu.AddToolCategory("XCF","Settings","Settings")
 	spawnmenu.AddToolCategory("XCF","Mobility","Mobility")
 	spawnmenu.AddToolCategory("XCF","Weapons", "Weapons" )
