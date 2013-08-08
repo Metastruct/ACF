@@ -92,6 +92,7 @@ local function AddToolTab()
 
 	spawnmenu.AddToolTab("XCF","XCF")  
 
+	spawnmenu.AddToolCategory("XCF","Home","Home")
 	spawnmenu.AddToolCategory("XCF","Settings","Settings")
 	spawnmenu.AddToolCategory("XCF","Mobility","Mobility")
 	spawnmenu.AddToolCategory("XCF","Weapons", "Weapons" )
@@ -108,20 +109,22 @@ hook.Add("AddToolMenuTabs", "XCFAddMenuTabs", AddToolTab);
 function XCF.RegisterToolMenu(ITEM)
 	local cat = ITEM.Category
 	local item = ITEM.Name
-	local click = ITEM.OnMenuClick
 	local var  =  ITEM.Command
+	local open = ITEM.OnSpawnmenuOpen
+	local panel = ITEM.MakePanel
 	local hookname = string.Replace(item," ","_")
 	
+	
+	hook.Add("SpawnMenuOpen", "XCF.SpawnMenuOpen."..hookname, open)
+
+	
 	hook.Add("PopulateToolMenu", "XCF.PopulateToolMenu."..hookname, function()
-		spawnmenu.AddToolMenuOption("XCF",cat, item, item, var, "", ITEM.MakePanel)
+		spawnmenu.AddToolMenuOption("XCF",cat, item, item, var, "", panel)
 	end)
 
 end
 
-
-
 // XCF Tab Modules
-
 local tfiles,_ = file.Find("xcf/client/xcftab_modules/*lua", "LUA")
 for _,file in pairs(tfiles) do
 	include("xcf/client/xcftab_modules/"..file)

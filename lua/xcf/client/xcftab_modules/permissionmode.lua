@@ -8,7 +8,7 @@ Menu.Category = "Settings"
 
 
 // the name of the item 
-Menu.Name = "Permission Mode"
+Menu.Name = "Permission Modes"
 
 // the convar to execute when the player clicks on the tab
 Menu.Command = ""
@@ -33,12 +33,8 @@ net.Receive("xcf_refreshpermissions", function(len)
 end)
 
 
-
-
-
 function Menu.MakePanel(Panel)
 
-	if LocalPlayer():IsAdmin() then
 
 	net.Start("xcf_refreshpermissions")
 		net.WriteBit(true)	
@@ -48,9 +44,9 @@ function Menu.MakePanel(Panel)
 	
 	if not PermissionModes then return end
 	
-	if !XCF.AdminCPanel then XCF.AdminCPanel = Panel end
-	
 	Panel:SetName("Permission Modes")
+	
+	if LocalPlayer():IsAdmin() then
 	
 	local pmhelp = Panel:Help("Change Permission Mode")
 	pmhelp:SetContentAlignment( TEXT_ALIGN_CENTER )
@@ -120,7 +116,9 @@ function Menu.MakePanel(Panel)
 	Panel:AddItem(button2)
 	
 	else
-		Panel:Help("You are not an admin!")
+	
+		Panel:Help("XCF Permission Mode: "..CurrentPermission.."\n")
+		Panel:Help(PermissionModes[CurrentPermission] or "")
 	end
 end
 
@@ -147,16 +145,14 @@ function Permissions:Update()
 		end
 	end
 	
-
-	
 end
 
 
-hook.Add("SpawnMenuOpen", "XCF.SpawnMenuOpen", function()
+function Menu.OnSpawnmenuOpen()
 	net.Start("xcf_refreshpermissions")
 		net.WriteBit(true)	
 	net.SendToServer()
-end) 
+end 
 
 
 
