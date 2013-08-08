@@ -21,12 +21,14 @@ end
 local nullgear = {name = "Unknown", gears = 0}
 
 function ENT:GetOverlayText()
-	local List = list.Get( "ACFEnts" )
+	local id = self:GetNetworkedBeamString( "ID" )
+	if not id then return "-- Waiting for networked data --" end
+	local lookup = (list.Get("ACFEnts"))["Mobility"][id] or nullgear
 	
 	local name = self:GetNetworkedString( "WireName" )
-	local id = self:GetNetworkedBeamString( "ID" )
-	local list = List["Mobility"][id] or nullgear
+	local list = lookup
 	local txt = list["name"].."\n"
+
 	local cvt
 	if list["cvt"] then cvt = 1 else cvt = 0 end
 	for i = 1+cvt, list["gears"] do
