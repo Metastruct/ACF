@@ -68,6 +68,8 @@ end
 
 function ACF_DrawRefillAmmo( Table )
 	for k,v in pairs( Table ) do
+		if not (IsValid(v.EntFrom) or IsValid(v.EntTo)) then continue end
+		
 		local St, En = v.EntFrom:LocalToWorld(v.EntFrom:OBBCenter()), v.EntTo:LocalToWorld(v.EntTo:OBBCenter())
 		local Distance = (En - St):Length()
 		local Amount = math.Clamp((Distance/50),2,100)
