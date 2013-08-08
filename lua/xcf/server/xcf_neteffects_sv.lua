@@ -5,9 +5,10 @@ XCF.NetFX = XCF.NetFX or {}
 
 local this = XCF.NetFX
 local str = { //TODO: shared
-	SEND 	= "xcf_sendproj",
-	END		= "xcf_endproj",
-	ALTER	= "xcf_alterproj"
+	SEND 		= "xcf_sendproj",
+	END			= "xcf_endproj",
+	ENDQUIET	= "xcf_endquietproj",
+	ALTER		= "xcf_alterproj"
 }
 
 
@@ -68,6 +69,15 @@ function this.EndProj(Index, Update)
 	else	// signify no update (net lib requires)
 		net.WriteTable({[0] = true})
 	end
+	net.Broadcast()
+end
+
+
+
+util.AddNetworkString(str.ENDQUIET)
+function this.EndProjQuiet(Index)
+	net.Start(str.ENDQUIET)
+	net.WriteInt(Index, 16)
 	net.Broadcast()
 end
 

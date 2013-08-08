@@ -6,10 +6,11 @@ XCF.NetFX = XCF.NetFX or {}
 local this = XCF.NetFX
 local balls = XCF.Ballistics or error("Ballistics hasn't been initialized yet.")
 //local projs = XCF.ProjClasses or error("Projectile classes haven't been initialized yet.")
-local str = {	//TODO: shared
-	SEND 	= "xcf_sendproj",
-	END		= "xcf_endproj",
-	ALTER	= "xcf_alterproj"
+local str = { //TODO: shared
+	SEND 		= "xcf_sendproj",
+	END			= "xcf_endproj",
+	ENDQUIET	= "xcf_endquietproj",
+	ALTER		= "xcf_alterproj"
 }
 
 
@@ -88,6 +89,17 @@ function this.EndProj(len)
 	balls.EndProj(index)
 end
 net.Receive(str.END, this.EndProj)
+
+
+
+
+function this.EndProjQuiet(len)
+	local index = net.ReadInt(16)
+	
+	print("ENDQ: idx = " .. index)
+	balls.EndProjQuiet(index)
+end
+net.Receive(str.ENDQUIET, this.EndProjQuiet)
 
 
 

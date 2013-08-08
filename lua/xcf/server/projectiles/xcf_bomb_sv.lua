@@ -130,7 +130,7 @@ function this.DoFlight(self, isRetry)
 		local diffaxis = aimdiff:Cross(self.Forward):GetNormalized()
 		self.RotAxis = self.RotAxis + diffaxis * angveldiff
 	end
-	self.RotAxis = self.RotAxis * 0.995 //TODO: real energy-loss function
+	self.RotAxis = self.RotAxis * 0.992 //TODO: real energy-loss function
 	
 	//print(aimdot, angveldiff, self.RotAxis:Length())
 	
@@ -208,13 +208,13 @@ end
 
 
 function this.ShouldDud(Proj, TrRes)
-	return false
-	/*
+	//return false
+	//*
 	if not TrRes.Hit then return false end
 	
-	local hitang = math.acos(TrRes.HitNormal:Dot(Proj.Forward))
-	local dudchance = hitang / math.pi
-	print("dudchance", dudchance)
+	local hitang = math.deg(math.acos(TrRes.HitNormal:Dot(-Proj.Forward)))
+	local dudchance = 1 - math.Clamp(hitang/90, 0, 1)--(hitang / math.pi)
+	print("dudchance", dudchance, hitang)
 	
 	return math.random() > dudchance
 	//*/
@@ -246,6 +246,7 @@ function this.CreateDud(Proj, TrRes)
 	if (phys:IsValid()) then
 		phys:SetVelocity(newflight)
 	end
+	sound.Play( "/acf_other/ricochets/0000032"..math.random(0,2)..".wav", Dud:GetPos(), math.Clamp((Proj.RoundMass or Proj.ProjMass or 100) * 200, 65, 500), math.Clamp(newflight:Length() * 0.01, 25, 255), 1 )
 
 end
 
@@ -314,12 +315,12 @@ function this.EndFlight(Index, Proj, FlightRes)
 	end
 	
 	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
-	debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
+	debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY") .. (willdud and " - DUDDED!" or ""), 10 )
 	
 	local ret = this.GetUpdate(Proj)
 	//ret.UpdateType = willdud and hit.HIT_RICOCHET or hit.HIT_END
 	ret.UpdateType = hit.HIT_END
-	return ret, balls.PROJ_REMOVE
+	return ret, (willdud and balls.PROJ_REMQUIET or balls.PROJ_REMOVE)
 end
 
 

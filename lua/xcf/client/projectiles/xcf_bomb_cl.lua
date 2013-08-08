@@ -93,7 +93,7 @@ function this:DoFlight()
 		local diffaxis = aimdiff:Cross(self.Forward):GetNormalized()
 		self.RotAxis = self.RotAxis + diffaxis * angveldiff
 	end
-	self.RotAxis = self.RotAxis * 0.995 //TODO: real energy-loss function
+	self.RotAxis = self.RotAxis * 0.992 //TODO: real energy-loss function
 	
 	//print(aimdot, angveldiff, self.RotAxis:Length())
 	
@@ -120,5 +120,13 @@ function this:EndFlight()
 	//print("ENDING " .. tostring(self))
 	if IsValid(self.Effect) then
 		self.Effect:HitEnd()
+	end
+end
+
+
+
+function this:Delete()
+	if IsValid(self.Effect) then
+		self.Effect:Remove()
 	end
 end

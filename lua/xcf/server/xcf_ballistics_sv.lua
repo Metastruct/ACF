@@ -29,6 +29,7 @@ XCF.Ballistics = { //TODO: shared
 	["PROJ_UPDATE"] = 2,
 	["PROJ_REMOVE"] = 3,
 	["PROJ_RETRY"] = 4,	// is really update-then-retry
+	["PROJ_REMQUIET"] = 5 // remove without effects
 }
 local this = XCF.Ballistics
 
@@ -105,7 +106,7 @@ function this.RemoveProj( Index, quiet )
 	if not Proj then return end
 	XCF.Projectiles[Index] = nil
 	
-	this.NotifyClients(Index, Proj, this.PROJ_REMOVE)
+	this.NotifyClients(Index, Proj, quiet and this.PROJ_REMQUIET or this.PROJ_REMOVE)
 	local removed = Proj.ProjClass.Removed
 	if removed then removed(Proj) end
 	
@@ -131,8 +132,9 @@ function this.CalcFlight( Index, Proj, isRetry )
 		local update, type = callback(Index, Proj, trace)
 		if type then this.NotifyClients(Index, Bullet, type, update) end
 		// TODO: use retry on penetration etc once recursion limit is in place
-		if 		type == this.PROJ_RETRY  then this.CalcFlight(Index, Proj, update or true)
-		elseif 	type == this.PROJ_REMOVE then this.RemoveProj(Index) end
+		if 		type == this.PROJ_RETRY 	then this.CalcFlight(Index, Proj, update or true)
+		elseif 	type == this.PROJ_REMOVE 	then this.RemoveProj(Index)
+		elseif 	type == this.PROJ_REMQUIET	then this.RemoveProj(Index, true) end
 	end
 	
 end
@@ -146,6 +148,8 @@ function this.NotifyClients( Index, Bullet, Type, update)
 		netfx.AlterProj(Index, update)
 	elseif Type == this.PROJ_REMOVE then
 		netfx.EndProj(Index, update)
+	elseif Type == this.PROJ_REMQUIET then
+		netfx.EndProjQuiet(Index, update)
 	elseif Type == this.PROJ_INIT then
 		netfx.SendProj(Index, Bullet)
 	else

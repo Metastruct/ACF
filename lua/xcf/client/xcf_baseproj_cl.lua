@@ -35,3 +35,9 @@ end
 function this:EndFlight()
 	error(baseerror)
 end
+
+
+
+function this:Delete()
+	error(baseerror)
+end

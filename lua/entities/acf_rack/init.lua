@@ -407,15 +407,15 @@ function ENT:GetNextLaunchMuzzle()
 	
 	local trymissile = "missile" .. shot
 	local attach = self:LookupAttachment(trymissile)
-	if attach ~= 0 then return attach, self:GetAttachment(attach) end
+	if attach ~= 0 then return attach, self:GetMunitionAngPos(self.Id, attach, trymissile) end
 	
 	trymissile = "missile1"
 	local attach = self:LookupAttachment(trymissile)
-	if attach ~= 0 then return attach, self:GetAttachment(attach) end
+	if attach ~= 0 then return attach, self:GetMunitionAngPos(self.Id, attach, trymissile) end
 	
 	trymissile = "muzzle"
 	local attach = self:LookupAttachment(trymissile)
-	if attach ~= 0 then return attach, self:GetAttachment(attach) end
+	if attach ~= 0 then return attach, self:GetMunitionAngPos(self.Id, attach, trymissile) end
 	
 	return 0, {self:GetPos(), self:GetAngles()}
 end

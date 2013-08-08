@@ -60,10 +60,25 @@ function this.EndProj(index)
 end
 
 
+
+local QUIET = "q"
+function this.EndProjQuiet(index)
+
+	this.EndCache[index] = QUIET
+	
+end
+
+
+
+
 function this.processEndCache()
 	for k, v in pairs(this.EndCache) do
 		this.EndCache[k] = nil
-		this.endProjNow(k, v)
+		if v == QUIET then
+			this.endProjQuiet(k, v)
+		else
+			this.endProjNow(k, v)
+		end
 	end
 end
 
@@ -75,6 +90,19 @@ function this.endProjNow(index)
 	//if not Proj then error("No projectile could be found at index " .. index) end
 	if not Proj then return end
 	Proj.ProjClass.EndFlight(Proj)
+	
+end
+
+
+
+
+function this.endProjQuiet(index)
+
+	local Proj = XCF.Projectiles[index]
+	XCF.Projectiles[index] = nil
+	
+	if not Proj then return end
+	Proj.ProjClass.Delete(Proj)
 	
 end
 

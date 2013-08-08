@@ -106,3 +106,11 @@ function this:EndFlight()
 		self.Effect:HitEnd()
 	end
 end
+
+
+
+function this:Delete()
+	if IsValid(self.Effect) then
+		self.Effect:Remove()
+	end
+end

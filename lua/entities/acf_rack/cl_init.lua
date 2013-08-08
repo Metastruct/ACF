@@ -17,23 +17,17 @@ function ENT:Draw()
 	for i=modelcount, modelcount-Ammo+1, -1 do
 		attachname = "missile" .. i
 		attach = self:LookupAttachment(attachname)
-		if attach ~= 0 then
-			angpos = self:GetAttachment(attach)
-			class = ACF.Weapons.Guns[self.gunType].gunclass
-			classtable = ACF.Classes.GunClass[class]
-			mountpoint = classtable.mountpoints[attachname] or {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0, 0, -1)}
-			//angpos.Pos = angpos.Pos + self:LocalToWorld(mountpoint.offset) - self:GetPos()
-			angpos.Pos = angpos.Pos + (self:LocalToWorld(mountpoint.offset) - self:GetPos()) + (self:LocalToWorld(mountpoint.scaledir) - self:GetPos()) * ACF.Weapons.Guns[self.gunType].caliber / 2.54
+		
+		angpos = self:GetMunitionAngPos(self.gunType, attach, attachname)
 			
-			visEnt = self.munitionVis[i]
-			if IsValid(visEnt) then
-				visEnt:SetNoDraw(false)
-				visEnt:SetPos(angpos.Pos)
-				visEnt:SetAngles(angpos.Ang)
-				//print("drawing", class, "at", angpos.Pos)
-				visEnt:DrawModel()
-				visEnt:SetNoDraw(true)
-			end
+		visEnt = self.munitionVis[i]
+		if IsValid(visEnt) then
+			visEnt:SetNoDraw(false)
+			visEnt:SetPos(angpos.Pos)
+			visEnt:SetAngles(angpos.Ang)
+			//print("drawing", class, "at", angpos.Pos)
+			visEnt:DrawModel()
+			visEnt:SetNoDraw(true)
 		end
 	end
 end

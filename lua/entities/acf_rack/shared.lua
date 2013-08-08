@@ -36,3 +36,31 @@ function ENT:GetOverlayText()
 	end
 	return txt
 end
+
+
+
+
+function ENT:GetMunitionAngPos(gunID, attach, attachname)
+	local angpos
+	--print(gunID, attach, attachname)
+	
+	if attach ~= 0 then
+		angpos = self:GetAttachment(attach)
+	else
+		angpos = {Pos = self:GetPos(), Ang = self:GetAngles()}
+	end
+	
+	local gun = ACF.Weapons.Guns[gunID]
+	if not gun then return angpos end
+	
+	local class = gun.gunclass
+	if not class then return angpos end
+	
+	local classtable = ACF.Classes.GunClass[class]
+	if not classtable then return angpos end
+	
+	mountpoint = classtable.mountpoints[attachname] or {["offset"] = Vector(0,0,0), ["scaledir"] = Vector(0, 0, -1)}
+	angpos.Pos = angpos.Pos + (self:LocalToWorld(mountpoint.offset) - self:GetPos()) + (self:LocalToWorld(mountpoint.scaledir) - self:GetPos()) * gun.caliber / 2.54
+	
+	return angpos
+end
