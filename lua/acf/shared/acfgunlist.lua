@@ -1352,7 +1352,7 @@ local B4_12cm =
 	{
 		id			= "12cmB4",
 		model		= "models/missiles/micro.mdl",
-		maxlength	= 48,
+		maxlength	= 24,
 		--maxweight	= 100,
 		propweight	= 0
 	},
@@ -1382,7 +1382,7 @@ local B4_8cm =
 	{
 		id			= "8cmB4",
 		model		= "models/missiles/micro.mdl",
-		maxlength	= 32,
+		maxlength	= 16,
 		--maxweight	= 50,
 		propweight	= 0
 	},
@@ -1415,7 +1415,7 @@ local B2_20cm =
 	{
 		id			= "20cmB2",
 		model		= "models/missiles/fab250.mdl",
-		maxlength	= 70,
+		maxlength	= 35,
 		--maxweight	= 250,
 		propweight	= 0
 	},
@@ -1476,7 +1476,7 @@ local B1_30cm =
 	{
 		id			= "30cmB1",
 		model		= "models/missiles/gbu12.mdl",
-		maxlength	= 90,
+		maxlength	= 45,
 		--maxweight	= 500,
 		propweight	= 0
 	},

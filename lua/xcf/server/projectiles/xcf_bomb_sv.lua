@@ -212,8 +212,14 @@ function this.ShouldDud(Proj, TrRes)
 	//*
 	if not TrRes.Hit then return false end
 	
+	local Radius = (Proj.FillerMass)^0.33*8*39.37
+	if (Proj.Travelled < Radius) then return true end
+	
+	local bonus = 1
+	if TrRes.HitWorld then bonus = bonus + 1 end	// hitting dirt should allow better detonation angles
+	
 	local hitang = math.deg(math.acos(TrRes.HitNormal:Dot(-Proj.Forward)))
-	local dudchance = 1 - math.Clamp(hitang/90, 0, 1)--(hitang / math.pi)
+	local dudchance = 1 - math.Clamp(hitang/(90 * bonus), 0, 1)--(hitang / math.pi)
 	print("dudchance", dudchance, hitang)
 	
 	return math.random() > dudchance
@@ -244,7 +250,10 @@ function this.CreateDud(Proj, TrRes)
 	Dud:Fire("Kill", "", 10)
 	local phys = Dud:GetPhysicsObject()
 	if (phys:IsValid()) then
-		phys:SetVelocity(newflight)
+		print("forcing 2!")
+		phys:Wake()
+		phys:EnableMotion(true)
+		phys:ApplyForceCenter(newflight * phys:GetMass())
 	end
 	sound.Play( "/acf_other/ricochets/0000032"..math.random(0,2)..".wav", Dud:GetPos(), math.Clamp((Proj.RoundMass or Proj.ProjMass or 100) * 200, 65, 500), math.Clamp(newflight:Length() * 0.01, 25, 255), 1 )
 

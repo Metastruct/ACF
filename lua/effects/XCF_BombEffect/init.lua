@@ -25,8 +25,8 @@ function EFFECT:Config(bomb)
 	local rkclass = ACF.Weapons.Guns[bomb.Id]
 		
 	self:SetModel(rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL) 
-	print("bombmodel", rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL)
-	printByName(bomb)
+	--print("bombmodel", rkclass and rkclass.round and rkclass.round.model or DEFAULTMODEL)
+	--printByName(bomb)
 		
 	self:SetPos( bomb.Pos )	--Moving the effect to the calculated position
 	self:SetAngles( bomb.Flight:Angle() )
