@@ -1147,7 +1147,7 @@ GunTable[RT70mm.id] = RT70mm
 
 local rackdesc = "  Racks and pods allow rapid delivery of rockets, but are lightly armoured and vulnerable to damage."
 
-local R7_MASS = 100
+local R7_MASS = 200
 local R7_40mm = table.Copy(RT40mm)// it's a dumb hellfire.
 table.Merge(R7_40mm, {
 	id			= "40mmR7",
@@ -1182,7 +1182,7 @@ GunTable[R7_70mm.id] = R7_70mm
 
 -- -- -- -- R4 racks -- -- -- --
 
-local R4_MASS = 125
+local R4_MASS = 250
 //*
 local R4_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R4_170mm, {
@@ -1219,7 +1219,7 @@ GunTable[R4_85mm.id] = R4_85mm
 
 -- -- -- -- R2 racks -- -- -- --
 
-local R2_MASS = 80
+local R2_MASS = 160
 local R2_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R2_170mm, {
 	id			= "170mmR2",
@@ -1254,7 +1254,7 @@ GunTable[R2_85mm.id] = R2_85mm
 
 -- -- -- -- R1 racks -- -- -- --
 
-local R1_MASS = 50
+local R1_MASS = 100
 local R1_170mm = table.Copy(RT170mm)// it's a dumb hellfire.
 table.Merge(R1_170mm, {
 	id			= "170mmR1",
