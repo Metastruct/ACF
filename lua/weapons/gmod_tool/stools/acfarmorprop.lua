@@ -123,7 +123,7 @@ function TOOL:LeftClick( trace )
 	
 	if not IsValid( ent ) or ent:IsPlayer() then return false end
 	if CLIENT then return true end
-	if not XCF_Check( ent, self:GetOwner( ) then return false end
+	if not XCF_Check( ent, self:GetOwner() ) then return false end
 	
 	local ply = self:GetOwner()
 	
@@ -186,8 +186,6 @@ end
 
 function TOOL:Think()
 	
-		if( XCF_Check ~= nil ) then
-			local valid = XCF_Check( ent, self:GetOwner() )
 	if not SERVER then return end
 	
 	local ply = self:GetOwner()
