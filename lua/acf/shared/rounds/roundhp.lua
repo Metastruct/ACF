@@ -54,7 +54,7 @@ function ACF_HPConvert( Crate, PlayerData )		--Function to convert the player's 
 	local ExpRatio = (Data["CavVol"]/GUIData["ProjVolume"])
 	Data["ShovePower"] = 0.2 + ExpRatio/2
 	Data["ExpCaliber"] = Data["Caliber"] + ExpRatio*Data["ProjLength"]
-	Data["PenAera"] = (3.1416 * Data["ExpCaliber"]/2)^2^ACF.PenAreaMod
+	Data["PenAera"] = (3.1416 * (Data["ExpCaliber"]/2)^2)^ACF.PenAreaMod
 	Data["DragCoef"] = ((Data["FrAera"]/10000)/Data["ProjMass"])
 	Data["LimitVel"] = 400										--Most efficient penetration speed in m/s
 	Data["KETransfert"] = 0.1									--Kinetic energy transfert to the target for movement purposes

@@ -54,7 +54,7 @@ for k, v in pairs(ACF.Weapons.Guns) do
 end
 
 
--- Sanitize engines and gearboxes.  Held in the same table! (oh why?!)
+-- Sanitize engines, gearboxes and fuel.  Held in the same table! (oh why?!)
 
 -- TODO: fill this in
 XCF.EngineClassNames = {}
@@ -65,6 +65,7 @@ XCF.EngineClassNames["B6"] = "Boxer 6"
 
 XCF.EnginesByClass = {}
 XCF.GearboxesByClass = {}
+XCF.FueltanksByClass = {}
 for k, v in pairs(ACF.Weapons.Mobility) do
 	if( v.ent == "acf_engine" ) then
 		class = v.category
@@ -84,6 +85,17 @@ for k, v in pairs(ACF.Weapons.Mobility) do
 		if not classtable then -- create the class table if it doesn't exist
 			XCF.GearboxesByClass[class] = {}
 			classtable = XCF.GearboxesByClass[class]
+			classtable.Class = {name = class}
+		end
+		
+		classtable[#classtable+1] = v
+	elseif ( v.ent == "acf_fueltank" ) then
+		class = v.category
+		classtable = XCF.FueltanksByClass[class]
+		
+		if not classtable then -- create the class table if it doesn't exist
+			XCF.FueltanksByClass[class] = {}
+			classtable = XCF.FueltanksByClass[class]
 			classtable.Class = {name = class}
 		end
 		
