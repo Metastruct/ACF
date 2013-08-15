@@ -133,6 +133,8 @@ end
 	}	
  */
 function PANEL:SetDataTable(data)
+	//PrintTable(data)
+
 	self.Categories = {}
 	self.Selectors = {}
 	self.ClassPanel = vgui.Create( "DCategoryList", self )

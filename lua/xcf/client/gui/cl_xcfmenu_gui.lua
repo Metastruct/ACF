@@ -50,10 +50,21 @@ function PANEL:Init( )
 	self.AmmoTab:SetEditPanel(ammoview)
 	
 	
+	-- fuel selection tab
+	self.FuelTab = vgui.Create("XCF_ToolMenuTab")
+	local fuelselect = vgui.Create("XCF_ToolMenuSelectList")
+	fuelselect:SetDataTable(XCF.FuelBySize)
+	self.FuelTab:SetSelectPanel(fuelselect)
+	
+	local fuelview = vgui.Create("XCF_ToolMenuFuelPanel")
+	self.FuelTab:SetEditPanel(fuelview)
+	
+	
 	self.Tabs:AddSheet( "Guns", 	self.GunTab,	nil, false, false, "Cannons and friends" )
 	self.Tabs:AddSheet( "Ammo", 	self.AmmoTab,	nil, false, false, "Gun food" )
 	self.Tabs:AddSheet( "Engines",	self.EngineTab,	nil, false, false, "For if you like to move things" )
 	self.Tabs:AddSheet( "Gearbox",	self.GearTab,	nil, false, false, "Attach engines to wheels with these!" )
+	self.Tabs:AddSheet( "Fuel",		self.FuelTab,	nil, false, false, "Your engine's thirsty." )
 	//self.Tabs:AddSheet( "Rockets",	self.GunTab,	nil, false, false, "These things ain't for space." )
 	//self.Tabs:AddSheet( "Bombs",	self.GunTab,	nil, false, false, "Indiscriminate liberation" )
 

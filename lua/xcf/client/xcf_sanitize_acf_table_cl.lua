@@ -90,16 +90,8 @@ for k, v in pairs(ACF.Weapons.Mobility) do
 		
 		classtable[#classtable+1] = v
 	elseif ( v.ent == "acf_fueltank" ) then
-		class = v.category
-		classtable = XCF.FueltanksByClass[class]
-		
-		if not classtable then -- create the class table if it doesn't exist
-			XCF.FueltanksByClass[class] = {}
-			classtable = XCF.FueltanksByClass[class]
-			classtable.Class = {name = class}
-		end
-		
-		classtable[#classtable+1] = v
+		class = v.id
+		XCF.FueltanksByClass[class] = v
 	end
 end
 
@@ -117,3 +109,74 @@ for ammo, v in pairs(ACF.AmmoBlacklist) do
 		blklst[gun][ammo] = true
 	end
 end
+
+
+
+
+
+
+local sizeClassName = "%ix Size"
+local otherSizes = "Other Sizes"
+
+local function throwInOther(v, ret)
+	if not ret[otherSizes] then ret[otherSizes] = {Class = {name = otherSizes}} end
+	ret[otherSizes][#ret[otherSizes] + 1] = v
+end
+
+local function addToSizeList(ret, v, x)
+	if v.id == "Class" then return end	-- jjjjust in case
+	local classname = string.format(sizeClassName, x)
+	
+	if not ret[classname] then ret[classname] = {Class = {name = classname}} end
+	ret[classname][tostring(v.id)] = v
+end
+
+local function finalizeSizeList(ret)
+	for _, tbl in pairs(ret) do
+		for k, v in pairsByName(tbl) do
+			if type(k) == "number" then continue end
+			if k == "Class" then continue end
+			tbl[#tbl + 1] = v
+			tbl[k] = nil
+		end
+	end
+end
+
+-- Create a list of boxes by size.  Inclusion requires name to contain NxNxN standard, otherwise is thrown in the "other" pile.
+local function toBoxSizeList(boxes)
+	
+	local ret = {}
+	
+	local isOther, x, y, z
+	for k, v in pairs(boxes) do
+		--print(k, v)
+		isOther = false
+		x, y, z = nil, nil, nil
+		
+		if not type(k) == "string" then
+			throwInOther(v, ret)
+			continue
+		end
+		
+		x, y, z = string.match(k, "(%d)[xX](%d)[xX](%d)")
+		--print("Sizes:", x, y, z)
+		if not (x and y and z) then 
+			throwInOther(v, ret)
+			continue
+		end
+		
+		addToSizeList(ret, v, x)
+		addToSizeList(ret, v, y)
+		addToSizeList(ret, v, z)
+	end
+	
+	finalizeSizeList(ret)
+	
+	PrintTable(ret)
+	
+	return ret
+end
+
+XCF.AmmoBySize = toBoxSizeList(ACF.Weapons.Ammo)
+XCF.FuelBySize = toBoxSizeList(ACF.Weapons.FuelTanks)
+

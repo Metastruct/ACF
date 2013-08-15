@@ -1,551 +1,187 @@
-/*
---Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
-	self.RoundId = Data1				--Weapon this round loads into, ie 140mmC, 105mmH ...
-	self.RoundType = Data2				--Type of round, IE AP, HE, HEAT ...
-	self.RoundPropellant = Data3		--Lenght of propellant
-	self.RoundProjectile = Data4	 	--Lenght of the projectile
-	self.RoundData5 = ( Data5 or 0 ) 	-- (HE, HEAT, SM): filler vol, HP: cavity vol
-	self.RoundData6 = ( Data6 or 0 )	-- HEAT: crush cone angle
-	self.RoundData7 = ( Data7 or 0 )
-	self.RoundData8 = ( Data8 or 0 )
-	self.RoundData9 = ( Data9 or 0 )
-	self.RoundData10 = ( Data10 or 0 )	-- Tracer
-//*/
+local labelTemplates = {}
+labelTemplates.Base = {
+	LabelCapacity	= "Fuel Capacity: %.1f litres, %.1f gallons",
+	LabelMasses		= "Tank Mass: %.1f kg full, %.1f kg empty",
+	LabelVolume		= "Tank Volume: %.2f cubic metres",
+	LabelLinks		= "This fuel tank %s be linked to engines.",
+	LabelExplosive	= "This fuel tank %s explode when damaged."
+}
 
-/*
-local verbose = {}
-verbose["AP"]		= "Armour Piercing"
-verbose["APHE"]		= "Armour Piercing, High Explosive"
-verbose["HE"]		= "High Explosive"
-verbose["HEAT"]		= "High Explosive, Anti-Tank"
-verbose["HP"]		= "Hollow Point"
-verbose["SM"]		= "Smoke"
-verbose["Refill"]	= "Refill"
-//*/
+//*
 
-/*
+function makeBlankLabel(self, labname, labels, entrylist, spacer)
+	self[labname] = vgui.Create( "DLabel" )
+	local label = self[labname]
+	label:SetFont("DermaDefaultBold")
+	label:SetColor(Color(150, 150, 150))
+	label:SizeToContents()
+	
+	labels[labname] = label
+	entrylist:AddItem(label)
+	
+	if spacer then entrylist:AddItem(spacer) end
+end
+
+
 local createSlidersForFuel = {}
 
 
 createSlidersForFuel["base"] = function(self, entrylist, spacer)
 	self.SliderWatchList = {}
+	self.Labels = {}
 	local watch = self.SliderWatchList
+	local labels = self.Labels
 	
-	self.PropLengthSlider = nil
-	self.ProjLengthSlider = nil
-	self.FillerSlider = nil
-	self.CrushSlider = nil
-	self.CavitySlider = nil
+	self.LabelCapacity = nil
+	self.LabelMasses = nil
+	self.LabelVolume = nil
+	self.LabelLinks = nil
+	self.LabelExplosive = nil
 	
-	self.PenLabel = nil
-	self.VelLabel = nil
-	self.BoomRadLabel = nil
-	self.KineticLabel = nil
+	local labname = "LabelCapacity"
+	makeBlankLabel(self, labname, labels, entrylist)
 	
-	-- propellant label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("Propellant Length (cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
+	labname = "LabelMasses"
+	makeBlankLabel(self, labname, labels, entrylist)
 	
-	entrylist:AddItem(label)
+	labname = "LabelVolume"
+	makeBlankLabel(self, labname, labels, entrylist)
 	
-	-- propellant body
-	self.PropLengthSlider = self.PropLengthSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.PropLengthSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data3")
-	watch["PropLength"] = label
+	labname = "LabelLinks"
+	makeBlankLabel(self, labname, labels, entrylist)
 	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
+	labname = "LabelExplosive"
+	makeBlankLabel(self, labname, labels, entrylist)
 	
-	
-	-- projectile label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("Projectile Length (cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- projectile body
-	self.ProjLengthSlider = self.ProjLengthSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.ProjLengthSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data4")
-	watch["ProjLength"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
 end
 
 
 createSlidersForFuel["after"] = function(self, entrylist, spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- tracer checkbox
-	self.TracerBox = vgui.Create( "DCheckBoxLabel" )
-	local tracerbox = self.TracerBox
-	tracerbox:SetText( "Tracer" )
-	//tracerbox:SetConVar( "xcfmenu_data10" ) -- ConCommand must be a 1 or 0 value
-	tracerbox.OnChange = function(box, val)
-		self:InvalidateLayout()
+	self:InvalidateLayout()
+end
+
+
+
+
+labelTemplates.Petrol = labelTemplates.Base
+
+createSlidersForFuel["Petrol"] = function(self, entrylist, spacer)
+	createSlidersForFuel["base"](self, entrylist, spacer)
+
+	for k, v in pairs(labelTemplates.Petrol) do
+		self.Labels[k]:SetText(v)
 	end
-	tracerbox:SizeToContents()
 	
-	entrylist:AddItem(tracerbox)
-	entrylist:AddItem(spacer)
-	
-	self:InvalidateLayout()
-end
-
-
-createSlidersForFuel["AP"] = function(self, entrylist, spacer)
-	createSlidersForFuel["base"](self, entrylist, spacer)	
 	createSlidersForFuel["after"](self, entrylist, spacer)
-	
-	-- info labels
-	
-	self.PenLabel = vgui.Create( "DLabel" )
-	local label = self.PenLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.VelLabel = vgui.Create( "DLabel" )
-	local label = self.VelLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
 end
 
 
-createSlidersForFuel["HE"] = function(self, entrylist, spacer)
+
+labelTemplates.Diesel = labelTemplates.Base
+
+createSlidersForFuel["Diesel"] = function(self, entrylist, spacer)
 	createSlidersForFuel["base"](self, entrylist, spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- filler label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("HE Filler Volume (cubic cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- filler body
-	self.FillerSlider = self.FillerSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.FillerSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data5")
-	watch["Data5"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
+
+	for k, v in pairs(labelTemplates.Diesel) do
+		self.Labels[k]:SetText(v)
+	end
 	
 	createSlidersForFuel["after"](self, entrylist, spacer)
-	
-	-- info labels
-	
-	self.VelLabel = vgui.Create( "DLabel" )
-	local label = self.VelLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.BoomRadLabel = vgui.Create( "DLabel" )
-	local label = self.BoomRadLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-	
 end
 
 
-createSlidersForFuel["APHE"] = function(self, entrylist, spacer)
+
+labelTemplates.Electric = {
+	LabelCapacity	= "Charge Capacity: %.1f kWh, %.1f MJ",
+	LabelMasses		= "Tank Mass: %.1f kg full, %.1f kg empty",
+	LabelVolume		= "Tank Volume: %.2f cubic metres",
+	LabelLinks		= "This fuel tank %s be linked to engines.",
+	LabelExplosive	= "This fuel tank %s explode when damaged."
+}
+
+createSlidersForFuel["Electric"] = function(self, entrylist, spacer)
 	createSlidersForFuel["base"](self, entrylist, spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- filler label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("HE Filler Volume (cubic cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- filler body
-	self.FillerSlider = self.FillerSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.FillerSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data5")
-	watch["Data5"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
+
+	local label
+	for k, v in pairs(labelTemplates.Electric) do
+		label = self.Labels[k] or error("Couldn't find a label for the " .. k .. " description!")
+		label:SetText(v)
+		label:SizeToContents()
+	end
 	
 	createSlidersForFuel["after"](self, entrylist, spacer)
-	
-	-- info labels
-	
-	self.PenLabel = vgui.Create( "DLabel" )
-	local label = self.PenLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.VelLabel = vgui.Create( "DLabel" )
-	local label = self.VelLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.BoomRadLabel = vgui.Create( "DLabel" )
-	local label = self.BoomRadLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-	
 end
 
-
-createSlidersForFuel["HEAT"] = function(self, entrylist, spacer)
-	createSlidersForFuel["base"](self, entrylist, spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- filler label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("HE Filler Volume (cubic cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- filler body
-	self.FillerSlider = self.FillerSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.FillerSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data5")
-	watch["Data5"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- crushcone label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("Crush Cone Angle (degrees):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- crushcone body
-	self.CrushSlider = self.CrushSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.CrushSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data6")
-	watch["Data6"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-	
-	createSlidersForFuel["after"](self, entrylist, spacer)
-	
-	-- info labels
-	
-	self.PenLabel = vgui.Create( "DLabel" )
-	local label = self.PenLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.VelLabel = vgui.Create( "DLabel" )
-	local label = self.VelLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.BoomRadLabel = vgui.Create( "DLabel" )
-	local label = self.BoomRadLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-end
-
-
-createSlidersForFuel["HP"] = function(self, entrylist, spacer)
-	createSlidersForFuel["base"](self, entrylist, spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- cavity label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("Hollow Cavity Volume (cubic cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- cavity body
-	self.CavitySlider = self.CavitySlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.CavitySlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data5")
-	watch["Data5"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-	
-	createSlidersForFuel["after"](self, entrylist, spacer)
-	
-	-- info labels
-	
-	self.PenLabel = vgui.Create( "DLabel" )
-	local label = self.PenLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.VelLabel = vgui.Create( "DLabel" )
-	local label = self.VelLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	self.KineticLabel = vgui.Create( "DLabel" )
-	local label = self.KineticLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-end
-
-
-createSlidersForFuel["SM"] = function(self, entrylist, spacer)
-	createSlidersForFuel["base"](self, entrylist, spacer)
-	
-	local watch = self.SliderWatchList
-	
-	-- filler label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("WP Filler Volume (cubic cm):")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- filler body
-	self.FillerSlider = self.FillerSlider or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.FillerSlider
-	label:SetExtents(0, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data5")
-	watch["Data5"] = label
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-	
-	createSlidersForFuel["after"](self, entrylist, spacer)
-	
-	-- info labels
-	
-	self.VelLabel = vgui.Create( "DLabel" )
-	local label = self.VelLabel
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	entrylist:AddItem(spacer)
-end
-
-
-createSlidersForFuel["Refill"] = function(self, entrylist, spacer)
-	-- lol!
-	local label = vgui.Create( "DLabel" )
-	label:SetText("Refill boxes have no options!")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	self:InvalidateLayout()
-end
 //*/
 
-/*
+//*
 -- table of functions for gui modification.
 local modifyControlsWith = {}
 
 -- SLIDER MODIFICATION;
 
--- for some reason i had the idea that filler and cavity were represented as the same thing.  keeping this assumption in place in case i had a good reason to believe it.
-modifyControlsWith["MaxFillerVol"] = function(self, val)
-	if self.FillerSlider and IsValid(self.FillerSlider) then
-		self.FillerSlider:SetMax(val)
+modifyControlsWith["TankName"] = function(self, val, fueldata) end
+modifyControlsWith["TankDesc"] = function(self, val, fueldata) end
+
+
+modifyControlsWith["Cap"] = function(self, val, fueldata)
+	local val1, val2
+	if self.FuelType == "Electric" then 
+		val1 = val * ACF.LiIonED
+		val2 = val1 * 3.6	
+	else
+		val1 = val
+		val2 = val1 * 0.264172
 	end
-	if self.CavitySlider and IsValid(self.CavitySlider) then
-		self.CavitySlider:SetMax(val)
-	end
+	
+	local labelname = "LabelCapacity"
+	
+	local label = self.Labels[labelname]
+	local labeltemp = labelTemplates[self.FuelType][labelname] or labelTemplates.Base[labelname] or error("Label template for " .. labelname .. " does not exist!")
+	label:SetText(string.format(labeltemp, val1, val2))
+	label:SizeToContents()
 end
 
 
-modifyControlsWith["MinFillerVol"] = function(self, val)
-	if self.FillerSlider and IsValid(self.FillerSlider) then
-		self.FillerSlider:SetMin(val)
-	end
-	if self.CavitySlider and IsValid(self.CavitySlider) then
-		self.CavitySlider:SetMin(val)
-	end
+modifyControlsWith["Volume"] = function(self, val, fueldata)
+	local labelname = "LabelVolume"
+	
+	local label = self.Labels[labelname]
+	local labeltemp = labelTemplates[self.FuelType][labelname] or labelTemplates.Base[labelname] or error("Label template for " .. labelname .. " does not exist!")
+	label:SetText(string.format(labeltemp, val * 0.000016387064))
+	label:SizeToContents()
 end
 
 
-modifyControlsWith["MaxCavVol"] = function(self, val)
-	if self.FillerSlider and IsValid(self.FillerSlider) then
-		self.FillerSlider:SetMax(val)
-	end
-	if self.CavitySlider and IsValid(self.CavitySlider) then
-		self.CavitySlider:SetMax(val)
-	end
+modifyControlsWith["nolinks"] = function(self, val, fueldata)
+	local labelname = "LabelLinks"
+	
+	local label = self.Labels[labelname]
+	local labeltemp = labelTemplates[self.FuelType][labelname] or labelTemplates.Base[labelname] or error("Label template for " .. labelname .. " does not exist!")
+	label:SetText(string.format(labeltemp, val and "cannot" or "can"))
+	label:SizeToContents()
 end
 
 
-modifyControlsWith["MinCavVol"] = function(self, val)
-	if self.FillerSlider and IsValid(self.FillerSlider) then
-		self.FillerSlider:SetMin(val)
-	end
-	if self.CavitySlider and IsValid(self.CavitySlider) then
-		self.CavitySlider:SetMin(val)
-	end
+modifyControlsWith["explosive"] = function(self, val, fueldata)
+	local labelname = "LabelExplosive"
+	
+	local label = self.Labels[labelname]
+	local labeltemp = labelTemplates[self.FuelType][labelname] or labelTemplates.Base[labelname] or error("Label template for " .. labelname .. " does not exist!")
+	label:SetText(string.format(labeltemp, val and "can" or "cannot"))
+	label:SizeToContents()
 end
 
 
-modifyControlsWith["MaxProjLength"] = function(self, val)
-	if self.ProjLengthSlider and IsValid(self.ProjLengthSlider) then
-		self.ProjLengthSlider:SetMax(val)
-	end
-end
-
-
-modifyControlsWith["MinProjLength"] = function(self, val)
-	if self.ProjLengthSlider and IsValid(self.ProjLengthSlider) then
-		self.ProjLengthSlider:SetMin(val)
-	end
-end
-
-
-modifyControlsWith["MaxPropLength"] = function(self, val)
-	if self.PropLengthSlider and IsValid(self.PropLengthSlider) then
-		self.PropLengthSlider:SetMax(val)
-	end
-end
-
-
-modifyControlsWith["MinPropLength"] = function(self, val)
-	if self.PropLengthSlider and IsValid(self.PropLengthSlider) then
-		self.PropLengthSlider:SetMin(val)
-	end
-end
-
-
-modifyControlsWith["MaxConeAng"] = function(self, val)
-	if self.CrushSlider and IsValid(self.CrushSlider) then
-		self.CrushSlider:SetMax(val)
-	end
-end
-
-modifyControlsWith["MinConeAng"] = function(self, val)
-	if self.CrushSlider and IsValid(self.CrushSlider) then
-		self.CrushSlider:SetMin(val)
-	end
-end
-
-
--- INFO MODIFICATION;
-local pentext = "Max. Penetration (mm RHA)"
-local veltext = "Muzzle Velocity (m/s)"
-local boomradtext = "Blast Radius (m)"
-local kinetictext = "Max. Energy Transfer (KJ)"
-
-
-modifyControlsWith["MaxPen"] = function(self, val)
-	if self.PenLabel and IsValid(self.PenLabel) then
-		self.PenLabel:SetText(pentext .. ": " .. math.Round(val))
-		self.PenLabel:SizeToContents()
-	end
-end
-
-modifyControlsWith["MuzzleVel"] = function(self, val)
-	if self.VelLabel and IsValid(self.VelLabel) then
-		self.VelLabel:SetText(veltext .. ": " .. math.Round(val, 1))
-		self.VelLabel:SizeToContents()
-	end
-end
-
--- blast radius is meters*10 for some reason?
-modifyControlsWith["BlastRadius"] = function(self, val)
-	if self.BoomRadLabel and IsValid(self.BoomRadLabel) then
-		self.BoomRadLabel:SetText(boomradtext .. ": " .. math.Round(val/10, 1))
-		self.BoomRadLabel:SizeToContents()
-	end
-end
-
-modifyControlsWith["MaxKETransfert"] = function(self, val)
-	if self.KineticLabel and IsValid(self.KineticLabel) then
-		self.KineticLabel:SetText(kinetictext .. ": " .. math.Round(val, 1))
-		self.KineticLabel:SizeToContents()
-	end
+modifyControlsWith[#modifyControlsWith + 1] = function(self, val, fueldata)	-- masses	
+	local labelname = "LabelMasses"
+	
+	local label = self.Labels[labelname]
+	local labeltemp = labelTemplates[self.FuelType][labelname] or labelTemplates.Base[labelname]
+	if not labeltemp then return end
+	
+	label:SetText(string.format(labeltemp, fueldata.Mass or 0, fueldata.EmptyMass or 0))
+	label:SizeToContents()
 end
 //*/
 
@@ -553,14 +189,20 @@ end
 local PANEL = {}
 
 
-local function constructFuelTypeList(self, fuellist)
+local function constructFuelTypeList(self, fuellist, typelist)
 	fuellist:Clear()
 	self.FuelChoices = {}
-	local fuels = self.FuelChoices
+	self.FuelTypeChoices = {}
+	local fuels, types = self.FuelChoices, self.FuelTypeChoices
 
 	for k, v in pairsByName(XCF.FueltanksByClass) do
-		fuellist:AddChoice(k, v[1])
+		fuellist:AddChoice(v.name, k)
 		fuels[k] = true
+	end
+	
+	for k, v in pairsByName(ACF.FuelDensity) do
+		typelist:AddChoice(k, k)
+		types[k] = true
 	end
 	
 end
@@ -568,48 +210,44 @@ end
 
 function PANEL:Init( )
 
+	self.Crate = ACF.Weapons.FuelTanks["Tank_1x1x1"]	
+	self.Fuel = "Basic_FuelTank"
+	self.FuelType = "Petrol"
+
 	self.Categories = {}
 	self.Meters = {}
 	self.SliderWatchList = {}
-	self.Fuel = "High Grade"
-	self.FuelChoices = {}
-	self.Crate = ACF.Weapons.Fuel["Tank_1x1x1"]	
+	self.Labels = {}
 	
-	self.CrateLabel = vgui.Create( "DLabel", self )
-	local label = self.CrateLabel
-	label:SetText("Fuel Tank:")
+	
+	self.FuelList = vgui.Create("DComboBox", self)
+	self.FuelTypeList = vgui.Create("DComboBox", self)
+	
+	self.FuelLabel = vgui.Create( "DLabel", self )
+	local label = self.FuelLabel
+	label:SetText("Fuel Grade:")
 	label:SetFont("DermaDefaultBold")
 	label:SetColor(Color(150, 150, 150))
 	label:SizeToContents()
 	
-	-- data is static for this, can create it now.
-	self.CrateList = vgui.Create("DComboBox", self)
-	for k, v in pairsByKeys(ACF.Weapons.FuelTanks) do
-		self.CrateList:AddChoice(v.name or k, v)
-	end
-	self.CrateList.OnSelect = function(list, idx, name, tbl)
-		self.Crate = tbl
-		RunConsoleCommand("xcfmenu_id", tbl.id)
-		RunConsoleCommand("xcfmenu_mdl", tbl.model)
-		RunConsoleCommand("xcfmenu_type", tbl.ent)
-		self:SetFuel(nil, self.Crate)
-	end
-	
 	self.FuelTypeLabel = vgui.Create( "DLabel", self )
-	local label = self.FuelTypeLabel
+	label = self.FuelTypeLabel
 	label:SetText("Fuel Type:")
 	label:SetFont("DermaDefaultBold")
 	label:SetColor(Color(150, 150, 150))
 	label:SizeToContents()
 	
-	-- Create the fueltype list now and update according to gun's blacklist upon gun selection
-	self.FuelTypeList = vgui.Create("DComboBox", self)
 	
-	constructFuelTypeList(self, self.FuelTypeList)
+	constructFuelTypeList(self, self.FuelList, self.FuelTypeList)
 	
-	self.FuelTypeList.OnSelect = function(list, idx, name, fuel)
+	self.FuelTypeList.OnSelect = function(list, idx, name, type)
+		self.FuelType = type
+		self:SetFuel()
+	end
+	
+	self.FuelList.OnSelect = function(list, idx, name, fuel)
 		self.Fuel = fuel
-		self:SetFuel(self.Fuel)
+		self:SetFuel()
 	end
 	
 	
@@ -618,17 +256,6 @@ function PANEL:Init( )
 end
 
 
-
-local function sortByName(a, b)
-	local startnuma, startnumb 
-	startnuma = string.match(a.name, "^(%d+)[^%d]")
-	if startnuma then
-		startnumb = string.match(b.name, "^(%d+)[^%d]")
-		return tonumber(startnuma) < tonumber(startnumb)
-	end
-	
-	return a.name < b.name
-end
 
 
 /**
@@ -654,27 +281,40 @@ end
 function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	self.Fuel = fueltype or self.Fuel
 	self.Crate = crate or self.Crate
+	self.FuelType = fuelsubtype or self.FuelType
 	
 	if not (self.Crate and self.Fuel) then return end
-	
-	-- pick a valid fueltype if we're trying to use an invalid one.
-	if not (self.Fuel.id and XCF.FueltanksByName[self.Fuel.id]) then
-		self.Fuel = next(XCF.FueltanksByName) or XCF.FueltanksByName["High Grade"]
+	local _
+	-- pick a valid fuel if we're trying to use an invalid one.
+	print(self.Fuel, self.Crate, self.FuelType)
+	//printByName(self.Fuel)
+	//print(XCF.FueltanksByClass[self.Fuel])
+	if not (self.Fuel and XCF.FueltanksByClass[self.Fuel]) then
+		self.Fuel = next(XCF.FueltanksByClass) or "Basic_FuelTank"
 	end
 	
 	-- pick a valid crate if we're trying to use an invalid one.
 	if not (self.Crate.id and ACF.Weapons.FuelTanks[self.Crate.id]) then
-		self.Crate = next(ACF.Weapons.FuelTanks) or ACF.Weapons.FuelTanks["Fuel_Drum"]
+		_, self.Crate = next(ACF.Weapons.FuelTanks) or ACF.Weapons.FuelTanks["Fuel_Drum"]
 	end
 	
-	-- replace gun info panel with info about this gun.
+	-- pick a valid fueltype if we're trying to use an invalid one.
+	if not (self.FuelType and ACF.FuelDensity[self.FuelType]) then
+		self.FuelType = next(ACF.FuelDensity) or "Petrol"
+	end
+	
+	-- replace fuel info panel with info about this fuel.
 	if self.ClassPanel and IsValid(self.ClassPanel) then 
 		self.ClassPanel:Remove()
 		self.ClassPanel = nil
 	end
 	
+	local fueltbl = XCF.FueltanksByClass[self.Fuel] or error("No fuel table for the fuel class " .. tostring(self.Fuel))
+	print("fueltbl")
+	PrintTable(fueltbl)
+	
 	self.ClassPanel = vgui.Create( "DCollapsibleCategory", self )
-	self.ClassPanel:SetLabel(self.Fuel.name .. "; " .. self.Crate.name)
+	self.ClassPanel:SetLabel(fueltbl.name .. "; " .. self.Crate.name)
 	self.ClassPanel.Header.DoClick = function() end
 		
 	local entrylist = vgui.Create("DPanelList", category)
@@ -682,7 +322,7 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	entrylist:SetPadding( 5 )
 	entrylist:EnableVerticalScrollbar( false )
 	
-	-- label spam below; gun description text
+	-- label spam below; fuel description text
 	
 	-- description header
 	local label = vgui.Create( "DLabel" )
@@ -702,7 +342,7 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	label:SetColor(Color(40, 40, 40))
 	label:SetWrap(true)
 	label:SetAutoStretchVertical( true )
-	label:SetText(tostring(self.Fuel.desc or "Fuel Description unavailable!") .. "\n" .. tostring(self.Crate.desc or "Fueltank Description unavailable!") .. "\n")
+	label:SetText(tostring(fueltbl.desc or "Fuel Description unavailable!") .. "\n" .. tostring(self.Crate.desc or "Fueltank Description unavailable!") .. "\n")
 	label:SetSize(self:GetWide(), 10)
 	label:SizeToContentsY()
 	
@@ -710,8 +350,8 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	entrylist:AddItem(spacer)
 	
 	
+	createSlidersForFuel[self.FuelType](self, entrylist, spacer)
 	
-	-- TODO: fuel stats
 	
 	entrylist:SizeToContents()
 	
@@ -719,35 +359,46 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	self.ClassPanel:SetExpanded(true)
 	
 	-- this overrides the selection behaviour of the gun select list
-	RunConsoleCommand("xcfmenu_id", self.Crate.id)
+	RunConsoleCommand("xcfmenu_id", fueltbl.id)
 	RunConsoleCommand("xcfmenu_mdl", self.Crate.model)
-	RunConsoleCommand("xcfmenu_type", self.Crate.ent)
+	RunConsoleCommand("xcfmenu_type", fueltbl.ent)
 	
 	self:InvalidateLayout()
 	
+	
+	print("done!")
 end
 
 
-function PANEL:GetFuelData(input2)
+function PANEL:GetFuelData()
 	if not (self.Crate and self.Fuel) then return nil end
 	local ret = {}
 	
-	local Dims = self.Crate.dims
+	local Dims = self.Crate.dims or error("No dims found for the current crate!" .. tostring(self.Crate and self.Crate.id or ""))
 	local Wall = 0.1 --wall thickness in inches
 	local Size = math.floor(Dims[1] * Dims[2] * Dims[3])
-	local Volume = math.floor((Dims[1] - Wall) * (Dims[2] - Wall) * (Dims[3] - Wall))
+	local Volume = (Dims[1] - Wall) * (Dims[2] - Wall) * (Dims[3] - Wall)
 	local Capacity = Volume * ACF.CuIToLiter * ACF.TankVolumeMul * 0.125
 	local EmptyMass = ((Size - Volume)*16.387)*7.9/1000
-	local Mass = EmptyMass + Capacity * ACF.FuelDensity[self.FuelSubtype]
+	local Mass = EmptyMass + Capacity * ACF.FuelDensity[self.FuelType]
 
-	ret["TankName"] = Tanks[TankID].name
-	ret["TankDesc"] = Tanks[TankID].desc
+	local fueltbl = ACF.Weapons.FuelTanks[self.Crate.id] or error("No crate table for the fuelcrate class " .. tostring(self.Crate.id))
+	
+	printByName(fueltbl)
+	
+	ret["TankName"] = fueltbl.name
+	ret["TankDesc"] = fueltbl.desc
 	ret["Cap"] = Capacity
 	ret["Mass"] = Mass
 	ret["EmptyMass"] = EmptyMass
 	ret["Volume"] = Volume
-	ret["nolinks"] = Tanks[TankID]["nolinks"] or false
-	ret["explosive"] = Tanks[TankID]["explosive"] or true
+	ret["nolinks"] = fueltbl["nolinks"] or false
+	ret["explosive"] = fueltbl["explosive"] == nil or fueltbl["explosive"]
+	
+	print("\nret is:")
+	printByName(ret)
+	
+	return ret
 	
 end
 
@@ -757,15 +408,17 @@ local maxCPTall = surface.ScreenHeight()/2 - 20
 
 function PANEL:PerformLayout()	
 
+	print("doing layout now!")
+	
 	local ypos = 0
 	
-	self.CrateLabel:SetPos(0, 0)
-	ypos = ypos + self.CrateLabel:GetTall()
+	self.FuelLabel:SetPos(0, ypos)
+	ypos = ypos + self.FuelLabel:GetTall()
 	
-	self.CrateList:SetPos(0, ypos)
-	self.CrateList:SetSize(self:GetWide(), 20)
+	self.FuelList:SetPos(0, ypos)
+	self.FuelList:SetSize(self:GetWide(), 20)
 	
-	ypos = ypos + self.CrateList:GetTall() + 5
+	ypos = ypos + self.FuelList:GetTall()
 	
 	self.FuelTypeLabel:SetPos(0, ypos)
 	ypos = ypos + self.FuelTypeLabel:GetTall()
@@ -776,6 +429,7 @@ function PANEL:PerformLayout()
 	ypos = ypos + self.FuelTypeList:GetTall()
 	
 	if self.ClassPanel and IsValid(self.ClassPanel) then
+		print("classpanel")
 		self.ClassPanel:SetPos(0, ypos)
 		self.ClassPanel:SizeToContents()
 		self.ClassPanel:SetWide(self:GetWide())
@@ -784,24 +438,20 @@ function PANEL:PerformLayout()
 		
 		self:SetTall(ypos)
 		
-		local bulletdata = self:GetFuelData()
-		
-		if XCF.Debug then printByName(bulletdata) print("\n\n\n") end
-		
-		if bulletdata then			
+		local fueldata = self:GetFuelData()		
+		if fueldata then			
 			local func
-			for k, v in pairs(bulletdata) do
+			for k, v in pairs(fueldata) do
 				func = modifyControlsWith[k]
-				if func then func(self, v) end
+				if func then func(self, v, fueldata) end
 			end
 			
-			RunConsoleCommand( "xcfmenu_data1",  self.Gun.id )
-			RunConsoleCommand( "xcfmenu_data2",  self.Fuel )
-			RunConsoleCommand( "xcfmenu_data3",  math.Round(bulletdata.PropLength or 0, 3) )
-			RunConsoleCommand( "xcfmenu_data4",  math.Round(bulletdata.ProjLength or 0, 3) )
-			RunConsoleCommand( "xcfmenu_data5",  math.Round(bulletdata.FillerVol or bulletdata.CavVol or 0, 3) )
-			RunConsoleCommand( "xcfmenu_data6",  math.Round(bulletdata.ConeAng or 0, 3) )
-			RunConsoleCommand( "xcfmenu_data10", bulletdata.Tracer or 0 )
+			for i=1, #modifyControlsWith do
+				modifyControlsWith[i](self, v, fueldata)
+			end
+			
+			RunConsoleCommand( "xcfmenu_data1",  self.Crate.id )
+			RunConsoleCommand( "xcfmenu_data2",  self.FuelType )
 		end
 		
 	else
@@ -811,6 +461,8 @@ function PANEL:PerformLayout()
 	if self:GetTall() > maxCPTall then
 		self:SetTall(maxCPTall)
 	end
+	
+	print("done layout!")
 end
 
 
@@ -840,16 +492,7 @@ function PANEL:GetInfoTable()
 	}
 	
 	tbl[1] = self.Crate.id
-	tbl[2] = self.Gun.id
-	tbl[3] = self.Fuel
-	
-	local bulletdata = self:GetFuelData()
-	
-	tbl[4] = math.Round(bulletdata.PropLength or 0, 3)
-	tbl[5] = math.Round(bulletdata.ProjLength or 0, 3)
-	tbl[6] = math.Round(bulletdata.FillerVol or bulletdata.CavVol or 0, 3)
-	tbl[7] = math.Round(bulletdata.ConeAng or 0, 3)
-	tbl[11] = bulletdata.Tracer or 0
+	tbl[2] = self.FuelType
 	
 	return tbl
 end
@@ -861,15 +504,15 @@ function PANEL:Think()
 	
 	if self:GetParent() and selpanel then
 		local entry = selpanel:GetSelectedEntry()
-		if entry and entry != self.Gun then
-			self:SetFuel(entry, self.Fuel or "AP")
+		if entry and entry != self.Crate then
+			self:SetFuel(nil, entry)
 		end
 	end
 	
 	local ent = GetConVarString("xcfmenu_type")
 	
 	if ent != self.Crate.ent then
-		self:SetFuel(self.Fuel, self.Crate)
+		self:SetFuel()
 	end
 	
 	self:WatchSliders()
