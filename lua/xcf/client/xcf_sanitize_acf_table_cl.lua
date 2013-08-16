@@ -172,8 +172,6 @@ local function toBoxSizeList(boxes)
 	
 	finalizeSizeList(ret)
 	
-	PrintTable(ret)
-	
 	return ret
 end
 

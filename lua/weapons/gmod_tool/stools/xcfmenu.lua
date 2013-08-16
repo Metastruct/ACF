@@ -52,6 +52,7 @@ TOOL.AllowedTypes["acf_rack"] 		= true
 TOOL.AllowedTypes["acf_ammo"] 		= true
 TOOL.AllowedTypes["acf_engine"] 	= true
 TOOL.AllowedTypes["acf_gearbox"] 	= true
+TOOL.AllowedTypes["acf_fueltank"] 	= true
 
 
 local translateEntToType = 
@@ -60,8 +61,12 @@ local translateEntToType =
 	["acf_rack"] = "Guns",
 	["acf_ammo"] = "Ammo",
 	["acf_engine"] = "Mobility",
-	["acf_gearbox"] = "Mobility"
+	["acf_gearbox"] = "Mobility",
+	["acf_fueltank"] = "Mobility"
 }
+
+local getModelTable = table.Inherit({}, translateEntToType)	-- god DAMMIT fervy
+getModelTable["acf_fueltank"] = "FuelTanks"
 	
 
 
@@ -297,19 +302,23 @@ end
 
 
 
+local DEFAULTMODEL = "models/machinetype/machinetype_127mm.mdl"
 function TOOL:Think()
 
 	if CLIENT then	
 		local info = self:GetSelection()
 	
 		if not self.GhostEntity then
-			local type = ACF.Weapons[translateEntToType[info.ent] or "Guns"][info.id]
+			--[[
+			local mdltbl = ACF.Weapons[getModelTable[info.ent] or "Guns"]
+			local type = mdltbl[info.id] or mdltbl[info[2] ]
 			
-			if not type then
+			if not (type and type.model) then
 				type = {model = "models/machinetype/machinetype_127mm.mdl"}
 			end
-			
-			self:MakeGhostEntity( type.model, Vector(0,0,0), Angle(0,0,0) )
+			]]--
+			local mdlvar = self:GetClientInfo("mdl")
+			self:MakeGhostEntity( util.IsValidModel(mdlvar) and mdlvar or DEFAULTMODEL, Vector(0,0,0), Angle(0,0,0) )
 		end
 	
 		self:UpdateGhostXCF( self.GhostEntity, self:GetOwner(), info )

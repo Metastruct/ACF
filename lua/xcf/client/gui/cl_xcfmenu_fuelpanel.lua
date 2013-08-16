@@ -252,6 +252,13 @@ function PANEL:Init( )
 	
 	
 	self.ClassPanel = nil
+	self.FuelPreview = vgui.Create( "DModelPanel", self )
+	self.FuelPreview.LayoutEntity = function() end -- no rotation please ty
+	
+	self.FuelPreview2 = vgui.Create( "DModelPanel", self )
+	self.FuelPreview2.LayoutEntity = function() end -- no rotation please ty
+	
+	self:SetFuel()
 	
 end
 
@@ -285,10 +292,8 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	
 	if not (self.Crate and self.Fuel) then return end
 	local _
+	
 	-- pick a valid fuel if we're trying to use an invalid one.
-	print(self.Fuel, self.Crate, self.FuelType)
-	//printByName(self.Fuel)
-	//print(XCF.FueltanksByClass[self.Fuel])
 	if not (self.Fuel and XCF.FueltanksByClass[self.Fuel]) then
 		self.Fuel = next(XCF.FueltanksByClass) or "Basic_FuelTank"
 	end
@@ -303,6 +308,26 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 		self.FuelType = next(ACF.FuelDensity) or "Petrol"
 	end
 	
+	
+	-- set Fuel model preview and centre the camera on the Fuel.
+	self.FuelPreview:SetModel(self.Crate.model)
+	self.FuelPreview:SetFOV(45)
+	self.FuelPreview2:SetModel(self.Crate.model)
+	self.FuelPreview2:SetFOV(45)
+	
+	local viewent = self.FuelPreview:GetEntity()
+	local boundmin, boundmax = viewent:GetRenderBounds()
+	local dist = boundmin:Distance(boundmax)*1.5
+	local centre = boundmin + (boundmax - boundmin)/2
+	dist = dist < 70 and 70 or dist
+	
+	self.FuelPreview:SetCamPos( centre + Vector( 0, dist, 0 ) )
+	self.FuelPreview:SetLookAt( centre )
+	
+	self.FuelPreview2:SetCamPos( centre + Vector( 0, 0.1, dist ) )
+	self.FuelPreview2:SetLookAt( centre )
+	
+	
 	-- replace fuel info panel with info about this fuel.
 	if self.ClassPanel and IsValid(self.ClassPanel) then 
 		self.ClassPanel:Remove()
@@ -310,8 +335,6 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	end
 	
 	local fueltbl = XCF.FueltanksByClass[self.Fuel] or error("No fuel table for the fuel class " .. tostring(self.Fuel))
-	print("fueltbl")
-	PrintTable(fueltbl)
 	
 	self.ClassPanel = vgui.Create( "DCollapsibleCategory", self )
 	self.ClassPanel:SetLabel(fueltbl.name .. "; " .. self.Crate.name)
@@ -359,14 +382,12 @@ function PANEL:SetFuel(fueltype, crate, fuelsubtype)
 	self.ClassPanel:SetExpanded(true)
 	
 	-- this overrides the selection behaviour of the gun select list
-	RunConsoleCommand("xcfmenu_id", fueltbl.id)
+	RunConsoleCommand("xcfmenu_id", self.Fuel)
 	RunConsoleCommand("xcfmenu_mdl", self.Crate.model)
 	RunConsoleCommand("xcfmenu_type", fueltbl.ent)
 	
 	self:InvalidateLayout()
 	
-	
-	print("done!")
 end
 
 
@@ -384,8 +405,6 @@ function PANEL:GetFuelData()
 
 	local fueltbl = ACF.Weapons.FuelTanks[self.Crate.id] or error("No crate table for the fuelcrate class " .. tostring(self.Crate.id))
 	
-	printByName(fueltbl)
-	
 	ret["TankName"] = fueltbl.name
 	ret["TankDesc"] = fueltbl.desc
 	ret["Cap"] = Capacity
@@ -395,9 +414,6 @@ function PANEL:GetFuelData()
 	ret["nolinks"] = fueltbl["nolinks"] or false
 	ret["explosive"] = fueltbl["explosive"] == nil or fueltbl["explosive"]
 	
-	print("\nret is:")
-	printByName(ret)
-	
 	return ret
 	
 end
@@ -406,11 +422,20 @@ end
 local maxCPTall = surface.ScreenHeight()/2 - 20
 
 
-function PANEL:PerformLayout()	
-
-	print("doing layout now!")
+function PANEL:PerformLayout()
 	
-	local ypos = 0
+	local wided2 = self:GetWide()/2
+	local prevsize = 80
+	self.FuelPreview:SetTall(prevsize)
+	self.FuelPreview:SetWide(prevsize)
+	
+	self.FuelPreview2:SetTall(prevsize)
+	self.FuelPreview2:SetWide(prevsize)
+	
+	self.FuelPreview:SetPos((wided2 - prevsize) / 2, 0)
+	self.FuelPreview2:SetPos(wided2 + (wided2 - prevsize) / 2, 0)
+	
+	local ypos = 80
 	
 	self.FuelLabel:SetPos(0, ypos)
 	ypos = ypos + self.FuelLabel:GetTall()
@@ -429,7 +454,6 @@ function PANEL:PerformLayout()
 	ypos = ypos + self.FuelTypeList:GetTall()
 	
 	if self.ClassPanel and IsValid(self.ClassPanel) then
-		print("classpanel")
 		self.ClassPanel:SetPos(0, ypos)
 		self.ClassPanel:SizeToContents()
 		self.ClassPanel:SetWide(self:GetWide())
@@ -462,14 +486,12 @@ function PANEL:PerformLayout()
 		self:SetTall(maxCPTall)
 	end
 	
-	print("done layout!")
 end
 
 
 function PANEL:WatchSliders()
 	local last, val
 	for k, v in pairs(self.SliderWatchList) do
-		//print(k, v)
 		if not (v and IsValid(v)) then continue end
 		last = v.lastValWatched or 0
 		val = v:GetValue()
@@ -486,13 +508,16 @@ end
 
 function PANEL:GetInfoTable()
 	
+	local fueltbl = XCF.FueltanksByClass[self.Fuel] or error("No fuel table for the fuel class " .. tostring(self.Fuel))
+	
 	local tbl = {
 		["ent"] = self.Crate.ent,
-		["id"]	= self.Crate.id,
+		["id"]	= fueltbl.id,
 	}
 	
-	tbl[1] = self.Crate.id
-	tbl[2] = self.FuelType
+	tbl[1] = fueltbl.id
+	tbl[2] = self.Crate.id
+	tbl[3] = self.FuelType
 	
 	return tbl
 end
