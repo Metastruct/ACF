@@ -143,7 +143,7 @@ function PANEL:SetEngine(engtable)
 	--torque body
 	self.TorqueMeter = self.TorqueMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.TorqueMeter
-	label:SetMax(3000) // TODO: determine max torque programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.EngineTorque or 3000)
 	label:AnimateToValues(0, engtable.torque or 0)
 	label:SetTall(15)
 	
@@ -162,7 +162,7 @@ function PANEL:SetEngine(engtable)
 	--powerperkilo body
 	self.PowerMeter = self.PowerMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.PowerMeter
-	label:SetMax(938) // TODO: determine max power programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.EnginePower or 938)
 	label:AnimateToValues(0, enginePower(engtable)) // TODO: this
 	label:SetTall(15)
 	label:SetDecimals(1)
@@ -183,7 +183,7 @@ function PANEL:SetEngine(engtable)
 	--powerperkilo body
 	self.PPKMeter = self.PPKMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.PPKMeter
-	label:SetMax(1.45) // TODO: determine max power programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.EnginePowerPerKG or 1.45)
 	label:AnimateToValues(0, enginePower(engtable) / engtable.weight) // TODO: this
 	label:SetTall(15)
 	
@@ -202,7 +202,7 @@ function PANEL:SetEngine(engtable)
 	--powerband body
 	self.BandMeter = self.BandMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.BandMeter
-	label:SetMax(engtable.limitprm or engtable.limitrpm or engtable.peakmaxrpm or 13500) // TODO: determine fallback max redline programmatically
+	label:SetMax(engtable.limitprm or engtable.limitrpm or (XCF.Maximum and XCF.Maximum.EngineRedline or engtable.peakmaxrpm or 13500))
 	label:AnimateToValues(engtable.peakminrpm, engtable.peakmaxrpm)
 	label:SetTall(15)
 	
@@ -221,7 +221,7 @@ function PANEL:SetEngine(engtable)
 	--mass body
 	self.MassMeter = self.MassMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.MassMeter
-	label:SetMax(2000)  // todo: programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.EngineMass or 2000)
 	label:InvertGradient(true)
 	label:AnimateToValues(0, tonumber(engtable.weight) or 0)
 	label:SetTall(15)

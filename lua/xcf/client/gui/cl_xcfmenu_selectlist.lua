@@ -207,7 +207,7 @@ function PANEL:OnCursorExited()
 	end
 end
 
-
+--[[ Unrequired due to new design
 function PANEL:Think()
 	local x, y = self:CursorPos()
 	local w, h = self:GetSize()
@@ -220,6 +220,7 @@ function PANEL:Think()
 	
 	self.curout = curout
 end
+]]
 
 
 derma.DefineControl( "XCF_ToolMenuSelectList", "Menu tab for an XCF entity class", PANEL, "DPanel" )

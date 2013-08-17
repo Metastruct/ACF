@@ -128,7 +128,7 @@ function PANEL:SetGun(guntable)
 	
 	self.CaliberMeter = self.CaliberMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.CaliberMeter
-	label:SetMax(203)  // todo: programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.GunCaliber or 300) 
 	label:AnimateToValues(0, (tonumber(guntable.caliber) or 0) * 10)
 	label:SetTall(15)
 	
@@ -155,7 +155,7 @@ function PANEL:SetGun(guntable)
 	--mass body
 	self.MassMeter = self.MassMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.MassMeter
-	label:SetMax(10280)  // todo: programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.GunMass or 10280)
 	label:InvertGradient(true)
 	label:AnimateToValues(0, tonumber(guntable.weight) or 0)
 	label:SetTall(15)

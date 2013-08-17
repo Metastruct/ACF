@@ -18,21 +18,6 @@
 		}
 	}	
  */
-
- 
-function pairsByKeys (t, f)
-	local a = {}
-	for n in pairs(t) do table.insert(a, n) end
-	table.sort(a, f)
-	local i = 0      -- iterator variable
-	local iter = function ()   -- iterator function
-		i = i + 1
-		if a[i] == nil then return nil
-		else return a[i], t[a[i]]
-		end
-	end
-	return iter
-end
  
  
 XCF = XCF or {}
@@ -52,6 +37,8 @@ for k, v in pairs(ACF.Weapons.Guns) do
 	
 	classtable[#classtable+1] = v
 end
+
+
 
 
 -- Sanitize engines, gearboxes and fuel.  Held in the same table! (oh why?!)
@@ -96,6 +83,8 @@ for k, v in pairs(ACF.Weapons.Mobility) do
 end
 
 
+
+
 -- Sanitize ammo blacklist.  Convert into lookup table by gun type
 
 XCF.AmmoBlacklist = {}
@@ -109,8 +98,6 @@ for ammo, v in pairs(ACF.AmmoBlacklist) do
 		blklst[gun][ammo] = true
 	end
 end
-
-
 
 
 
@@ -141,6 +128,9 @@ local function finalizeSizeList(ret)
 		end
 	end
 end
+
+
+
 
 -- Create a list of boxes by size.  Inclusion requires name to contain NxNxN standard, otherwise is thrown in the "other" pile.
 local function toBoxSizeList(boxes)
@@ -178,3 +168,92 @@ end
 XCF.AmmoBySize = toBoxSizeList(ACF.Weapons.Ammo)
 XCF.FuelBySize = toBoxSizeList(ACF.Weapons.FuelTanks)
 
+
+
+
+XCF.Maximum = {}
+
+local maxcal = 0
+local maxmass = 0
+for k, v in pairs(ACF.Weapons.Guns) do
+
+	if v.caliber and v.caliber > maxcal then
+		maxcal = v.caliber
+	end
+	
+	if v.weight and v.weight > maxmass then
+		maxmass = v.weight
+	end
+end
+
+maxcal = maxcal * 10
+XCF.Maximum.GunCaliber = maxcal
+XCF.Maximum.GunMass = maxmass
+
+
+
+
+local function enginePower(eng)
+	if eng.iselec then
+		if not eng.elecpower then return nil end
+		return eng.elecpower*1.34
+	end
+	
+	if not (eng.torque and eng.peakmaxrpm) then return nil end
+	return 1.34 * (eng.torque * eng.peakmaxrpm) / 9548.8
+end
+
+
+local maxtorque = 0
+local maxpower = 0
+local maxpowperkg = 0
+local maxredline = 0
+maxmass = 0
+local maxgeartorque = 0
+local maxgearmass = 0
+for k, v in pairs(ACF.Weapons.Mobility) do
+	if v.ent == "acf_engine" then
+	
+		if v.torque and v.torque > maxtorque then
+			maxtorque = v.torque
+		end
+		
+		local power = enginePower(v)
+		if power and power > maxpower then
+			maxpower = power
+		end
+		
+		if v.weight then
+			if v.weight > maxmass then
+				maxmass = v.weight
+			end
+			local powperkg = power / v.weight
+			if powperkg > maxpowperkg then
+				maxpowperkg = powperkg
+			end
+		end
+		
+		local redline = v.limitprm or v.limitrpm
+		if redline and redline > maxredline then
+			maxredline = redline
+		end
+	elseif v.ent == "acf_gearbox" then
+		
+		if v.maxtq and v.maxtq > maxgeartorque then
+			maxgeartorque = v.maxtq
+		end
+		
+		if v.weight and v.weight > maxgearmass then
+			maxgearmass = v.weight
+		end
+	end
+end
+
+XCF.Maximum.EngineTorque = maxtorque
+XCF.Maximum.EnginePower = maxpower
+XCF.Maximum.EnginePowerPerKG = maxpowperkg
+XCF.Maximum.EngineRedline = maxredline
+XCF.Maximum.EngineMass = maxmass
+
+XCF.Maximum.GearTorque = maxgeartorque
+XCF.Maximum.GearMass = maxgearmass

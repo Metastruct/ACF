@@ -87,9 +87,7 @@ function TOOL:TransmitSelection()
 	local info = self:GetSelection()
 	if not info then error("Didn't get selection table from tool.") return end
 	
-	net.Start("xcfmenu_transmit")
-		net.WriteTable(info)
-	net.SendToServer()
+	self.tosend = info
 	
 end
 
@@ -319,11 +317,21 @@ function TOOL:Think()
 			]]--
 			local mdlvar = self:GetClientInfo("mdl")
 			self:MakeGhostEntity( util.IsValidModel(mdlvar) and mdlvar or DEFAULTMODEL, Vector(0,0,0), Angle(0,0,0) )
+			if self.GhostEntity then
+				self.GhostEntity:SetNoDraw( false )
+			end
 		end
 	
 		self:UpdateGhostXCF( self.GhostEntity, self:GetOwner(), info )
 	end
 	
+	if self.tosend then
+		net.Start("xcfmenu_transmit")
+			net.WriteTable(self.tosend)
+		net.SendToServer()
+		
+		self.tosend = nil
+	end
 end
 
 

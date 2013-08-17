@@ -1,3 +1,130 @@
+local createSlidersForGear = {}
+
+
+createSlidersForGear["before"] = function(self, entrylist, spacer)
+	
+	entrylist:AddItem(spacer)
+	self.Gears = {}
+	
+end
+
+
+createSlidersForGear["after"] = function(self, entrylist, spacer)
+
+	entrylist:AddItem(spacer)
+
+	
+	local label = vgui.Create( "DLabel" )
+	label:SetText("Final Drive:")
+	label:SetFont("DermaDefaultBold")
+	label:SetColor(Color(150, 150, 150))
+	label:SizeToContents()
+	entrylist:AddItem(label)
+	
+	-- final drive body
+	self.DriveMeter = self.DriveMeter or vgui.Create( "XCF_ToolMenuMeterSlider" )
+	label = self.DriveMeter
+	label:SetExtents(-1, 1)
+	label:SetTall(15)
+	label:SetConVar("xcfmenu_data10")
+	entrylist:AddItem(label)
+
+end
+
+
+createSlidersForGear["Common"] = function(self, entrylist, spacer)
+
+	createSlidersForGear["before"](self, entrylist, spacer)
+
+	local label = vgui.Create( "DLabel" )
+	label:SetText("Gears 1 to " .. (self.Gear.gears or 0) .. ":")
+	label:SetFont("DermaDefaultBold")
+	label:SetColor(Color(150, 150, 150))
+	label:SizeToContents()
+	entrylist:AddItem(label)
+	
+	self.Gears = {}
+	local j
+	for i=1, (self.Gear.gears or 0) do		
+		//if not self.Gears[i] or self.Gears[i] == NULL then
+			self.Gears[i] = vgui.Create( "XCF_ToolMenuMeterSlider" )
+			self.Gears[i]:SetConVar("xcfmenu_data" .. i)	-- TODO: optimize convar alterations
+			RunConsoleCommand("xcfmenu_data" .. i, i == self.Gear.gears and -0.1 or i / 10)
+		//end
+		
+		label = self.Gears[i]
+		label:SetExtents(-1, 1)
+		label:SetTall(15)
+		
+		entrylist:AddItem(label)
+		j = i
+	end
+	
+	entrylist:AddItem(spacer)
+	
+	
+	-- final drive label
+	label = vgui.Create( "DLabel" )
+	label:SetText("Final Drive:")
+	label:SetFont("DermaDefaultBold")
+	label:SetColor(Color(150, 150, 150))
+	label:SizeToContents()
+	entrylist:AddItem(label)
+	
+	createSlidersForGear["after"](self, entrylist, spacer)
+end
+
+
+createSlidersForGear["CVT"] = function(self, entrylist, spacer)
+
+	createSlidersForGear["before"](self, entrylist, spacer)
+
+	local label = vgui.Create( "DLabel" )
+	label:SetText("Gear 2:")
+	label:SetFont("DermaDefaultBold")
+	label:SetColor(Color(150, 150, 150))
+	label:SizeToContents()
+	entrylist:AddItem(label)
+	
+	label = vgui.Create( "XCF_ToolMenuMeterSlider" )
+	self.Gears[2] = label
+	label:SetConVar("xcfmenu_data2")
+	RunConsoleCommand("xcfmenu_data2", -1)
+	label:SetExtents(-1, 1)
+	label:SetTall(15)
+	entrylist:AddItem(label)
+	
+	entrylist:AddItem(spacer)
+	
+	label = vgui.Create( "DLabel" )
+	label:SetText("Minimum and Maximum RPM:")
+	label:SetFont("DermaDefaultBold")
+	label:SetColor(Color(150, 150, 150))
+	label:SizeToContents()
+	entrylist:AddItem(label)
+	
+	label = vgui.Create( "XCF_ToolMenuMeterSlider" )
+	self.Gears[3] = label
+	label:SetConVar("xcfmenu_data3")
+	RunConsoleCommand("xcfmenu_data3", 0)
+	label:SetExtents(0, XCF.Maximum and XCF.Maximum.EngineRedline or 13500)
+	label:SetTall(15)	
+	entrylist:AddItem(label)
+	
+	label = vgui.Create( "XCF_ToolMenuMeterSlider" )
+	self.Gears[4] = label
+	label:SetConVar("xcfmenu_data4")
+	RunConsoleCommand("xcfmenu_data4", 5000)
+	label:SetExtents(0, XCF.Maximum and XCF.Maximum.EngineRedline or 13500)
+	label:SetTall(15)	
+	entrylist:AddItem(label)
+	
+	createSlidersForGear["after"](self, entrylist, spacer)
+
+end
+
+
+
 local PANEL = {}
 
 function PANEL:Init( )
@@ -124,7 +251,7 @@ function PANEL:SetGear(geartable)
 	--torque body
 	self.TorqueMeter = self.TorqueMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.TorqueMeter
-	label:SetMax(10000) // TODO: determine max torque programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.GearTorque or 10000)
 	label:AnimateToValues(0, geartable.maxtq or 0)
 	label:SetTall(15)
 	
@@ -143,7 +270,7 @@ function PANEL:SetGear(geartable)
 	--mass body
 	self.MassMeter = self.MassMeter or vgui.Create( "XCF_ToolMenuMeter" )
 	label = self.MassMeter
-	label:SetMax(320)  // todo: programmatically
+	label:SetMax(XCF.Maximum and XCF.Maximum.GearMass or 320)
 	label:InvertGradient(true)
 	label:AnimateToValues(0, tonumber(geartable.weight) or 0)
 	label:SetTall(15)
@@ -153,7 +280,7 @@ function PANEL:SetGear(geartable)
 	
 	local gearheadpanel = vgui.Create( "DPanel" )
 	local label = vgui.Create( "DLabel", gearheadpanel)
-	label:SetText("Gears 1 to " .. geartable.gears ..":")
+	label:SetText(geartable.category or "Gearbox")
 	label:SetFont("DermaDefaultBold")
 	label:SetColor(Color(150, 150, 150))
 	label:SizeToContents()
@@ -271,44 +398,9 @@ function PANEL:SetGear(geartable)
 	entrylist:AddItem(gearheadpanel)
 	
 	
-	-- generate all the gear sliders
-	self.Gears = {}
-	local j
-	for i=1, (geartable.gears or 0) do		
-		//if not self.Gears[i] or self.Gears[i] == NULL then
-			self.Gears[i] = vgui.Create( "XCF_ToolMenuMeterSlider" )
-			self.Gears[i]:SetConVar("xcfmenu_data" .. i)	-- TODO: optimize convar alterations
-			RunConsoleCommand("xcfmenu_data" .. i, i == geartable.gears and "-0.1" or i / 10)
-		//end
-		
-		label = self.Gears[i]
-		label:SetExtents(-1, 1)
-		label:SetTall(15)
-		
-		entrylist:AddItem(label)
-		j = i
-	end
+	local geartype = geartable.cvt and "CVT" or "Common"
+	createSlidersForGear[geartype](self, entrylist, spacer)
 	
-	entrylist:AddItem(spacer)
-	
-	
-	-- final drive label
-	local label = vgui.Create( "DLabel" )
-	label:SetText("Final Drive:")
-	label:SetFont("DermaDefaultBold")
-	label:SetColor(Color(150, 150, 150))
-	label:SizeToContents()
-	
-	entrylist:AddItem(label)
-	
-	-- final drive body
-	self.DriveMeter = self.DriveMeter or vgui.Create( "XCF_ToolMenuMeterSlider" )
-	label = self.DriveMeter
-	label:SetExtents(-1, 1)
-	label:SetTall(15)
-	label:SetConVar("xcfmenu_data10")
-	
-	entrylist:AddItem(label)
 	
 	
 	entrylist:SizeToContents()
