@@ -1,5 +1,5 @@
 // main switch for the XCF Tab
-XCF.UseXCFTab = false
+XCF.UseXCFTab = true
 // In Development
 
 

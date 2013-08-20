@@ -10,8 +10,6 @@
 	local Sound = Gun:GetNWString( "Sound" )
 	local Propellant = data:GetScale()
 	local ReloadTime = data:GetMagnitude()
-	local Attachment = math.Round(data:GetRadius())
-	if Attachment == 0 then Attachment = nil end
 	
 	local Class = Gun:GetNWString( "Class" ) or error("Couldn't find the gun's class while making a muzzleflash!")
 	local Id = Gun:GetNWString( "Id" ) or error("Couldn't find the gun's ID while making a muzzleflash!")
