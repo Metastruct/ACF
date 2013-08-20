@@ -14,8 +14,7 @@ Menu.Command = ""
 // should this panel refresh when the player opens the menu? 
 Menu.ShouldRefresh = false
 
-HTML = {}
-Wiki = {}
+local HTML = {}
 
 print(file.Exists("includes/modules/markdown.lua","LUA"))
 
@@ -27,7 +26,68 @@ else
 end
 
 
-local Pages = {
+
+
+local name, repo = "nrlulz", "ACF"
+
+
+
+
+local pagelistRegex = 
+// div id most closely containing the page list
+'<div id="wiki%-content" class="has_rightbar">' ..
+// containing div class
+'%s*<div class="markdown%-body">' .. 
+// the list within
+'%s*<ul>(.-)</ul>'..
+// class-closing div
+'%s*</div>'
+
+local linklistRegexGlobal = 
+// get partial url in the listed links
+'<a href="(.-)">'
+
+local extractPagenameRegex = 
+'/.-/.-/wiki/(.*)'
+
+
+local function wikiPagesSuccess(html, callback)
+	
+	local linklist = string.match(html, pagelistRegex)
+
+	if linklist then
+		print("got links!")
+		local links = {}
+		
+		for link in string.gmatch(linklist, linklistRegexGlobal) do
+			links[#links+1] = string.match(link, extractPagenameRegex) or "Home"
+		end
+		//PrintTable(links)
+		callback(links)
+	else
+		wikiPagesFailed(callback)
+	end
+	
+end
+
+
+local function wikiPagesFailed(callback)
+	callback()
+end
+
+
+GitRC = GitRC or {}
+local pagelist = "https://github.com/%s/%s/wiki/_pages"
+function GitRC.GetWikiPages(name, repo, callback)
+	http.Fetch(string.format(pagelist, name, repo), 
+		function(html) 	wikiPagesSuccess(html, callback) end,
+		function() 		wikiPagesFailed(callback) end
+	)	
+end
+
+
+
+local DefaultPages = {
 "Advanced-Armour",
 "Basic-Armour",
 "Intermediate-Armour",
@@ -36,104 +96,50 @@ local Pages = {
 "Home"
 }
 
-local StartPage = "Home"
-
-
-
-
-
-local Link = "http://raw.github.com/wiki/nrlulz/ACF/"
-
-
-for i=1, #Pages do
-	local mdlink = Link..Pages[i]..".md"
-	
-	local function MDToHTML( Src )
-		local html = markdown(Src)
-		HTML[Pages[i]] = " <body bgcolor=\"#ffffff\"> "..html.." </body>"
-	end
-
-	local function Wiki_Receive( Src )
-		coroutine.resume( coroutine.create( MDToHTML ),  Src )
-	end
-	http.Fetch( mdlink, Wiki_Receive, print)
+// TODO: more advanced sorting (grouping tut series together) OR tree structure in sidebar
+local function pageSort(a, b)
+	return a < b
 end
 
 
-function Wiki:Open()
+local StartPage = "Home"
+local Link = "http://raw.github.com/wiki/%s/%s/"
 
-	if self.frame then
-		self.frame:SetVisible(!self.frame:IsVisible())
-		return
+local function WikiPageListCallback(Pages)
+	if not Pages then Pages = DefaultPages end
+
+	table.sort(Pages, pageSort)
+	
+	for i=1, #Pages do
+		local mdlink = string.format(Link, name, repo)..Pages[i]..".md"
+		
+		local function MDToHTML( Src )
+			local html = markdown(Src)
+			HTML[string.gsub(Pages[i], "[-_]", " ")] = '<body bgcolor="#f0f0f0"><font face="Helvetica" color="#0f0f0f">' .. html .. "</font></body>"
+		end
+
+		local function Wiki_Receive( Src )
+			coroutine.resume( coroutine.create( MDToHTML ),  Src )
+		end
+		http.Fetch( mdlink, Wiki_Receive, print)
 	end
+end
 
-	self.frame = vgui.Create('DFrame')
-	self.frame:SetSize(680, 470)
-	self.frame:Center()
-	self.frame:SetTitle('XCF Wiki')
-	self.frame:SetSizable(false)
-	self.frame:MakePopup()
-	self.frame:SetDeleteOnClose(false)
+GitRC.GetWikiPages(name, repo, WikiPageListCallback)
 
 
-	self.modelview = vgui.Create('DModelPanel', self.frame)
-	self.modelview:SetSize(160, 160)
-	self.modelview:SetPos(20, 30)
-	self.modelview:SetModel( "models/engines/v6large.mdl" )
-	self.modelview.LayoutEntity = function() end 
-	self.modelview:SetFOV( 45 )		
-		local viewent = self.modelview:GetEntity()
-		local boundmin, boundmax = viewent:GetRenderBounds()
-		local dist = boundmin:Distance(boundmax)*1.1
-		local centre = boundmin + (boundmax - boundmin)/2
-	self.modelview:SetCamPos( centre + Vector( 0, dist, 0 ) )
-	self.modelview:SetLookAt( centre )
-	
-
-	self.close = vgui.Create('DButton', self.frame)
-	self.close:SetSize(70, 20)
-	self.close:SetPos(580, 440)
-	self.close:SetText('Close')
-	self.close.DoClick = function() self.frame:SetVisible(false) end
-
-	self.html = vgui.Create('DHTML', self.frame)
-	self.html:SetSize(450, 400)
-	self.html:SetPos(200, 30)
-	self.html:SetHTML("Fetching Info....")
-
-	
-	self.tree = vgui.Create('DTree', self.frame)
-	self.tree:SetSize(160, 230)
-	self.tree:SetPos(20, 200)
-
-	
-	for k,v in pairsByKeys(HTML) do
-		
-		local node = self.tree:AddNode(string.Replace(k,"-"," "))
-		node.DoClick = function() 
-			Wiki.html:SetHTML(v) 
-			
-			
-			Wiki.modelview:SetModel( "models/engines/v6large.mdl" )
-			Wiki.modelview:SetFOV( 45 )
-			
-			local viewent = Wiki.modelview:GetEntity()
-			local boundmin, boundmax = viewent:GetRenderBounds()
-			local dist = boundmin:Distance(boundmax)*1.1
-			local centre = boundmin + (boundmax - boundmin)/2
-	
-			Wiki.modelview:SetCamPos( centre + Vector( 0, dist, 0 ) )
-			Wiki.modelview:SetLookAt( centre )
-		
-		end
-		if k == StartPage then
-			Wiki.html:SetHTML(v) 
-		end
+local Wiki 
+function WikiOpen()
+	if Wiki then 
+		Wiki:SetVisible(true)
+	else 
+		Wiki = vgui.Create("XCF_Wiki")
+		Wiki:SetList(HTML, StartPage)
 	end
 end
 
 concommand.Add("xcf_wiki_open",function() 
-	Wiki:Open()
+	WikiOpen()
 end)
 
 
