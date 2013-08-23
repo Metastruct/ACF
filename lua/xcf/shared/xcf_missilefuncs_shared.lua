@@ -13,6 +13,7 @@
 //*/
 local noboom = {["HP"] = true, ["SM"] = true, ["AP"] = true}	// should have a blast radius?
 local hollow = {["HEAT"] = true, ["SM"] = true, ["HE"] = true}	// should be hollow except for warhead?
+local noconv = {["Refill"] = true}
 function XCF_GenerateMissileInfo( partial, docopy )
 
 	local conversion = ACF.RoundTypes[partial.Type].convert
@@ -31,7 +32,9 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	//print("partial:")
 	//printByName(partial)
 	
-	partial = table.Merge(partial, conversion( nil, partial ))
+	partial = table.Merge(partial, conversion( nil, partial ))	
+	
+	if noconv[partial.Type] then return partial end
 	
 	partial.FillerVol = fillerVol
 	partial.ConeAng = coneAng
@@ -55,10 +58,29 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	
 	// TODO: kinetic for ap/aphe
 	
+	print("MuzzleBef", 0, partial.PropMass, partial.PropLength)
+	
+	if round.muzzlevel then
+		partial.MuzzleVel = round.muzzlevel
+	elseif round.starterpct then
+		--print((partial.PropMass*1000/ACF.PDensity) / partial.FrAera, (partial.PropMass*1000/ACF.PDensity), partial.PropMass)
+		local startmass = math.min(partial.PropMass, round.propweight * round.starterpct)
+		local startvol = startmass * 1000/ACF.PDensity
+		local burntime = startvol / round.burnrate
+		local acc = (round.thrust / 39.37) / (partial.PropMass + partial.ProjMass)
+		print(startmass, startvol, burntime, acc)
+		partial.MuzzleVel = acc * burntime
+		partial.PropMass = partial.PropMass - startmass
+		partial.PropLength = partial.PropLength - (startvol / partial.FrAera)
+	else
+		partial.MuzzleVel = 0
+	end
+	
+	print("MuzzleVel", partial.MuzzleVel, partial.PropMass, partial.PropLength)
+	
 	partial.Mass = partial.PropMass + partial.ProjMass
 	partial.Drift = 10 / partial.Mass ^ 0.5
 	partial.Motor = round.thrust / partial.Mass
-	partial.MuzzleVel = round.muzzlevel
 	
 	local propvolume = partial.PropLength * (math.pi * (partial.Caliber/2) ^ 2)
 	partial.Cutout = propvolume / round.burnrate
