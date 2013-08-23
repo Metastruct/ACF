@@ -71,9 +71,8 @@ if CLIENT then
 	usermessage.Hook("ACF_RefillEffect", function( msg )
 		local EntFrom, EntTo, Weapon = ents.GetByIndex( msg:ReadFloat() ), ents.GetByIndex( msg:ReadFloat() ), msg:ReadString()
 		if not IsValid( EntFrom ) or not IsValid( EntTo ) then return end
-		//local List = list.Get( "ACFRoundTypes")	
-		-- local Mdl = ACF.Weapons.Guns[Weapon].round.model or "models/munitions/round_100mm_shot.mdl"
-		local Mdl = "models/munitions/round_100mm_shot.mdl"
+		local Mdl = ACF.Weapons.Guns[Weapon].round.model or "models/munitions/round_100mm_shot.mdl"
+		--local Mdl = "models/munitions/round_100mm_shot.mdl"
 		EntFrom.RefillAmmoEffect = EntFrom.RefillAmmoEffect or {}
 		table.insert( EntFrom.RefillAmmoEffect, {EntFrom = EntFrom, EntTo = EntTo, Model = Mdl, StTime = SysTime()} )
 	end)
@@ -322,29 +321,20 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 		PlayerData.Data9 = self.RoundData9
 		PlayerData.Data10 = self.RoundData10
 	
-	/*
-	print("\n\n\nbefore\n\n\n")
-	PrintTable(PlayerData)
-	self.ConvertData = ACF.RoundTypes[self.RoundType]["convert"]
-	self.BulletData = self:ConvertData( PlayerData )
-	print("\n\n\nafter\n\n\n")
-	PrintTable(self.BulletData)
-	//*/
 	
-	//*
 	local guntable = ACF.Weapons.Guns
 	local gun = guntable[self.RoundId] or {}
 	local roundclass = XCF.ProjClasses[gun.roundclass or "Shell"] or error("Unrecognized projectile class " .. (gun.roundclass or "Shell") .. "!")
-	//print("made a", gun.roundclass or "Shell", "crate!", roundclass)
-	//*
-	//print("\n\n\nbefore\n\n\n")
-	//PrintTable(PlayerData)
-	self.BulletData = roundclass.GetExpanded(PlayerData)
-	//print("\n\n\nafter\n\n\n")
-	//PrintTable(self.BulletData)
+	/*
+	print("made a", gun.roundclass or "Shell", "crate!", roundclass)
+	print("\n\n\nbefore\n\n\n")
+	PrintTable(PlayerData)
 	//*/
 	self.BulletData = roundclass.GetExpanded(PlayerData)
-	
+	/*
+	print("\n\n\nafter\n\n\n")
+	PrintTable(self.BulletData)
+	//*/	
 	
 	local Size = (self:OBBMaxs() - self:OBBMins())
 	local Efficiency = 0.11 * ACF.AmmoMod			--This is the part of space that's actually useful, the rest is wasted on interround gaps, loading systems ..

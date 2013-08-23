@@ -34,6 +34,11 @@ local function isGearbox(ent)
 	if (ent:GetClass() == "acf_gearbox") then return true else return false end
 end
 
+local function isRack(ent)
+	if not validPhysics(ent) then return false end
+	if (ent:GetClass() == "acf_rack") then return true else return false end
+end
+
 local function isGun(ent)
 	if not validPhysics(ent) then return false end
 	if (ent:GetClass() == "acf_gun") then return true else return false end
@@ -72,6 +77,7 @@ e2function string entity:acfNameShort()
 	if isEngine(this) then return this.Id or "" end
 	if isGearbox(this) then return this.Id or "" end
 	if isGun(this) then return this.Id or "" end
+	if isRack(this) then return this.Id or "" end
 	if isAmmo(this) then return this.RoundId or "" end
 	if isFuel(this) then return this.FuelType .." ".. this.SizeId end
 	return ""
@@ -110,6 +116,7 @@ e2function string entity:acfName()
 	if isEngine(this) then acftype = "Mobility" end
 	if isGearbox(this) then acftype = "Mobility" end
 	if isGun(this) then acftype = "Guns" end
+	if isRack(this) then acftype = "Guns" end
 	if (acftype == "") then return "" end
 	local List = list.Get("ACFEnts")
 	return List[acftype][this.Id]["name"] or ""
@@ -121,7 +128,7 @@ e2function string entity:acfType()
 		local List = list.Get("ACFEnts")
 		return List["Mobility"][this.Id]["category"] or ""
 	end
-	if isGun(this) then
+	if isGun(this) or isRack(this) then
 		local Classes = list.Get("ACFClasses")
 		return Classes["GunClass"][this.Class]["name"] or ""
 	end
@@ -398,9 +405,14 @@ e2function number entity:acfIsGun()
 	if isGun(this) and not restrictInfo(self, this) then return 1 else return 0 end
 end
 
+-- Returns 1 if the entity is an ACF rack
+e2function number entity:acfIsRack()
+	if isRack(this) and not restrictInfo(self, this) then return 1 else return 0 end
+end
+
 -- Returns 1 if the ACF gun is ready to fire
 e2function number entity:acfReady()
-	if not isGun(this) then return 0 end
+	if not (isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	if (this.Ready) then return 1 end
 	return 0
@@ -408,19 +420,19 @@ end
 
 -- Returns the magazine size for an ACF gun
 e2function number entity:acfMagSize()
-	if not isGun(this) then return 0 end
+	if not (isGun(this) or isRack(this)) then return 0 end
 	return this.MagSize or 1
 end
 
 -- Returns the spread for an ACF gun
 e2function number entity:acfSpread()
-	if not isGun(this) then return 0 end
+	if not (isGun(this) or isRack(this)) then return 0 end
 	return this.Inaccuracy or 0
 end
 
 -- Returns 1 if an ACF gun is reloading
 e2function number entity:acfIsReloading()
-	if not isGun(this) then return 0 end
+	if not (isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	if (this.Reloading) then return 1 end
 	return 0
@@ -428,13 +440,13 @@ end
 
 -- Returns the rate of fire of an acf gun
 e2function number entity:acfFireRate()
-	if not isGun(this) then return 0 end
-	return math.Round(this.RateOfFire or 0,3)
+	if not (isGun(this) or isRack(this)) then return 0 end
+	return math.Round(this.RateOfFire or 0, 3)
 end
 
 -- Returns the number of rounds left in a magazine for an ACF gun
 e2function number entity:acfMagRounds()
-	if not isGun(this) then return 0 end
+	if not (isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	if (this.MagSize > 1) then
 		return (this.MagSize - this.CurrentShot) or 1
@@ -445,7 +457,7 @@ end
 
 -- Sets the firing state of an ACF weapon
 e2function void entity:acfFire( number fire )
-	if not isGun(this) then return end
+	if not (isGun(this) or isRack(this)) then return 0 end
 	if not isOwner(self, this) then return end
 	this:TriggerInput("Fire", fire)	
 end
@@ -522,21 +534,21 @@ end
 
 -- Returns the type of ammo in a crate or gun
 e2function string entity:acfAmmoType()
-	if not (isAmmo(this) or isGun(this)) then return "" end
+	if not (isAmmo(this) or isGun(this) or isRack(this)) then return "" end
 	if restrictInfo(self, this) then return "" end
 	return this.BulletData["Type"] or ""
 end
 
 -- Returns the muzzle velocity of the ammo in a crate or gun
 e2function number entity:acfMuzzleVel()
-	if not (isAmmo(this) or isGun(this)) then return 0 end
+	if not (isAmmo(this) or isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	return math.Round((this.BulletData["MuzzleVel"] or 0)*ACF.VelScale,3)
 end
 
 -- Returns the mass of the projectile in a crate or gun
 e2function number entity:acfProjectileMass()
-	if not (isAmmo(this) or isGun(this)) then return 0 end
+	if not (isAmmo(this) or isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	return math.Round(this.BulletData["ProjMass"] or 0,3)
 end
@@ -545,7 +557,7 @@ __e2setcost( 5 )
 
 -- Returns the penetration of an AP, APHE, or HEAT round
 e2function number entity:acfPenetration()
-	if not (isAmmo(this) or isGun(this)) then return 0 end
+	if not (isAmmo(this) or isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	local Type = this.BulletData["Type"] or ""
 	local Energy
@@ -561,7 +573,7 @@ end
 
 -- Returns the blast radius of an HE, APHE, or HEAT round
 e2function number entity:acfBlastRadius()
-	if not (isAmmo(this) or isGun(this)) then return 0 end
+	if not (isAmmo(this) or isGun(this) or isRack(this)) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	local Type = this.BulletData["Type"] or ""
 	if Type == "HE" or Type == "APHE" then

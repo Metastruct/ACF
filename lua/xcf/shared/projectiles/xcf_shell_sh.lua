@@ -93,9 +93,11 @@ function this.GetExpanded(bullet)
 	printByName(toconvert)
 	//*/
 		
-	local conversion = ACF.RoundTypes[bullet.Type].convert
+	local rounddef = ACF.RoundTypes[bullet.Type] or error("No definition for the shell-type", bullet.Type)
+	local conversion = rounddef.convert
+	--print("rdcv", rounddef, conversion)
 	
-	if not conversion then return nil end
+	if not conversion then error("No conversion available for this shell!") end
 	local ret = conversion( nil, toconvert )
 	
 	ret.ProjClass = this

@@ -96,7 +96,7 @@ end
 
 function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 	
-	if ACF_Check( Target ) then
+	if XCF_Check( Target, Bullet.Owner ) then
 		local Speed = Bullet.Flight:Length() / ACF.VelScale
 		local Energy = ACF_Kinetic( Speed , Bullet.ProjMass - Bullet.FillerMass, Bullet.LimitVel )
 		local HitRes = ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bone )

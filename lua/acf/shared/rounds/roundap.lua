@@ -80,7 +80,7 @@ end
 
 function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 
-	if ACF_Check( Target ) then
+	if XCF_Check( Target, Bullet.Owner ) then
 	
 		local Speed = Bullet.Flight:Length() / ACF.VelScale
 		local Energy = ACF_Kinetic( Speed , Bullet.ProjMass, Bullet.LimitVel )
@@ -97,8 +97,10 @@ function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 			return false
 		end
 	else 
-		table.insert( Bullet.Filter , Target )
-	return "Penetrated" end
+		--table.insert( Bullet.Filter , Target )
+		--return "Penetrated"
+		return false
+	end
 		
 end
 

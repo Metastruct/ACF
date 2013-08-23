@@ -24,7 +24,7 @@
 			//sound.Play( ACF.Classes["GunClass"][Class]["soundDistance"], pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
 			//sound.Play( ACF.Classes["GunClass"][Class]["soundNormal"], pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))	
 
-			local Muzzle = Gun:GetAttachment( Attachment or Gun:LookupAttachment( "muzzle" ) ) or {["Pos"] = Gun:GetPos(), ["Ang"] = Gun:GetAngles()}
+			local Muzzle = Gun:GetAttachment( Gun:LookupAttachment( "muzzle" ) ) or {["Pos"] = Gun:GetPos(), ["Ang"] = Gun:GetAngles()}
 			local flash = ACF.Weapons.Guns[Id].muzzleflash or ACF.Classes.GunClass[Class].muzzleflash
 			if flash and flash ~= "" then
 				ParticleEffect( flash, Muzzle.Pos, Muzzle.Ang, Gun )

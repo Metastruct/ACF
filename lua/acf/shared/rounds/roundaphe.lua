@@ -100,10 +100,8 @@ function Round.cratetxt( BulletData )
 end
 
 function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
-	
-	local Speed = Bullet["Flight"]:Length() / ACF.VelScale
-	local Energy = ACF_Kinetic( Speed , Bullet["ProjMass"] - Bullet["FillerMass"], Bullet["LimitVel"] )
-	local HitRes = ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bone )
+
+	if XCF_Check( Target, Bullet.Owner ) then
 	
 		local Speed = Bullet.Flight:Length() / ACF.VelScale
 		local Energy = ACF_Kinetic( Speed , Bullet.ProjMass - Bullet.FillerMass, Bullet.LimitVel )
@@ -119,9 +117,9 @@ function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 		else
 			return false
 		end
-	else 
-		table.insert( Bullet.Filter , Target )
-	return "Penetrated" end
+	else
+		return false
+	end
 	
 end
 

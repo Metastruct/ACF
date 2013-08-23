@@ -13,6 +13,7 @@ Round.netid = 4 --Unique ammotype ID for network transmission
 
 function Round.create( Gun, BulletData )
 	
+	printByName(BulletData)
 	ACF_CreateBullet( BulletData )
 	
 end
@@ -163,7 +164,7 @@ end
 
 function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 	
-	if ACF_Check( Target ) then
+	if XCF_Check( Target, Bullet.Owner ) then
 			
 		if Bullet.Detonated then
 			
@@ -195,8 +196,9 @@ function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 			
 		end
 	else
-		table.insert( Bullet.Filter , Target )
-		return "Penetrated"
+		--table.insert( Bullet.Filter , Target )
+		--return "Penetrated"
+		return false
 	end
 	
 	return false

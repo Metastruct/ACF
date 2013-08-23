@@ -2,7 +2,7 @@
 AddCSLuaFile()
 
 local RoundTypes = list.Get( "ACFRoundTypes" )
-local Round = RoundTypes.AP -- inherit from AP
+local Round = table.Copy(RoundTypes.AP) -- inherit from AP
 
 Round.type = "Ammo" --Tells the spawn menu what entity to spawn
 Round.name = "Hollow Point (HP)" --Human readable name
