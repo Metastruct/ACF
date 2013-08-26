@@ -34,7 +34,21 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	
 	partial = table.Merge(partial, conversion( nil, partial ))	
 	
-	if noconv[partial.Type] then return partial end
+	local origs = -- because XCF_GenerateMissileInfo modifies the original info, may be needed for accurate net.
+	{
+		RoundId = partial["Id"] or "40mmRT",
+		RoundType = partial["Type"] or "HE",
+		RoundPropellant = partial["PropLength"] or 0,
+		RoundProjectile = partial["ProjLength"] or 0,
+		RoundData5 = partial["FillerVol"] or partial["Data5"] or 0,
+		RoundData6 = partial["ConeAng"] or partial["Data6"] or 0,
+		RoundData7 = partial["Data7"] or 0,
+		RoundData8 = partial["Data8"] or 0,
+		RoundData9 = partial["Data9"] or 0,
+		RoundData10 = partial["Tracer"] or partial["Data10"] or 0
+	}
+	
+	if noconv[partial.Type] then return partial, origs end
 	
 	partial.FillerVol = fillerVol
 	partial.ConeAng = coneAng
@@ -58,7 +72,7 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	
 	// TODO: kinetic for ap/aphe
 	
-	print("MuzzleBef", 0, partial.PropMass, partial.PropLength)
+	--print("MuzzleBef", 0, partial.PropMass, partial.PropLength)
 	
 	if round.muzzlevel then
 		partial.MuzzleVel = round.muzzlevel
@@ -68,7 +82,7 @@ function XCF_GenerateMissileInfo( partial, docopy )
 		local startvol = startmass * 1000/ACF.PDensity
 		local burntime = startvol / round.burnrate
 		local acc = (round.thrust / 39.37) / (partial.PropMass + partial.ProjMass)
-		print(startmass, startvol, burntime, acc)
+		--print(startmass, startvol, burntime, acc)
 		partial.MuzzleVel = acc * burntime
 		partial.PropMass = partial.PropMass - startmass
 		partial.PropLength = partial.PropLength - (startvol / partial.FrAera)
@@ -76,7 +90,7 @@ function XCF_GenerateMissileInfo( partial, docopy )
 		partial.MuzzleVel = 0
 	end
 	
-	print("MuzzleVel", partial.MuzzleVel, partial.PropMass, partial.PropLength)
+	--print("MuzzleVel", partial.MuzzleVel, partial.PropMass, partial.PropLength)
 	
 	partial.Mass = partial.PropMass + partial.ProjMass
 	partial.Drift = 10 / partial.Mass ^ 0.5
@@ -88,7 +102,7 @@ function XCF_GenerateMissileInfo( partial, docopy )
 	//print("\nafter conversion:\n")
 	//printByName(partial)
 	
-	return partial
+	return partial, origs
 
 end
 

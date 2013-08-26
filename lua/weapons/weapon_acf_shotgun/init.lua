@@ -17,33 +17,33 @@ function SWEP:Initialize()
 	
 	self.BulletData = {}
 	//*
-	self.BulletData["BoomPower"]		=		0.00636426081984
-	self.BulletData["Caliber"]			=		1.27
-	self.BulletData["DragCoef"]			=		0.0049253804856425
-	self.BulletData["FrAera"]			=		1.26677166
+	self.BulletData["BoomPower"]		=		0.0007369570809216
+	self.BulletData["Caliber"]			=		0.762
+	self.BulletData["DragCoef"]			=		0.0046029919447641
+	self.BulletData["FrAera"]			=		0.4560377976
 	self.BulletData["KETransfert"]		=		0.1
 	self.BulletData["LimitVel"]			=		800
-	self.BulletData["MaxPen"]			=		6.4296214695794
-	self.BulletData["MaxProjLength"]	=		12.66
-	self.BulletData["MaxPropLength"]	=		13.23
-	self.BulletData["MaxTotalLength"]	=		15.8
-	self.BulletData["MinProjLength"]	=		1.905
+	self.BulletData["MaxPen"]			=		2.5937518721554
+	self.BulletData["MaxProjLength"]	=		11.99
+	self.BulletData["MaxPropLength"]	=		10.25
+	self.BulletData["MaxTotalLength"]	=		13
+	self.BulletData["MinProjLength"]	=		1.143
 	self.BulletData["MinPropLength"]	=		0.01
-	self.BulletData["MuzzleVel"]		=		350.86568981831
-	self.BulletData["PenAera"]			=		1.2226258898987
-	self.BulletData["ProjLength"]		=		2.57
-	self.BulletData["ProjMass"]			=		0.02571926501298
-	self.BulletData["ProjVolume"]		=		3.2556031662
-	self.BulletData["PropLength"]		=		0.05
-	self.BulletData["PropMass"]			=		0.0010
+	self.BulletData["MuzzleVel"]		=		395.23048293057
+	self.BulletData["PenAera"]			=		0.51303939370339
+	self.BulletData["ProjLength"]		=		2.75
+	self.BulletData["ProjMass"]			=		0.00990742115286
+	self.BulletData["ProjVolume"]		=		1.2541039434
+	self.BulletData["PropLength"]		=		1.01
+	self.BulletData["PropMass"]			=		0.0007369570809216
 	self.BulletData["Ricochet"]			=		75
-	self.BulletData["RoundVolume"]		=		7.2332661786
+	self.BulletData["RoundVolume"]		=		1.714702118976
 	self.BulletData["ShovePower"]		=		0.2
 	self.BulletData["Tracer"]			=		0
 	self.BulletData["Type"]				=	"AP"
-	self.BulletData["Id"] 				=	"12.7mmMG"
+	self.BulletData["Id"] 				=	"7.62mmMG"
 	self.BulletData["InvalidateTraceback"]			= true
-
+	
 	self:UpdateFakeCrate()
 end
 

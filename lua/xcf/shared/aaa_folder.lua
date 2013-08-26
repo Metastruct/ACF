@@ -16,6 +16,9 @@ include("xcf/shared/xcf_util_sh.lua")
 AddCSLuaFile("xcf/shared/xcf_baseproj_sh.lua")
 include("xcf/shared/xcf_baseproj_sh.lua")
 
+AddCSLuaFile("xcf/shared/xcf_neteffects_sh.lua")
+include("xcf/shared/xcf_neteffects_sh.lua")
+
 AddCSLuaFile("xcf/shared/xcf_missiledefs_shared.lua")
 include("xcf/shared/xcf_missiledefs_shared.lua")
 

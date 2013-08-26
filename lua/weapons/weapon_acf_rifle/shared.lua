@@ -52,7 +52,7 @@ SWEP.ScopeChopAngle = Angle(0, 90, 0)
 SWEP.WeaponBone = "v_weapon.sg550_Parent"
 
 SWEP.MinInaccuracy = 0.25
-SWEP.MaxInaccuracy = 12
+SWEP.MaxInaccuracy = 8
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.12
 SWEP.AccuracyDecay = 0.3
@@ -67,7 +67,7 @@ SWEP.StaminaJumpDrain = 0.1
 SWEP.HasZoom = true
 SWEP.ZoomInaccuracyMod = 0.8
 SWEP.ZoomDecayMod = 1.3
-SWEP.ZoomFOV = 60
+SWEP.ZoomFOV = 45
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"

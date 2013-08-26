@@ -225,7 +225,6 @@ function MakeACF_Ammo(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, 
 	
 	table.insert(ACF.AmmoCrates, Ammo)
 	
-	
 	return Ammo
 end
 list.Set( "ACFCvars", "acf_ammo", {"id", "data1", "data2", "data3", "data4", "data5", "data6", "data7", "data8", "data9", "data10"} )
@@ -348,6 +347,8 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	self:NetworkData( self.BulletData )
 	
 	self:UpdateOverlayText()
+	
+	hook.Call("ACF_AmmoCreate", nil, self)
 	
 end
 

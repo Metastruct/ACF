@@ -10,7 +10,7 @@ if (CLIENT) then
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
 	SWEP.Purpose		= "Make holes in nearby dudes."
-	SWEP.Instructions       = "Reload at 12.7mm MG Ammo-boxes!"
+	SWEP.Instructions       = "Reload at 7.62mm MG Ammo-boxes!"
 
 end
 
@@ -51,8 +51,8 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
-SWEP.MinInaccuracy = 0.5
-SWEP.MaxInaccuracy = 4
+SWEP.MinInaccuracy = 1
+SWEP.MaxInaccuracy = 7
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.15
 SWEP.AccuracyDecay = 0.3

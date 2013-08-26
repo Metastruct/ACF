@@ -31,38 +31,66 @@ fillerdensity["APHE"] = fillerdensity["HE"]
 	Useful for net transportation, serialization etc
 //*/
 function this.GetCompact(rocket)
-	local hasfiller = fillerdensity[rocket.Type]
 	
-	if hasfiller then
-		hasfiller = rocket.FillerVol or rocket.CavVol or rocket.FillerMass / ACF.HEDensity * fillerdensity[rocket.Type]
+	if rocket.origs then
+		local origs = rocket.origs
+		
+		local hasfiller = fillerdensity[rocket.Type]
+	
+		if hasfiller then
+			hasfiller = origs.RoundData5
+		end
+		
+		return
+		{
+			Id 			= origs.RoundId,
+			Type 		= origs.RoundType,
+			PropLength 	= origs.RoundPropellant,
+			ProjLength 	= origs.RoundProjectile,
+			FillerVol 	= hasfiller,
+			ConeAng 	= origs.RoundData6,
+			
+			Pos 	= rocket.Pos,
+			Flight 	= rocket.Flight,
+			Seed 	= rocket.Seed,
+			
+			ProjClass = "Rocket"
+		}
+	else
+	
+		local hasfiller = fillerdensity[rocket.Type]
+	
+		if hasfiller then
+			hasfiller = rocket.FillerVol or rocket.CavVol or rocket.FillerMass / ACF.HEDensity * fillerdensity[rocket.Type]
+		end
+	
+		return
+		{
+			Id			= rocket.Id,
+			Type 		= rocket.Type,
+			PropLength	= rocket.PropLength,
+			ProjLength	= rocket.ProjLength,
+			//TODO: remove this hack when warheads are implemented
+			FillerVol	= hasfiller,
+			ConeAng		= rocket.ConeAng,
+			
+			Pos		= rocket.Pos,
+			Flight	= rocket.Flight,
+			Seed	= rocket.Seed,
+			
+			ProjClass	= "Rocket"
+		}
 	end
-	
-	return
-	{
-		["Id"] 		= rocket.Id,
-		["Type"] 	= rocket.Type,
-		["PropLength"]	= rocket.PropLength,
-		["ProjLength"]	= rocket.ProjLength,
-		//TODO: remove this hack when warheads are implemented
-		["FillerVol"]	= hasfiller,
-		["ConeAng"]		= rocket.ConeAng,
-		
-		["Pos"]			= rocket.Pos,
-		["Flight"]		= rocket.Flight,
-		["Seed"]		= rocket.Seed,
-		
-		["ProjClass"]	= "Rocket"
-	}
 end
 
 
 
 
 function this.GetExpanded(rocket)
-	
+		
 	local toconvert = {}
-	toconvert["Id"] = 			rocket["Id"] or "85mmRK"
-	toconvert["Type"] = 		rocket["Type"] or "AP"
+	toconvert["Id"] = 			rocket["Id"] or "40mmRT"
+	toconvert["Type"] = 		rocket["Type"] or "HE"
 	toconvert["PropLength"] = 	rocket["PropLength"] or 0
 	toconvert["ProjLength"] = 	rocket["ProjLength"] or 0
 	toconvert["Data5"] = 		rocket["FillerVol"] or rocket["Data5"] or 0
@@ -72,7 +100,7 @@ function this.GetExpanded(rocket)
 	toconvert["Data9"] = 		rocket["Data9"] or 0
 	toconvert["Data10"] = 		rocket["Tracer"] or rocket["Data10"] or 0
 
-	local ret = XCF_GenerateMissileInfo( toconvert, true )
+	local ret, origs = XCF_GenerateMissileInfo( toconvert, true )
 	
 	ret.ProjClass = this
 	
@@ -82,6 +110,15 @@ function this.GetExpanded(rocket)
 	
 	local cvarGrav = GetConVar("sv_gravity")
 	ret.Accel = Vector(0,0,cvarGrav:GetInt()*-1)
+	
+	ret.origs = origs
+	
+	--[[
+	print("\n\n\nTOCONV, RET")
+	printByName(toconvert)
+	print("\n\n\n")
+	printByName(ret)
+	--]]--
 	
 	return ret
 

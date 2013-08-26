@@ -930,7 +930,7 @@ function PANEL:PerformLayout()
 		
 		local bulletdata = self:GetAmmoData()
 		
-		if XCF.Debug then printByName(bulletdata) print("\n\n\n") end
+		if XCF.Debug then printByNameTable(bulletdata, "self.BulletData") print("\n\n\n") end
 		
 		if bulletdata then			
 			local func

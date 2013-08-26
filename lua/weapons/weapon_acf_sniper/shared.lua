@@ -10,7 +10,7 @@ if (CLIENT) then
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
 	SWEP.Purpose		= "Make tiny dudes disappear."
-	SWEP.Instructions       = "Reload at 12.7mm MG Ammo-boxes!"
+	SWEP.Instructions       = "Reload at 20mm AC Ammo-boxes!"
 
 end
 

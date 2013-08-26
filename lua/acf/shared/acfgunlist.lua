@@ -1156,7 +1156,7 @@ local RT70mm = // it's a hydra!
 	gunclass	= "RT",
 	weight		= 1600,
 	year		= 1960,
-	rofmod		= 1.25,
+	rofmod		= 0.75,
 	roundclass	= "Rocket",
 	round		= 
 	{

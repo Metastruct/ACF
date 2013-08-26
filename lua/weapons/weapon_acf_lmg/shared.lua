@@ -3,14 +3,14 @@
 
 if (CLIENT) then
 	
-	SWEP.PrintName			= "ACF Assault Rifle"
+	SWEP.PrintName			= "ACF Machine Gun"
 	SWEP.Author				= "Bubbus"
 	SWEP.Slot				= 2
 	SWEP.SlotPos			= 3
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
-	SWEP.Purpose		= "Make dudes disappear slowly."
-	SWEP.Instructions       = "Reload at 12.7mm MG Ammo-boxes!"
+	SWEP.Purpose		= "Make lots of dudes disappear."
+	SWEP.Instructions       = "Reload at 7.62mm MG Ammo-boxes!"
 
 end
 
@@ -22,23 +22,23 @@ SWEP.ViewModelFlip			= false
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
-SWEP.ViewModel 			= "models/weapons/v_rif_galil.mdl";
-SWEP.WorldModel 		= "models/weapons/w_rif_galil.mdl";
+SWEP.ViewModel 			= "models/weapons/v_mach_m249para.mdl";
+SWEP.WorldModel 		= "models/weapons/w_mach_m249para.mdl";
 SWEP.ViewModelFlip		= false
 
 SWEP.Weight				= 5
 SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
-SWEP.Primary.Recoil			= 2
-SWEP.Primary.ClipSize		= 20
-SWEP.Primary.Delay			= 0.11
+SWEP.Primary.Recoil			= 1.5
+SWEP.Primary.ClipSize		= 100
+SWEP.Primary.Delay			= 0.09
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
-SWEP.Primary.Sound 			= "Weapon_Galil.Single"
+SWEP.Primary.Sound 			= "Weapon_Para.Single"
 
-SWEP.ReloadTime				= 3.5
+SWEP.ReloadTime				= 8
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -51,18 +51,18 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
-SWEP.MinInaccuracy = 0.5
-SWEP.MaxInaccuracy = 7
+SWEP.MinInaccuracy = 0.9
+SWEP.MaxInaccuracy = 15
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.2
-SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 2.5
-SWEP.InaccuracyCrouchBonus = 1.3
-SWEP.InaccuracyDuckPenalty = 4
+SWEP.InaccuracyDecay = 0.12
+SWEP.AccuracyDecay = 0.5
+SWEP.InaccuracyPerShot = 2
+SWEP.InaccuracyCrouchBonus = 2.3
+SWEP.InaccuracyDuckPenalty = 10
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.004
-SWEP.StaminaJumpDrain = 0.1
+SWEP.StaminaDrain = 0.014
+SWEP.StaminaJumpDrain = 0.2
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
