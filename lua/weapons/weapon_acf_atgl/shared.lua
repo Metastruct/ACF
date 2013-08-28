@@ -66,7 +66,7 @@ SWEP.StaminaJumpDrain = 0.25
 
 SWEP.HasZoom = true
 SWEP.ZoomInaccuracyMod = 0.5
-SWEP.ZoomDecayMod = 1.3
+SWEP.ZoomDecayMod = 1.2
 SWEP.ZoomFOV = 50
 
 SWEP.Class = "C"
