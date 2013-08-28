@@ -114,10 +114,11 @@ function SWEP:FireBullet()
 	
 	local owner = self.Owner
 	timer.Simple(self.Primary.Delay or 3, function()
-			owner:GetActiveWeapon():SendWeaponAnim(ACT_VM_DRAW)
-			if self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
+			local wep = owner:GetActiveWeapon()
+			wep:SendWeaponAnim(ACT_VM_DRAW)
+			if owner:GetAmmoCount( self.Primary.Ammo ) <= 0 and wep:GetClass() == "weapon_acf_grenade" then
 				self.Weapon:Remove()
-				self.Owner:ConCommand("lastinv")
+				owner:ConCommand("lastinv")
 			end
 		end)
 	

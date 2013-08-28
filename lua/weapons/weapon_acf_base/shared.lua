@@ -93,6 +93,8 @@ end
 SWEP.LastAim = Vector()
 SWEP.LastThink = RealTime()
 SWEP.WasCrouched = false
+
+local STAMINA_RECOVER = 0.001
 function SWEP:Think()
 
 	if self.ThinkBefore then self:ThinkBefore() end
@@ -135,7 +137,7 @@ function SWEP:Think()
 		if self.Owner:KeyDown(IN_SPEED) then
 			self.Stamina = math.Clamp(self.Stamina - self.StaminaDrain, 0, 1)
 		else
-			local recover = (crouching and self.StaminaDrain * self.InaccuracyCrouchBonus or self.StaminaDrain) * 0.33
+			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER)
 			self.Stamina = math.Clamp(self.Stamina + recover, 0, self.MaxStamina)
 		end
 		
