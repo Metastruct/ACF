@@ -50,6 +50,38 @@ end
 
 
 
+function SWEP:ZoomThink()
+	local zoomed = self:GetNetworkedBool("Zoomed")
+	//Msg(zoomed)
+	if zoomed != self.Zoomed then
+		//print(zoomed, "has changed!!11")
+		self.Zoomed = zoomed
+		
+		if self.Zoomed then
+			self.cachedmin = self.cachedmin or self.MinInaccuracy
+			self.cacheddecayin = self.cacheddecayin or self.InaccuracyDecay
+			self.cacheddecayac = self.cacheddecayac or self.AccuracyDecay
+			
+			self.MinInaccuracy = self.MinInaccuracy * self.ZoomInaccuracyMod
+			self.InaccuracyDecay = self.InaccuracyDecay * self.ZoomDecayMod
+			self.AccuracyDecay = self.AccuracyDecay * self.ZoomDecayMod
+		else			
+			if self.cachedmin then
+				self.MinInaccuracy = self.cachedmin
+				self.InaccuracyDecay = self.cacheddecayin
+				self.AccuracyDecay = self.cacheddecayac
+				
+				self.cachedmin = nil
+				self.cacheddecayin = nil
+				self.cacheddecayac = nil
+			end
+		end
+		
+	end
+end
+
+
+
 function SWEP:AdjustMouseSensitivity()
 	if not self.defaultFOV then self.defaultFOV = self.Owner:GetFOV() end
 
@@ -63,7 +95,7 @@ end
 
 
 function SWEP:DrawScope()
-	if not self.Zoomed then return end
+	if not (self.Zoomed and self.HasScope) then return false end
 	
 	local scrw = ScrW()
 	local scrw2 = ScrW() / 2
@@ -96,7 +128,7 @@ function SWEP:DrawScope()
 	surface.DrawRect(0, 0, rectsides + 2, scrh)
 	surface.DrawRect(scrw - rectsides - 2, 0, rectsides + 4, scrh)
 	
-	return false
+	return true
 end
 
 
@@ -188,15 +220,13 @@ function SWEP:DrawHUD()
 
 	if not (self.Owner:Alive() or self.Owner:InVehicle()) then return end
 
-	local drawcircle = true
-	
-	if self.DrawScope and self.Zoomed then
-		drawcircle = self:DrawScope()
-	end
+	local drawcircle = not self:DrawScope()
 	
 	if drawcircle then
 		local scrpos = self.Owner:GetEyeTrace().HitPos:ToScreen()
-		surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / self.Owner:GetFOV() , HSVToColor( self.Stamina * 120, 1, 1 ) )
+		local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )
+		local circlehue = self.Stamina * 120
+		surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / self.Owner:GetFOV() , HSVToColor( self.Stamina * 120, 1, isReloading and 0 or 1 ) )
 	end
 	
 	//SetupScopeChop(self)

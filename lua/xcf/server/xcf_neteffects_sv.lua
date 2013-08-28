@@ -64,7 +64,7 @@ end
 
 
 local function ammoHook(ammo)
-	
+	if XCF.Debug then printByNameTable(ammo.BulletData, "self.BulletData") end
 	local uid  = generateAmmoUID(ammo)
 	--print("Got UID", uid)
 	--[[

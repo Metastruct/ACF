@@ -32,9 +32,9 @@ SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Recoil			= 2
 SWEP.Primary.ClipSize		= 8
-SWEP.Primary.Delay			= 0.2
+SWEP.Primary.Delay			= 0.1
 SWEP.Primary.DefaultClip	= 100
-SWEP.Primary.Automatic		= true
+SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "XBowBolt"
 SWEP.Primary.Sound 			= "Weapon_Deagle.Single"
 
@@ -51,18 +51,23 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
-SWEP.MinInaccuracy = 1.2
-SWEP.MaxInaccuracy = 7
+SWEP.MinInaccuracy = 1
+SWEP.MaxInaccuracy = 5
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.12
+SWEP.InaccuracyDecay = 0.1
 SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 4
+SWEP.InaccuracyPerShot = 3
 SWEP.InaccuracyCrouchBonus = 1.2
 SWEP.InaccuracyDuckPenalty = 2
 
 SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004
-SWEP.StaminaJumpDrain = 0.1
+SWEP.StaminaJumpDrain = 0.06
+
+SWEP.HasZoom = true
+SWEP.ZoomInaccuracyMod = 0.6
+SWEP.ZoomDecayMod = 1.3
+SWEP.ZoomFOV = 70
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"

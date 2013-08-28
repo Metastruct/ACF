@@ -65,9 +65,10 @@ SWEP.StaminaDrain = 0.004
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true
-SWEP.ZoomInaccuracyMod = 0.8
+SWEP.HasScope = true
+SWEP.ZoomInaccuracyMod = 0.3
 SWEP.ZoomDecayMod = 1.3
-SWEP.ZoomFOV = 45
+SWEP.ZoomFOV = 30
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"

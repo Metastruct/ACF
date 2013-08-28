@@ -6,6 +6,6 @@ ENT.Purpose		 	= "Because bullets aren't cool enough."
 ENT.Instructions 	= "Point towards face for removal of face.  Point away from face for instant fake tan (then removal of face)."
 ENT.Category 		= "XCF"
 
-ENT.Spawnable 		= true
+ENT.Spawnable 		= false
 ENT.AdminOnly		= false
 ENT.AdminSpawnable = false

@@ -66,6 +66,8 @@ SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004
 SWEP.StaminaJumpDrain = 0.1
 
+SWEP.HasScope = false
+
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
@@ -87,6 +89,7 @@ end
 
 
 
+
 SWEP.LastAim = Vector()
 SWEP.LastThink = RealTime()
 SWEP.WasCrouched = false
@@ -97,33 +100,7 @@ function SWEP:Think()
 	local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )	
 	
 	if CLIENT then
-		local zoomed = self:GetNetworkedBool("Zoomed")
-		//Msg(zoomed)
-		if zoomed != self.Zoomed then
-			//print(zoomed, "has changed!!11")
-			self.Zoomed = zoomed
-			
-			if self.Zoomed then
-				self.cachedmin = self.cachedmin or self.MinInaccuracy
-				self.cacheddecayin = self.cacheddecayin or self.InaccuracyDecay
-				self.cacheddecayac = self.cacheddecayac or self.AccuracyDecay
-				
-				self.MinInaccuracy = self.MinInaccuracy * self.ZoomInaccuracyMod
-				self.InaccuracyDecay = self.InaccuracyDecay * self.ZoomDecayMod
-				self.AccuracyDecay = self.AccuracyDecay * self.ZoomDecayMod
-			else			
-				if self.cachedmin then
-					self.MinInaccuracy = self.cachedmin
-					self.InaccuracyDecay = self.cacheddecayin
-					self.AccuracyDecay = self.cacheddecayac
-					
-					self.cachedmin = nil
-					self.cacheddecayin = nil
-					self.cacheddecayac = nil
-				end
-			end
-			
-		end
+		self:ZoomThink()
 	end
 	
 	
@@ -229,11 +206,17 @@ function SWEP:CanPrimaryAttack()
 	if self.Weapon:GetNetworkedBool( "reloading", false ) then return false end
 
 	//if CurTime() > self.Weapon:GetNextPrimaryFire() then return end
-	
-	if self.Weapon:Clip1() <= 0 then
-		self.Weapon:EmitSound( "Weapon_Pistol.Empty", 100, math.random(90,120) )
-		return false
+	if self.Primary.ClipSize < 0 then
+		local ammoct = self.Owner:GetAmmoCount( self.Primary.Ammo )
+		if ammoct <= 0 then return false end
+	else
+		local clip = self.Weapon:Clip1()
+		if clip <= 0 then
+			self.Weapon:EmitSound( "Weapon_Pistol.Empty", 100, math.random(90,120) )
+			return false
+		end
 	end
+	
 	return true
 end
 
@@ -251,16 +234,23 @@ function SWEP:PrimaryAttack()
 			self.Weapon:EmitSound( self.Primary.Sound )
 			
 			self:FireBullet()
-			
-			local rnda = self.Primary.Recoil * -1 
-			local rndb = self.Primary.Recoil * math.random(-1, 1) 
-			self.Owner:ViewPunch( Angle( rnda,rndb,rnda/4 ) ) 
 		end
+		self:VisRecoil()
 		
 		self.Inaccuracy = math.Clamp(self.Inaccuracy + self.InaccuracyPerShot, self.MinInaccuracy, self.MaxInaccuracy)
 	end
 	
 	self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
+end
+
+
+
+function SWEP:VisRecoil()
+	if SERVER then
+		local rnda = self.Primary.Recoil * -1 
+		local rndb = self.Primary.Recoil * math.random(-1, 1) 
+		self.Owner:ViewPunch( Angle( rnda,rndb,rnda/4 ) ) 
+	end
 end
 
 

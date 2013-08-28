@@ -17,31 +17,24 @@ function SWEP:Initialize()
 	
 	self.BulletData = {}
 	//*
-	self.BulletData["BoomPower"]		=		0.0007369570809216
-	self.BulletData["Caliber"]			=		0.762
-	self.BulletData["DragCoef"]			=		0.0046029919447641
-	self.BulletData["FrAera"]			=		0.4560377976
-	self.BulletData["KETransfert"]		=		0.1
-	self.BulletData["LimitVel"]			=		800
-	self.BulletData["MaxPen"]			=		2.5937518721554
-	self.BulletData["MaxProjLength"]	=		11.99
-	self.BulletData["MaxPropLength"]	=		10.25
-	self.BulletData["MaxTotalLength"]	=		13
-	self.BulletData["MinProjLength"]	=		1.143
-	self.BulletData["MinPropLength"]	=		0.01
-	self.BulletData["MuzzleVel"]		=		395.23048293057
-	self.BulletData["PenAera"]			=		0.51303939370339
-	self.BulletData["ProjLength"]		=		2.75
-	self.BulletData["ProjMass"]			=		0.00990742115286
-	self.BulletData["ProjVolume"]		=		1.2541039434
-	self.BulletData["PropLength"]		=		1.01
-	self.BulletData["PropMass"]			=		0.0007369570809216
-	self.BulletData["Ricochet"]			=		75
-	self.BulletData["RoundVolume"]		=		1.714702118976
-	self.BulletData["ShovePower"]		=		0.2
-	self.BulletData["Tracer"]			=		0
-	self.BulletData["Type"]				=	"AP"
-	self.BulletData["Id"] 				=	"7.62mmMG"
+	self.BulletData["BoomPower"]			= 0.00054724535712
+	self.BulletData["Caliber"]			= 0.762
+	self.BulletData["DragCoef"]			= 0.0024820055068243
+	self.BulletData["FrAera"]			= 0.4560377976
+	self.BulletData["Id"]			= "7.62mmMG"
+	self.BulletData["KETransfert"]			= 0.1
+	self.BulletData["LimitVel"]			= 800
+	self.BulletData["MuzzleVel"]			= 250.09306022354
+	self.BulletData["PenAera"]			= 0.51303939370339
+	self.BulletData["ProjLength"]			= 5.0999999046326
+	self.BulletData["ProjMass"]			= 0.018373762521724
+	self.BulletData["PropLength"]			= 0.75
+	self.BulletData["PropMass"]			= 0.00054724535712
+	self.BulletData["Ricochet"]			= 75
+	self.BulletData["RoundVolume"]			= 2.6678210724688
+	self.BulletData["ShovePower"]			= 0.2
+	self.BulletData["Tracer"]			= 0
+	self.BulletData["Type"]			= "AP"
 	self.BulletData["InvalidateTraceback"]			= true
 	
 	self:UpdateFakeCrate()

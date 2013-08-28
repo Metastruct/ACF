@@ -56,13 +56,18 @@ SWEP.MaxInaccuracy = 12
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.07
 SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 7
-SWEP.InaccuracyCrouchBonus = 1.7
-SWEP.InaccuracyDuckPenalty = 4
+SWEP.InaccuracyPerShot = 11
+SWEP.InaccuracyCrouchBonus = 1.4
+SWEP.InaccuracyDuckPenalty = 5
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.006
-SWEP.StaminaJumpDrain = 0.1
+SWEP.StaminaDrain = 0.02
+SWEP.StaminaJumpDrain = 0.25
+
+SWEP.HasZoom = true
+SWEP.ZoomInaccuracyMod = 0.5
+SWEP.ZoomDecayMod = 1.3
+SWEP.ZoomFOV = 50
 
 SWEP.Class = "C"
 SWEP.FlashClass = "AC"

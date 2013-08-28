@@ -16,79 +16,47 @@ function SWEP:Initialize()
 	
 	self.BulletData = {}
 	//* rpg
-	self.BulletData["BlastRadius"]			= 53.542728888373
-	self.BulletData["BoomPower"]			= 2.9305305970856
+	self.BulletData["BlastRadius"]		= 62.993062685473
+	self.BulletData["BoomPower"]		= 3.2137624637998
 	self.BulletData["Caliber"]			= 8.5
-	self.BulletData["CasingMass"]			= 0.29570050752128
-	self.BulletData["ConeAng"]			= 60
-	self.BulletData["Cutout"]			= 0.35416583847288
-	self.BulletData["Detonated"]			= false
-	self.BulletData["DragCoef"]			= 0.0037179919757052
-	self.BulletData["Drift"]			= 5.567397921999
-	self.BulletData["FillerMass"]			= 1.2305305970856
-	self.BulletData["FillerVol"]			= 50000
+	self.BulletData["CasingMass"]		= 0.67222584406616
+	self.BulletData["Cutout"]			= 0.56249868463339
+	self.BulletData["Data10"]			= 0
+	self.BulletData["Data5"]			= 1769.6700439453
+	self.BulletData["Data6"]			= 54.020000457764
+	self.BulletData["Data7"]			= 0
+	self.BulletData["Data8"]			= 0
+	self.BulletData["Data9"]			= 0
+	self.BulletData["Detonated"]		= false
+	self.BulletData["DragCoef"]			= 0.0021126357785632
+	self.BulletData["Drift"]			= 5.2807494854827
+	self.BulletData["FillerMass"]		= 2.0137624637998
 	self.BulletData["FrAera"]			= 56.74515
-	self.BulletData["Id"]			= "85mmRT"
-	self.BulletData["KETransfert"]			= 0.1
+	self.BulletData["Id"]				= "85mmRT"
+	self.BulletData["KETransfert"]		= 0.1
 	self.BulletData["LimitVel"]			= 100
-	self.BulletData["Mass"]			= 3.2262311046069
-	self.BulletData["Motor"]			= 24406.187110267
-	self.BulletData["MuzzleVel"]			= 114
+	self.BulletData["Mass"]				= 3.585988307866
+	self.BulletData["Motor"]			= 14821.437059182
+	self.BulletData["MuzzleVel"]		= 65.137869686233
 	self.BulletData["PenAera"]			= 30.962743577239
-	self.BulletData["ProjLength"]			= 21
-	self.BulletData["ProjMass"]			= 1.5262311046069
-	self.BulletData["PropLength"]			= 18.724067166974
-	self.BulletData["PropMass"]			= 1.7
+	self.BulletData["ProjLength"]		= 47.740001678467
+	self.BulletData["ProjMass"]			= 2.685988307866
+	self.BulletData["PropLength"]		= 9.912741441339
+	self.BulletData["PropMass"]			= 0.9
 	self.BulletData["Ricochet"]			= 60
-	self.BulletData["RoundVolume"]			= 2254.14815
-	self.BulletData["ShovePower"]			= 0.1
-	self.BulletData["SlugCaliber"]			= 1.9165880508742
-	self.BulletData["SlugDragCoef"]			= 0.0018928390741967
-	self.BulletData["SlugMV"]			= 1057.3584926577
-	self.BulletData["SlugMass"]			= 0.1524174729
-	self.BulletData["SlugPenAera"]			= 2.4610825543958
-	self.BulletData["SlugRicochet"]			= 500
+	self.BulletData["RoundVolume"]		= 3459.0135562449
+	self.BulletData["ShovePower"]		= 0.1
+	self.BulletData["SlugCaliber"]		= 1.8552783742132
+	self.BulletData["SlugDragCoef"]		= 0.0020840793410166
+	self.BulletData["SlugMV"]			= 1984.7472976276
+	self.BulletData["SlugMass"]			= 0.1297163778223
+	self.BulletData["SlugPenAera"]		= 2.3287491121616
+	self.BulletData["SlugRicochet"]		= 500
 	self.BulletData["Tracer"]			= 0
-	self.BulletData["Type"]			= "HEAT"
+	self.BulletData["Type"]				= "HEAT"
 	self.BulletData["InvalidateTraceback"]			= true
 	//*/
-	
-	/* dumbfire
-	self.BulletData["BlastRadius"]			= 155.65293089663
-	self.BulletData["BoomPower"]			= 42.120393621566
-	self.BulletData["Caliber"]			= 17
-	self.BulletData["CasingMass"]			= 7.6978450405652
-	self.BulletData["ConeAng"]			= 60
-	self.BulletData["Cutout"]			= 2.7237608306624
-	self.BulletData["Detonated"]			= false
-	self.BulletData["DragCoef"]			= 0.00058315034670604
-	self.BulletData["Drift"]			= 1.4167910854076
-	self.BulletData["FillerMass"]			= 31.225324821566
-	self.BulletData["FillerVol"]			= 50000
-	self.BulletData["FrAera"]			= 226.9806
-	self.BulletData["Id"]			= "170mmRK"
-	self.BulletData["KETransfert"]			= 0.1
-	self.BulletData["LimitVel"]			= 100
-	self.BulletData["Mass"]			= 49.818238662132
-	self.BulletData["Motor"]			= 2370.8184627125
-	self.BulletData["MuzzleVel"]			= 393.7
-	self.BulletData["PenAera"]			= 100.5982506735
-	self.BulletData["ProjLength"]			= 110
-	self.BulletData["ProjMass"]			= 38.923169862132
-	self.BulletData["PropLength"]			= 30
-	self.BulletData["PropMass"]			= 10.8950688
-	self.BulletData["Ricochet"]			= 60
-	self.BulletData["RoundVolume"]			= 31777.284
-	self.BulletData["ShovePower"]			= 0.1
-	self.BulletData["SlugCaliber"]			= 3.8331761017484
-	self.BulletData["SlugDragCoef"]			= 0.00094641953709837
-	self.BulletData["SlugMV"]			= 2455.7784689146
-	self.BulletData["SlugMass"]			= 1.2193397832
-	self.BulletData["SlugPenAera"]			= 7.9960808097539
-	self.BulletData["SlugRicochet"]			= 500
-	self.BulletData["Tracer"]			= 0
-	self.BulletData["Type"]			= "HEAT"
-	//*/
+
 	
 	self.BulletData["Crate"] = -1	
 	self:UpdateFakeCrate()
@@ -144,7 +112,7 @@ function SWEP:GrabRocketFromCrate(crate)
 	local ammotbl = ACF.Weapons.Guns[ammotype]
 	
 	if not ammotbl then return false end
-	if ammotbl.gunclass ~= "RK" or ammotype ~= "85mmRK" then
+	if ammotbl.gunclass ~= "RT" or ammotype ~= "85mmRT" then
 		self.Owner:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "You can only reload this weapon with 85mm RPG Rounds!", "NOTIFY_GENERIC" ) )
 		return false
 	end

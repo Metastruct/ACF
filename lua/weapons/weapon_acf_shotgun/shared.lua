@@ -54,10 +54,10 @@ SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 SWEP.MinInaccuracy = 1
 SWEP.MaxInaccuracy = 7
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.15
+SWEP.InaccuracyDecay = 0.12
 SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 2
-SWEP.InaccuracyCrouchBonus = 2
+SWEP.InaccuracyPerShot = 6
+SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 1
 
 SWEP.ShotSpread = 3
@@ -65,6 +65,11 @@ SWEP.ShotSpread = 3
 SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004
 SWEP.StaminaJumpDrain = 0.1
+
+SWEP.HasZoom = true
+SWEP.ZoomInaccuracyMod = 0.6
+SWEP.ZoomDecayMod = 1.3
+SWEP.ZoomFOV = 65
 
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"

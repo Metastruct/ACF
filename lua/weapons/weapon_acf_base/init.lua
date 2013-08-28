@@ -87,13 +87,15 @@ function SWEP:FireBullet()
 	self.BulletData["Owner"] = self.Owner
 	self.BulletData["Gun"] = self
 	
+	if self.BeforeFire then
+		self:BeforeFire()
+	end
+	
 	XCF_CreateBulletSWEP(self.BulletData, self)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
 	
 	self.Owner:LagCompensation( false )
-	
-	//debugoverlay.Line(MuzzlePos, MuzzlePos + MuzzleVecFinal * 10000, 60, Color(200, 200, 255, 255),  true)
 	
 end
 
