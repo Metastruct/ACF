@@ -61,7 +61,7 @@ function SWEP:FireBullet()
 	for i=1, 8 do
 		self.BulletData["Flight"] = self:inaccuracy(MuzzleVecFinal, self.ShotSpread) * self.BulletData["MuzzleVel"] * 39.37 + plyvel
 			
-		XCF_CreateBulletSWEP(self.BulletData, self)
+		XCF_CreateBulletSWEP(self.BulletData, self, true)
 	end
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )

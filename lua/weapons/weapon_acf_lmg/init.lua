@@ -49,7 +49,7 @@ end
 
 
 
-local LOW_AMMO_COL = Color(150, 150, 0)
+local LOW_AMMO_COL = Color(255, 100, 0)
 function SWEP:BeforeFire()
 	local clip1 = self:Clip1()
 	if clip1 <= 10 then

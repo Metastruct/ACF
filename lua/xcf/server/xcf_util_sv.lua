@@ -39,11 +39,11 @@ end
 
 
 
-function XCF_CreateBulletSWEP( BulletData, Swep )
+function XCF_CreateBulletSWEP( BulletData, Swep, LagComp )
 
 	if not IsValid(Swep) then error("Tried to create swep round with no swep or owner!") return end
 	
-	local owner = Swep:IsPlayer() and Swep or Swep.Owner or BulletData.Owner or error("Tried to create swep round with unowned swep!")
+	local owner = Swep:IsPlayer() and Swep or Swep.Owner or BulletData.Owner or Ply or error("Tried to create swep round with unowned swep!")
 
 	BulletData = table.Copy(BulletData)
 	BulletData.TraceBackComp = owner:GetVelocity():Dot(BulletData.Flight:GetNormalized())
@@ -54,7 +54,17 @@ function XCF_CreateBulletSWEP( BulletData, Swep )
 	BulletData.Filter[#BulletData.Filter + 1] = owner
 	
 	local BulletData = XCF.Ballistics.Launch(BulletData)
+	if LagComp then
+		BulletData.LastThink = SysTime() - owner:Ping() / 1000
+		XCF.Ballistics.CalcFlight( BulletData.Index, BulletData )
+	end
 	
 	return BulletData
 	
 end
+
+
+CreateConVar( "xcf_smokewind", 20 + math.random()*60, {FCVAR_REPLICATED}, 
+		"Set the wind intensity upon all smoke munitions." ..
+		"\n   This affects the ability of smoke to be used for screening effect." ..
+		"\n   Example; xcf_smokewind 300" )

@@ -93,7 +93,7 @@ function SWEP:FireBullet()
 	self.BulletData["Gun"] = self
 	self.BulletData.ProjClass = XCF.ProjClasses.Rocket or error("Could not find the Rocket projectile type!")
 	
-	XCF_CreateBulletSWEP(self.BulletData, self)
+	XCF_CreateBulletSWEP(self.BulletData, self, true)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
 	

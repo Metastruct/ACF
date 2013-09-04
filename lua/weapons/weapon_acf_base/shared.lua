@@ -91,7 +91,7 @@ end
 
 
 SWEP.LastAim = Vector()
-SWEP.LastThink = RealTime()
+SWEP.LastThink = CurTime()
 SWEP.WasCrouched = false
 
 local STAMINA_RECOVER = 0.001
@@ -106,7 +106,7 @@ function SWEP:Think()
 	end
 	
 	
-	local timediff = RealTime() - self.LastThink
+	local timediff = CurTime() - self.LastThink
 	
 	//print(self.Owner:GetVelocity():Length())
 	
@@ -159,7 +159,8 @@ function SWEP:Think()
 		//print("inacc", self.Inaccuracy)
 		
 		self.LastAim = aim
-		self.LastThink = RealTime()
+		XCFDBG_ThinkTime = CurTime() - self.LastThink
+		self.LastThink = CurTime()
 		self.WasCrouched = self.Owner:Crouching()
 	
 		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
@@ -279,7 +280,7 @@ function SWEP:Reload()
 	if self:Clip1() < self.Primary.ClipSize and self.Owner:GetAmmoCount( self.Primary.Ammo ) > 0 then
 		if SERVER then
 			self.Weapon:SetNetworkedBool( "reloading", true )
-			//self.Weapon:SetVar( "reloadtimer", RealTime() + self.ReloadTime )
+			//self.Weapon:SetVar( "reloadtimer", CurTime() + self.ReloadTime )
 			timer.Simple(self.ReloadTime, function() self.Weapon:SetNetworkedBool( "reloading", false ) end)
 			self.Weapon:SetNextPrimaryFire(CurTime() + self.ReloadTime)
 			self.Owner:DoReloadEvent()
