@@ -35,6 +35,7 @@ function SWEP:Initialize()
 	self.BulletData["ShovePower"]	= 0.1
 	self.BulletData["Tracer"]		= 0
 	self.BulletData["Type"]			= "SM"
+	--self.BulletData["Colour"]		= Color(100, 200, 255)
 	
 	self:UpdateFakeCrate()
 end

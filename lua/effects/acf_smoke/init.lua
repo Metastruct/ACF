@@ -1,4 +1,5 @@
 
+
    
  /*--------------------------------------------------------- 
     Initializes the effect. The data is a table of data  
@@ -8,7 +9,9 @@ function EFFECT:Init( data )
 	
 	self.Origin = data:GetOrigin()
 	self.DirVec = data:GetNormal()
-	self.Radius = math.max(data:GetRadius()/50,1)
+	self.Colour = data:GetStart()
+	self.Radius = math.max(data:GetRadius())
+	--print(self.Radius)
 	self.Emitter = ParticleEmitter( self.Origin )
 	
 	local ImpactTr = { }
@@ -19,14 +22,19 @@ function EFFECT:Init( data )
 	
 	local GroundTr = { }
 		GroundTr.start = self.Origin + Vector(0,0,1)
-		GroundTr.endpos = self.Origin - Vector(0,0,1)*self.Radius*20
+		GroundTr.endpos = self.Origin - Vector(0,0,1)*self.Radius
 		GroundTr.mask = 131083
 	local Ground = util.TraceLine(GroundTr)				
 	
-	local SmokeColor = Vector(255,255,255)
-	if Ground.HitWorld then
-		self:Shockwave( Ground, SmokeColor )
+	local SmokeColor = self.Colour or Vector(255,255,255)
+	--local SmokeColor = Vector(255,255,255)
+	if not Ground.HitWorld then
+		Ground.HitNormal = Vector(0, 0, 1)
 	end
+	
+	self:Shockwave( Ground, SmokeColor )
+	
+	self.Colour = nil
 
  end   
  
@@ -61,29 +69,35 @@ end
 function EFFECT:Shockwave( Ground, SmokeColor )
 
 	local Mat = Ground.MatType
-	local Radius = (1-Ground.Fraction)*self.Radius
-	local Density = 7*Radius
-	local Angle = Ground.HitNormal:Angle()
+	local Radius = self.Radius
+	local Density = Radius/20
+	--print(Density, SmokeColor)
+	local Angle
+	local wind = GetConVarNumber( "xcf_smokewind" ) or 0
 	for i=0, Density do	
 		
-		Angle:RotateAroundAxis(Angle:Forward(), (360/Density))
-		local ShootVector = Angle:Up()
+		local ShootVector = Angle and Angle:Up() or Ground.HitNormal * 0.5
 		local Smoke = self.Emitter:Add( "particle/smokesprites_000"..math.random(1,9), Ground.HitPos )
 		if (Smoke) then
-			Smoke:SetVelocity( ShootVector * math.Rand(5,200*Radius) )
+			--Smoke:SetPos(Ground.HitPos + Vector(math.random(), math.random(), math.random()) * Radius / 3)
+			Smoke:SetVelocity( (ShootVector + Vector(0, 0, 0.2)) * Radius * 0.6 ) --+ Vector(math.random(), math.random(), math.abs(math.random()))
 			Smoke:SetLifeTime( 0 )
-			Smoke:SetDieTime( math.Rand( 20 , 20 )*Radius /3 )
-			Smoke:SetStartAlpha( math.Rand( 10, 30 ) )
+			Smoke:SetDieTime( math.Clamp(Radius/5, 30, 60) )
+			Smoke:SetStartAlpha( math.Rand( 200, 255 ) )
 			Smoke:SetEndAlpha( 0 )
-			Smoke:SetStartSize( 200*Radius )
-			Smoke:SetEndSize( 500*Radius )
+			Smoke:SetStartSize( Angle and Radius/2 or math.Clamp(Radius/6, 50, 1000) )
+			Smoke:SetEndSize( math.Clamp(Radius, 1000, 4000) )
 			Smoke:SetRoll( math.Rand(0, 360) )
 			Smoke:SetRollDelta( math.Rand(-0.2, 0.2) )			
-			Smoke:SetAirResistance( 200 ) 			 
-			Smoke:SetGravity( Vector( math.Rand( -20 , 20 ), math.Rand( -20 , 20 ), math.Rand( 10 , 100 ) ) )			
+			Smoke:SetAirResistance( 60 ) 			 
+			Smoke:SetGravity( Vector( math.Rand( -10 , 10 ) + wind * 0.5 + (wind * 0.5 * i/Density), math.Rand( -10 , 10 ), math.Rand( 7 , 20 ) ) )			
 			Smoke:SetColor( SmokeColor.x,SmokeColor.y,SmokeColor.z )
 		end	
-	
+		if Angle then 
+			Angle:RotateAroundAxis(Angle:Forward(), (360/Density))
+		else
+			Angle = Ground.HitNormal:Angle()
+		end
 	end
 
 end

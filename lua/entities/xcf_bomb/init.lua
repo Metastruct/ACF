@@ -24,6 +24,7 @@ end
 
 function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )
 	local HitRes = ACF_PropDamage( Entity , Energy , FrAera , Angle , Inflictor )	--Calling the standard damage prop function
+	if self.Detonated then return HitRes end
 	
 	local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
 	if CanDo == false then return HitRes end
@@ -40,7 +41,7 @@ function MakeXCF_Bomb(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, 
 
 	if not Owner:CheckLimit("_xcf_bomb") then return false end
 	
-	print(Id, Data1, Data2)
+	--print(Id, Data1, Data2)
 	local weapon = ACF.Weapons.Guns[Data1]
 	if not (weapon and weapon.roundclass and weapon.roundclass == "Bomb") then
 		return false, "Can't make a bomb with non-bomb round-data!"
@@ -155,7 +156,7 @@ end
 function ENT:Detonate()
 	
 	--print("boom2!")
-	
+	self.Detonated = true
 	self.Entity:Remove()
 	
 	--print(self.BulletData.Type, ACF.RoundTypes[self.BulletData.Type]["endflight"])
