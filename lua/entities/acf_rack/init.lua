@@ -31,6 +31,9 @@ function ENT:Initialize()
 	self.BulletData = {}
 		self.BulletData["Type"] = "Empty"
 		self.BulletData["FillerMass"] = 0
+		self.BulletData["ConeAng"] = 0
+		self.BulletData["PropLength"] = 0
+		self.BulletData["ProjLength"] = 0
 		self.BulletData["PropMass"] = 0
 		self.BulletData["ProjMass"] = 0
 	
@@ -42,6 +45,9 @@ function ENT:Initialize()
 	Wire_TriggerOutput(self, "Entity", self)
 	Wire_TriggerOutput(self, "Ready", 1)
 	self.WireDebugName = "ACF Rack"
+	
+	self.lastCol = self:GetColor() or Color(255, 255, 255)
+	self.nextColCheck = CurTime() + 2
 end
 
 
@@ -237,6 +243,15 @@ end
 
 function ENT:Think()
 
+	local color = self:GetColor()
+	local lastCol = self.lastCol
+	if (CurTime() > self.nextColCheck) and (color.r ~= lastCol.r or color.g ~= lastCol.g or color.b ~= lastCol.b or color.a ~= lastCol.a) then
+		self.nextColCheck = CurTime() + 2
+		self.lastCol = color
+		MakeACF_Rack(self.Owner, self:GetPos(), self:GetAngles(), self.BulletData.Id, self)
+	end
+
+
 	local Time = CurTime()
 	if self.LastSend+1 <= Time then
 		local Ammo = self.MagSize - self.CurrentShot
@@ -380,6 +395,7 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	if UpdateBullet then
 		Rack.BulletData = table.Copy(UpdateBullet)
 	end
+	Rack.BulletData.Colour = Rack:GetColor()
 	
 	local phys = Rack:GetPhysicsObject()  	
 	if (phys:IsValid()) then 
@@ -391,6 +407,27 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 		Rack.ReloadTime = ( ( volume / 500 ) ^ 0.60 ) * Rack.RoFmod * Rack.PGRoFmod
 		Rack.RateOfFire = 60 / Rack.ReloadTime
 	end
+	
+	local bdata = Rack.BulletData
+	bdata = bdata.ProjClass and (bdata.ProjClass.GetCompact(bdata)) or bdata
+	
+	print("--", "rack bdata")
+	printByName(bdata)
+	print("--", "end rack bdata")
+	
+		--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
+	Rack.RoundId = bdata.Id		--Weapon this round loads into, ie 140mmC, 105mmH ...
+	Rack.RoundType = bdata.Type		--Type of round, IE AP, HE, HEAT ...
+	Rack.RoundPropellant = bdata.PropLength or 0--Lenght of propellant
+	Rack.RoundProjectile = bdata.ProjLength or 0--Lenght of the projectile
+	Rack.RoundData5 = ( bdata.FillerVol or bdata.Data5 or 0 )
+	Rack.RoundData6 = ( bdata.ConeAng or bdata.Data6 or 0 )
+	Rack.RoundData7 = ( bdata.Data7 or 0 )
+	Rack.RoundData8 = ( bdata.Data8 or 0 )
+	Rack.RoundData9 = ( bdata.Data9 or 0 )
+	Rack.RoundData10 = ( bdata.Tracer or bdata.Data10 or 0 )
+	
+	hook.Call("ACF_RackCreate", nil, Rack)
 	
 	return Rack
 	

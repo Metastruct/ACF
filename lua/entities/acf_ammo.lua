@@ -116,6 +116,9 @@ function ENT:Initialize()
 	self.NextThink = CurTime() +  1
 	
 	ACF.AmmoCrates = ACF.AmmoCrates or {}
+	self.lastCol = self:GetColor() or Color(255, 255, 255)
+	self:SetNetworkedVector("TracerColour", Vector( self.lastCol.r, self.lastCol.g, self.lastCol.b ) )
+	self.nextColCheck = CurTime() + 2
 	
 end
 
@@ -295,45 +298,57 @@ function ENT:UpdateOverlayText()
 end
 
 function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10)
-
-	--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
-	self.RoundId = Data1		--Weapon this round loads into, ie 140mmC, 105mmH ...
-	self.RoundType = Data2		--Type of round, IE AP, HE, HEAT ...
-	self.RoundPropellant = Data3--Lenght of propellant
-	self.RoundProjectile = Data4--Lenght of the projectile
-	self.RoundData5 = ( Data5 or 0 )
-	self.RoundData6 = ( Data6 or 0 )
-	self.RoundData7 = ( Data7 or 0 )
-	self.RoundData8 = ( Data8 or 0 )
-	self.RoundData9 = ( Data9 or 0 )
-	self.RoundData10 = ( Data10 or 0 )
 	
-	local PlayerData = {}
-		PlayerData.Id = self.RoundId
-		PlayerData.Type = self.RoundType
-		PlayerData.PropLength = self.RoundPropellant
-		PlayerData.ProjLength = self.RoundProjectile
-		PlayerData.Data5 = self.RoundData5
-		PlayerData.Data6 = self.RoundData6
-		PlayerData.Data7 = self.RoundData7
-		PlayerData.Data8 = self.RoundData8
-		PlayerData.Data9 = self.RoundData9
-		PlayerData.Data10 = self.RoundData10
+	local PlayerData = {
+		Id 			= Data1,
+		Type 		= Data2,
+		PropLength	= Data3,
+		ProjLength	= Data4,
+		Data5		= Data5,
+		Data6		= Data6,
+		Data7		= Data7,
+		Data8		= Data8,
+		Data9		= Data9,
+		Data10		= Data10
+	}
 	
 	
 	local guntable = ACF.Weapons.Guns
-	local gun = guntable[self.RoundId] or {}
+	local gun = guntable[PlayerData.Id] or {}
 	local roundclass = XCF.ProjClasses[gun.roundclass or "Shell"] or error("Unrecognized projectile class " .. (gun.roundclass or "Shell") .. "!")
+	PlayerData.ProjClass = roundclass
 	/*
 	print("made a", gun.roundclass or "Shell", "crate!", roundclass)
 	print("\n\n\nbefore\n\n\n")
 	PrintTable(PlayerData)
 	//*/
 	self.BulletData = roundclass.GetExpanded(PlayerData)
+	self.BulletData.Colour = self:GetColor()
 	/*
 	print("\n\n\nafter\n\n\n")
 	PrintTable(self.BulletData)
 	//*/	
+	
+	
+	local bdata = self.BulletData
+	bdata = bdata.ProjClass and (bdata.ProjClass.GetCompact(bdata)) or bdata
+	
+	print("--", "AMMO bdata")
+	printByName(bdata)
+	print("--", "end AMMO bdata")
+	
+		--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
+	self.RoundId = bdata.Id		--Weapon this round loads into, ie 140mmC, 105mmH ...
+	self.RoundType = bdata.Type		--Type of round, IE AP, HE, HEAT ...
+	self.RoundPropellant = bdata.PropLength or 0--Lenght of propellant
+	self.RoundProjectile = bdata.ProjLength or 0--Lenght of the projectile
+	self.RoundData5 = ( bdata.FillerVol or bdata.Data5 or 0 )
+	self.RoundData6 = ( bdata.ConeAng or bdata.Data6 or 0 )
+	self.RoundData7 = ( bdata.Data7 or 0 )
+	self.RoundData8 = ( bdata.Data8 or 0 )
+	self.RoundData9 = ( bdata.Data9 or 0 )
+	self.RoundData10 = ( bdata.Tracer or bdata.Data10 or 0 )
+	
 	
 	local Size = (self:OBBMaxs() - self:OBBMins())
 	local Efficiency = 0.11 * ACF.AmmoMod			--This is the part of space that's actually useful, the rest is wasted on interround gaps, loading systems ..
@@ -465,6 +480,7 @@ local getFull =
 
 
 
+
 function ENT:Think()
 	local AmmoMass = self:AmmoMass()
 	self.Mass = math.max(self.EmptyMass, self:GetPhysicsObject():GetMass() - AmmoMass) + AmmoMass*(self.Ammo/math.max(self.Capacity,1))
@@ -476,7 +492,13 @@ function ENT:Think()
 	end
 	
 	local color = self:GetColor()
-	self:SetNetworkedVector("TracerColour", Vector( color.r, color.g, color.b ) )
+	local lastCol = self.lastCol
+	if (CurTime() > self.nextColCheck) and (color.r ~= lastCol.r or color.g ~= lastCol.g or color.b ~= lastCol.b or color.a ~= lastCol.a) then
+		self.nextColCheck = CurTime() + 2
+		self.lastCol = color
+		self:SetNetworkedVector("TracerColour", Vector( color.r, color.g, color.b ) )
+		self:CreateAmmo(self.Id, self.RoundId, self.RoundType, self.RoundPropellant, self.RoundProjectile, self.RoundData5, self.RoundData6, self.RoundData7, self.RoundData8, self.RoundData9, self.RoundData10)
+	end
 	
 	local cvarGrav = GetConVar("sv_gravity")
 	local vec = Vector(0,0,cvarGrav:GetInt()*-1)

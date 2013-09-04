@@ -11,7 +11,8 @@ this.Strings = {
 	END			= "xcfNdPrj",
 	ENDQUIET	= "xcfNdPrjQ",
 	ALTER		= "xcfEdtPrj",
-	AMMOREG		= "xcfMoRg"
+	AMMOREG		= "xcfMoRg",
+	AMMODEREG	= "xcfMoDrg"
 }
 
 if SERVER and not this.StrNetted then

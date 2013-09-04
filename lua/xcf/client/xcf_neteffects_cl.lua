@@ -53,6 +53,7 @@ function this.AmmoRegister(len)
 	--[[
 	print("AMMOREG: uid = " .. uid .. "\ntbl = ")
 	printByName(compact)
+	printByName(compact.Colour or {255, 255, 255})
 	print("AMMOREG END\n\n")
 	--]]--
 	//*
@@ -83,6 +84,24 @@ function this.AmmoRegister(len)
 	
 end
 net.Receive(str.AMMOREG, this.AmmoRegister)
+
+
+
+function this.AmmoDeregister(len)
+	--TODO: redo server deregistration on a per-shell basis instead of per-crate (errors occurring from loaded bullets orphaned from dead crates)
+	--[[ quickie fix
+	local uid = net.ReadDouble()
+	
+	
+	print("AMMODEREG: uid = " .. uid)
+	local uidtbl = ammouids[tostring(uid)]
+	if not uidtbl then print("WARNING: Tried to de-register an unregistered ammo-type!") return end
+	
+	
+	ammouids[tostring(uid)] = nil
+	--]]--
+end
+net.Receive(str.AMMODEREG, this.AmmoDeregister)
 
 
 
