@@ -60,6 +60,7 @@ function this.GetCompact(bullet)
 	/*
 	print("\n\nAFTER COMPACT:\n")
 	printByName(ret)
+	printByName(ret.Colour or {255, 255, 255})
 	//*/
 	return ret
 end

@@ -64,7 +64,7 @@ end
 local function validateSZs(safetable)
 	if type(safetable) ~= "table" then return false end
 	
-	PrintTable(safetable)
+	--PrintTable(safetable)
 
 	for k, v in pairs(safetable) do
 		if type(k) ~= "string" then return false end

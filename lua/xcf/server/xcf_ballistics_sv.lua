@@ -35,7 +35,7 @@ local this = XCF.Ballistics
 
 	
 include("xcf/server/xcf_neteffects_sv.lua")
-local netfx = XCF.NetFX
+local netfx = XCF.NetFX or error("Couldn't load XCF NetFX!")
 
 
 

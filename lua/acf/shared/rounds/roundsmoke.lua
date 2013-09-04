@@ -129,6 +129,14 @@ function Round.endeffect( Effect, Bullet )
 	local Flash = EffectData()
 		Flash:SetOrigin( Bullet.SimPos )
 		Flash:SetNormal( Bullet.SimFlight:GetNormalized() )
+		--printByName(Bullet.Colour)
+		if Bullet.Colour then 
+			local col = Bullet.Colour
+			--print("col", col)
+			Flash:SetStart(Vector(col.r, col.g, col.b))
+		else
+			Flash:SetStart(Vector(255, 255, 255))
+		end
 		Flash:SetRadius( math.max( Radius, 1 ) )
 	util.Effect( "ACF_Smoke", Flash )
 

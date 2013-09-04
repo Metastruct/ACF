@@ -220,7 +220,7 @@ function this.ShouldDud(Proj, TrRes)
 	
 	local hitang = math.deg(math.acos(TrRes.HitNormal:Dot(-Proj.Forward)))
 	local dudchance = 1 - math.Clamp(hitang/(90 * bonus), 0, 1)--(hitang / math.pi)
-	print("dudchance", dudchance, hitang)
+	--print("dudchance", dudchance, hitang)
 	
 	return math.random() > dudchance
 	//*/
@@ -250,7 +250,7 @@ function this.CreateDud(Proj, TrRes)
 	Dud:Fire("Kill", "", 10)
 	local phys = Dud:GetPhysicsObject()
 	if (phys:IsValid()) then
-		print("forcing 2!")
+		--print("forcing 2!")
 		phys:Wake()
 		phys:EnableMotion(true)
 		phys:ApplyForceCenter(newflight * phys:GetMass())
@@ -317,7 +317,7 @@ function this.EndFlight(Index, Proj, FlightRes)
 	
 	local willdud = this.ShouldDud(Proj, FlightRes)
 	if willdud then
-		print("bomb dudding!")
+		--print("bomb dudding!")
 		this.CreateDud(Proj, FlightRes)
 	else
 		ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )

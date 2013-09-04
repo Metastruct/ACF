@@ -56,9 +56,11 @@ function this.GetCompact(bullet)
 		["ProjClass"]	= "Bomb"
 	}
 	
-	/*
-	print("\n\nAFTER COMPACT:\n")
-	printByName(ret)
+	
+	//*
+	--print("\n\nAFTER COMPACT:\n")
+	--printByName(ret)
+	--printByName(ret.Colour or {"no colour!"})
 	//*/
 	return ret
 end
@@ -108,9 +110,10 @@ function this.GetExpanded(bullet)
 	ret.Accel = Vector(0,0,cvarGrav:GetInt()*-1)
 	if ret.Tracer == 0 and bullet["Tracer"] and bullet["Tracer"] > 0 then ret.Tracer = bullet["Tracer"] end
 	ret.Colour = toconvert["Colour"]
-	/*
-	print("\n\nAFTER EXPAND:\n")
-	printByName(ret)
+	//*
+	--print("\n\nAFTER EXPAND:\n")
+	--printByName(ret)
+	--printByName(ret.Colour or {"no colour!"})
 	//*/
 	
 	return ret
