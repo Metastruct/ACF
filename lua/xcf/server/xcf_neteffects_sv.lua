@@ -78,7 +78,10 @@ local function ammoHook(ammo)
 	local uidBefore = ammo.NetUID
 	local uid = generateAmmoUID(ammo)
 	
-	if uidBefore and uidBefore == uid then print("Identical UID", uid) return end
+	if uidBefore and uidBefore == uid then
+		--print("Identical UID", uid)
+		return
+	end
 	--print("Got UID", uid)
 	
 	ammo:CallOnRemove( "xcfammo_remUID", this.OnAmmoRemoved)
@@ -88,6 +91,37 @@ local function ammoHook(ammo)
 end
 hook.Add("ACF_AmmoCreate", "XCF_NetAmmo", ammoHook)
 hook.Add("ACF_RackCreate", "XCF_NetAmmo", ammoHook)
+
+
+
+
+local function gunCreateHook(gun)
+	gun:CallOnRemove( "xcfammo_remUID", this.OnAmmoRemoved)
+end
+hook.Add("ACF_GunCreate", "XCF_NetAmmo", gunCreateHook)
+
+
+
+
+local function gunHook(gun, oldammo, newammo)
+	local oldstr = oldammo.NetUID and oldammo.NetUID or (oldammo.Type and (oldammo.Type .. "/" .. tostring(oldammo.Id))) or "Old Ammo"
+	local newstr = newammo.NetUID and newammo.NetUID or (newammo.Type and (newammo.Type .. "/" .. tostring(newammo.Id))) or "New Ammo"
+	--print("gunhook", oldstr, newstr)
+	
+	if oldammo.NetUID == newammo.NetUID then
+		--print("Identical UID", uid) 
+		return
+	end
+	
+	if oldammo.NetUID and not doNotReg[oldammo.Type] then
+		this.OnAmmoRemoved(gun, oldammo.NetUID)
+	end
+	
+	if newammo.NetUID and not doNotReg[newammo.Type] then
+		this.AddToAmmoRegistry(gun, newammo)
+	end
+end
+hook.Add("ACF_GunReload", "XCF_NetAmmo", gunHook)
 
 
 
@@ -108,6 +142,11 @@ local function ammoJoinedHook(ply)
 		else
 			print("WARNING: Found a net-registered ammocrate without associated ammodata:", uid)
 		end
+	end
+	
+	local ammoct = #ammouids
+	if ammoct > 0 then
+		print("Sent ", ammoct, "ammo datas to new player", ply)
 	end
 
 end
@@ -145,7 +184,7 @@ function this.OnAmmoRemoved(ammo, uid)
 			end
 		end
 		
-		--if not found then print("WARNING: Tried to de-register an unregistered ammocrate!") return end
+		if not found then print("WARNING: Tried to de-register an unregistered ammocrate!") return end
 	else
 	
 		local uids = ammouids[uid]
@@ -211,7 +250,8 @@ function this.AddToAmmoRegistry(ammo, ammodata)
 
 	if not ammouids then error("Couldn't find ammo registry!") return end
 	if not IsValid(ammo) then error("Tried to add an invalid ammocrate to the registry!") return end
-	if not ammo.NetUID then error("Tried to register ammo without a net id!") return end
+	local netuid = ammo.NetUID or ammodata.NetUID
+	if not netuid then error("Tried to register ammo without a net id!") return end
 	
 	this.OnAmmoRemoved(ammo)
 	
@@ -220,10 +260,10 @@ function this.AddToAmmoRegistry(ammo, ammodata)
 		ammodata = bData.ProjClass.GetCompact(bData)
 	end
 	
-	local crates = ammouids[ammo.NetUID]
+	local crates = ammouids[netuid]
 	if not crates then 
 		crates = {BulletData = ammodata}
-		ammouids[ammo.NetUID] = crates
+		ammouids[netuid] = crates
 	end
 	
 	crates[#crates+1] = ammo

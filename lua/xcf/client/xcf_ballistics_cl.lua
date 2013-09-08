@@ -1,7 +1,6 @@
 
 
 XCF.Projectiles = XCF.Projectiles or {}
-XCF.ProjectilesLimit = 1000  --The maximum number of bullets in flight at any one time
 
 XCF.Ballistics = { //TODO: shared
 	["CL_INIT"] = 1, 

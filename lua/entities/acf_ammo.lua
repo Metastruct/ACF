@@ -8,9 +8,9 @@ ENT.WireDebugName = "ACF Ammo Crate"
 
 if CLIENT then
 	
-	/*-------------------------------------
+	--[[-------------------------------------
 	Shamefully stolen from lua rollercoaster. I'M SO SORRY. I HAD TO.
-	-------------------------------------*/
+	-------------------------------------]]--
 
 	local function Bezier( a, b, c, d, t )
 		local ab,bc,cd,abbc,bccd 
@@ -190,7 +190,7 @@ function MakeACF_Ammo(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, 
 
 	if not Owner:CheckLimit("_acf_ammo") then return false end
 	
-	//print(Id, Data1, Data2)
+	--print(Id, Data1, Data2)
 	local weapon = ACF.Weapons.Guns[Data1]
 	if weapon and weapon.blacklist and weapon.blacklist[Data2] then
 		return false, "Ammo for " .. Data1 .. " does not support " .. Data2 .. " warheads!"
@@ -317,25 +317,27 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	local gun = guntable[PlayerData.Id] or {}
 	local roundclass = XCF.ProjClasses[gun.roundclass or "Shell"] or error("Unrecognized projectile class " .. (gun.roundclass or "Shell") .. "!")
 	PlayerData.ProjClass = roundclass
-	/*
+	--[[
 	print("made a", gun.roundclass or "Shell", "crate!", roundclass)
 	print("\n\n\nbefore\n\n\n")
 	PrintTable(PlayerData)
-	//*/
+	--]]--
 	self.BulletData = roundclass.GetExpanded(PlayerData)
 	self.BulletData.Colour = self:GetColor()
-	/*
+	--[[
 	print("\n\n\nafter\n\n\n")
 	PrintTable(self.BulletData)
-	//*/	
+	--]]--
 	
 	
 	local bdata = self.BulletData
 	bdata = bdata.ProjClass and (bdata.ProjClass.GetCompact(bdata)) or bdata
 	
+	--[[
 	print("--", "AMMO bdata")
 	printByName(bdata)
 	print("--", "end AMMO bdata")
+	--]]--
 	
 		--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
 	self.RoundId = bdata.Id		--Weapon this round loads into, ie 140mmC, 105mmH ...
@@ -385,19 +387,19 @@ function ENT:TriggerInput( iname, value )
 			self:ACF_Activate( false )
 		end
 		local HitRes = ACF_PropDamage( self , ACF_Kinetic( 99999 , 50000 ) , 999 , 0 , self.Owner )
-		//*
+		---[[
 		local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
 		if CanDo == false then return end
 		self.Exploding = true
-		//if( Inflictor and Inflictor:IsValid() and Inflictor:IsPlayer() ) then
+		--if( Inflictor and Inflictor:IsValid() and Inflictor:IsPlayer() ) then
 			self.Inflictor = self.Owner
-		//end
+		--end
 		if self.Ammo > 1 then
 			ACF_AmmoExplosion( self , self:GetPos() )
 		else
 			ACF_HEKill( self , VectorRand() )
 		end
-		//*/
+		--]]--
 	end
 
 end
@@ -428,7 +430,7 @@ local doSupply =
 				self:RefillEffect( Ammo )
 			end
 					
-			//print("ammo doing supply")
+			--print("ammo doing supply")
 					
 			local Supply = math.ceil((50000/((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000))/dist)
 			--Msg(tostring(50000).."/"..((Ammo.BulletData["ProjMass"]+Ammo.BulletData["PropMass"])*1000).."/"..dist.."="..Supply.."\n")
@@ -536,7 +538,7 @@ function ENT:Think()
 			self:NextThink( CurTime() + 0.01 + self.BulletData.RoundVolume^0.5/100 )
 		end
 		
-	elseif self.RoundType == "Refill" and self.Ammo > 0 then // Even newer, fresher, more genius, beautiful and flawless refill system.
+	elseif self.RoundType == "Refill" and self.Ammo > 0 then -- Even newer, fresher, more genius, beautiful and flawless refill system.
 		if self.Load then
 			for _,Ammo in pairs( ACF.AmmoCrates ) do
 				if Ammo.RoundType ~= "Refill" then
@@ -561,7 +563,7 @@ function ENT:Think()
 				self:StopRefillEffect( Ammo )
 			else
 				local dist = self:GetPos():Distance(Ammo:GetPos())
-				if dist > ACF.RefillDistance or getFull[Ammo:GetClass()](Ammo) or self.Damaged or not self.Load then // If ammo crate is out of refill max distance or is full or our refill crate is damaged or just in-active then stop refiliing it.
+				if dist > ACF.RefillDistance or getFull[Ammo:GetClass()](Ammo) or self.Damaged or not self.Load then -- If ammo crate is out of refill max distance or is full or our refill crate is damaged or just in-active then stop refiliing it.
 					table.remove(self.SupplyingTo, k)
 					self:StopRefillEffect( Ammo )
 				end

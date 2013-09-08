@@ -16,6 +16,7 @@ end
 
 
 
+
 include("xcf/shared/xcf_util_sh.lua")
 
 local oldvec
@@ -30,6 +31,7 @@ local function vectorhack(bool)
 		oldvec = nil
 	end
 end
+
 
 
 
@@ -87,21 +89,48 @@ net.Receive(str.AMMOREG, this.AmmoRegister)
 
 
 
+
 function this.AmmoDeregister(len)
-	--TODO: redo server deregistration on a per-shell basis instead of per-crate (errors occurring from loaded bullets orphaned from dead crates)
-	--[[ quickie fix
 	local uid = net.ReadDouble()
+	--print("AMMODEREG: uid = " .. uid)
 	
-	
-	print("AMMODEREG: uid = " .. uid)
 	local uidtbl = ammouids[tostring(uid)]
 	if not uidtbl then print("WARNING: Tried to de-register an unregistered ammo-type!") return end
 	
-	
-	ammouids[tostring(uid)] = nil
-	--]]--
+	this.AmmoQueuedDeregister(uid)
 end
 net.Receive(str.AMMODEREG, this.AmmoDeregister)
+
+
+
+
+local ammoderegq = ammoderegq or {}
+
+local function doAmmoDereg()
+	--local ammoderegqCt = #ammoderegq
+	--print("AmmoDereg", #XCF.Projectiles, ammoderegqCt)
+	if #XCF.Projectiles == 0 and #ammoderegq > 0 then
+		for k, uid in pairs(ammoderegq) do
+			ammouids[tostring(uid)] = nil
+		end
+		--print("Deregistered", ammoderegqCt, "ammo datas.")
+		ammoderegq = {}
+		timer.Remove("XCF_AmmoQueuedDeregister")
+	end
+end
+
+
+
+
+function this.AmmoQueuedDeregister(uid)
+	--print("AmmoDRGQ", uid, #ammoderegq)
+	if uid and #ammoderegq == 0 then
+		timer.Create("XCF_AmmoQueuedDeregister", 0.5, 0, doAmmoDereg)
+	end
+	
+	ammoderegq[#ammoderegq + 1] = uid
+end
+
 
 
 
@@ -142,6 +171,7 @@ net.Receive(str.SENDUID, this.ReceiveProjUID)
 
 
 
+
 /**
 	Receive a projectile definition to begin simulating.
 //*/
@@ -177,6 +207,7 @@ function this.ReceiveProjFull(len)
 
 end
 net.Receive(str.SEND, this.ReceiveProjFull)
+
 
 
 

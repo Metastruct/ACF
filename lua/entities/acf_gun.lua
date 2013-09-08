@@ -110,6 +110,8 @@ function ENT:Initialize()
 	self.Inputs = Wire_CreateInputs( self, { "Fire", "Unload", "Reload" } )
 	self.Outputs = WireLib.CreateSpecialOutputs( self, { "Ready", "AmmoCount", "Entity", "Shots Left", "Fire Rate", "Muzzle Weight", "Muzzle Velocity" }, { "NORMAL", "NORMAL", "ENTITY", "NORMAL", "NORMAL", "NORMAL", "NORMAL" } )
 	Wire_TriggerOutput(self, "Entity", self)
+	
+	hook.Call("ACF_GunCreate", nil, self)
 
 end  
 
@@ -582,7 +584,11 @@ function ENT:LoadAmmo( AddTime, Reload )
 	if AmmoEnt then
 		AmmoEnt.Ammo = AmmoEnt.Ammo - 1
 		
+		local oldAmmo = self.BulletData
 		self.BulletData = AmmoEnt.BulletData
+		
+		hook.Call("ACF_GunReload", nil, self, oldAmmo, self.BulletData)
+		
 		self.BulletData.Crate = AmmoEnt:EntIndex()
 		
 		self.ReloadTime = ((self.BulletData.RoundVolume/500)^0.60)*self.RoFmod*self.PGRoFmod
@@ -603,12 +609,16 @@ function ENT:LoadAmmo( AddTime, Reload )
 		self:Think()
 		return true	
 	else
+		local oldAmmo = self.BulletData
 		self.BulletData = {}
 			self.BulletData.Type = "Empty"
 			self.BulletData.PropMass = 0
 			self.BulletData.ProjMass = 0
 		
+		hook.Call("ACF_GunReload", nil, self, oldAmmo, self.BulletData)
+		
 		self:EmitSound("weapons/pistol/pistol_empty.wav",500,100)
+		
 		Wire_TriggerOutput(self, "Loaded", "Empty")
 				
 		self.NextFire = CurTime()+0.5
