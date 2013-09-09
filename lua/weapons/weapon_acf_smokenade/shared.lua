@@ -5,8 +5,8 @@ if (CLIENT) then
 	
 	SWEP.PrintName			= "ACF Smoke Grenade"
 	SWEP.Author				= "Bubbus"
-	SWEP.Slot				= 2
-	SWEP.SlotPos			= 3
+	SWEP.Slot				= 4
+	SWEP.SlotPos			= 4
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
 	SWEP.Purpose		= "420 blaze it #yolo"

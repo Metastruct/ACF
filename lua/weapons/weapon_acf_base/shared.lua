@@ -62,7 +62,6 @@ SWEP.InaccuracyCrouchBonus = 1.7
 SWEP.InaccuracyDuckPenalty = 6
 SWEP.InaccuracyAimLimit = 4
 
-SWEP.Stamina = 1
 SWEP.StaminaDrain = 0.004
 SWEP.StaminaJumpDrain = 0.1
 
@@ -94,7 +93,8 @@ SWEP.LastAim = Vector()
 SWEP.LastThink = CurTime()
 SWEP.WasCrouched = false
 
-local STAMINA_RECOVER = 0.001
+local STAMINA_RECOVER = 0.09
+local VEL_SCALE = 60
 function SWEP:Think()
 
 	if self.ThinkBefore then self:ThinkBefore() end
@@ -107,17 +107,22 @@ function SWEP:Think()
 	
 	
 	local timediff = CurTime() - self.LastThink
-	
+	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
 	//print(self.Owner:GetVelocity():Length())
 	
 	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
 		self.Inaccuracy = self.MaxInaccuracy
-	elseif not isReloading then
+		self.Owner.XCFStamina = 0
+	end
+	
+	if isReloading then
+		self.Inaccuracy = self.MaxInaccuracy
+	else
 	
 		local inaccuracydiff = self.MaxInaccuracy - self.MinInaccuracy
 		
 		//local vel = math.Clamp(math.sqrt(self.Owner:GetVelocity():Length()/400), 0, 1) * inaccuracydiff	// max vel possible is 3500
-		local vel = math.Clamp(self.Owner:GetVelocity():Length()/400, 0, 1) * inaccuracydiff	// max vel possible is 3500
+		local vel = math.Clamp(self.Owner:GetVelocity():Length()/400, 0, 1) * inaccuracydiff * VEL_SCALE	// max vel possible is 3500
 		local aim = self.Owner:GetAimVector()
 		
 		local difflimit = self.InaccuracyAimLimit - self.Inaccuracy
@@ -135,13 +140,13 @@ function SWEP:Think()
 		self.MaxStamina = math.Clamp(healthFract, 0, 1)
 		
 		if self.Owner:KeyDown(IN_SPEED) then
-			self.Stamina = math.Clamp(self.Stamina - self.StaminaDrain, 0, 1)
+			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaDrain, 0, 1)
 		else
-			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER)
-			self.Stamina = math.Clamp(self.Stamina + recover, 0, self.MaxStamina)
+			local recover = (crouching and STAMINA_RECOVER * self.InaccuracyCrouchBonus or STAMINA_RECOVER) * timediff
+			self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina + recover, 0, self.MaxStamina)
 		end
 		
-		decay = decay * self.Stamina
+		decay = decay * self.Owner.XCFStamina
 		
 		if crouching then
 			decay = decay * self.InaccuracyCrouchBonus
@@ -152,22 +157,28 @@ function SWEP:Think()
 		end
 		
 		//self.Inaccuracy = math.Clamp(self.Inaccuracy + (vel + diffaim + penalty - decay) * timediff, self.MinInaccuracy, self.MaxInaccuracy)
-		local rawinaccuracy = self.MinInaccuracy + vel
+		local rawinaccuracy = self.MinInaccuracy + vel * timediff
 		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, decay, self.AccuracyDecay) + penalty + diffaim
 		self.Inaccuracy = math.Clamp(idealinaccuracy, self.MinInaccuracy, self.MaxInaccuracy)
 		
 		//print("inacc", self.Inaccuracy)
 		
 		self.LastAim = aim
-		XCFDBG_ThinkTime = CurTime() - self.LastThink
+		XCFDBG_ThinkTime = timediff
 		self.LastThink = CurTime()
 		self.WasCrouched = self.Owner:Crouching()
 	
 		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
-	
 	end
 	
+	
 	if self.ThinkAfter then self:ThinkAfter() end
+	
+	
+	if SERVER then
+		self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
+		self:SetNetworkedFloat("ServerStam", self.Owner.XCFStamina)
+	end
 	
 end
 
@@ -201,6 +212,15 @@ function SWEP:SetZoom(zoom)
 		if SERVER then self.Owner:SetFOV(0, 0.25) end
 	end
 
+end
+
+
+
+function SWEP:Holster()
+	
+	--self:SetZoom(false)
+	
+	return true
 end
 
 
@@ -241,6 +261,7 @@ function SWEP:PrimaryAttack()
 		self:VisRecoil()
 		
 		self.Inaccuracy = math.Clamp(self.Inaccuracy + self.InaccuracyPerShot, self.MinInaccuracy, self.MaxInaccuracy)
+		self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
 	end
 	
 	self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
@@ -291,6 +312,7 @@ function SWEP:Reload()
 		//print("do reload!")
 	
 		self.Inaccuracy = self.MaxInaccuracy
+		self:SetNetworkedFloat("ServerInacc", self.Inaccuracy)
 	end
 
 end

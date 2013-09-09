@@ -32,7 +32,17 @@ function SWEP:Initialize()
 	if not IsValid(self.Owner) then return end
 	self:SetWeaponHoldType( self.HoldType )
 	self.defaultFOV = self.Owner:GetFOV()
-	self.lastaccuracy = 0
+	self.lastaccuracy = self.MaxInaccuracy
+	
+	self.lastHUDDraw = CurTime()
+	
+	self.timeDiff = 0
+	self.lastServRecv = CurTime() - 0.1
+	self.lastServInacc = self.MaxInaccuracy
+	self.curServInacc = self.MaxInaccuracy
+	self.curVisInacc = self.MaxInaccuracy
+	self.smoothFactor = 0
+	
 	//self.Zoomed = false
 	/*
 	self.VMInstance = self.Owner:GetViewModel()
@@ -218,6 +228,8 @@ end
 
 function SWEP:DrawHUD()
 
+	
+
 	if not (self.Owner:Alive() or self.Owner:InVehicle()) then return end
 
 	local drawcircle = not self:DrawScope()
@@ -225,9 +237,32 @@ function SWEP:DrawHUD()
 	if drawcircle then
 		local scrpos = self.Owner:GetEyeTrace().HitPos:ToScreen()
 		local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )
-		local circlehue = self.Stamina * 120
-		surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / self.Owner:GetFOV() , HSVToColor( self.Stamina * 120, 1, isReloading and 0 or 1 ) )
+		local servstam = self.Weapon:GetNetworkedFloat("ServerStam", 0)
+		local circlehue = servstam * 120
+		--surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / self.Owner:GetFOV() , HSVToColor( self.Stamina * 120, 1, isReloading and 0 or 1 ) )
+		
+		local servinacc = self.Weapon:GetNetworkedFloat("ServerInacc", self.MaxInaccuracy)
+		if servinacc ~= self.curServInacc then
+			self.timeDiff = CurTime() - self.lastServRecv
+			self.lastServRecv = CurTime()
+			self.lastServInacc = self.curServInacc
+			self.curServInacc = servinacc
+			self.curVisInacc = self.lastServInacc
+			self.smoothFactor = (self.curServInacc - self.lastServInacc) * self.timeDiff-- * (CurTime() - self.lastHUDDraw)
+		end
+		--self.visinacc = self.visinacc or self.MaxInaccuracy
+		--self.visinacc = self.visinacc + self.smoothFactor * (CurTime() - self.lastHUDDraw)
+		self.curVisInacc = math.Clamp(self.curVisInacc + self.smoothFactor, math.min(self.lastServInacc, self.curServInacc), math.max(self.lastServInacc, self.curServInacc))
+		--print(self.curVisInacc, self.smoothFactor)
+		--surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * servinacc / self.Owner:GetFOV() , Color(0, 0, 0, 128) )
+		surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.curVisInacc / self.Owner:GetFOV() , HSVToColor( circlehue, 1, isReloading and 0 or 1 ) )
+		
+		if self.ShotSpread and self.ShotSpread > 0 then
+			surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV() , Color(0, 0, 0, 128) )
+		end
 	end
+	
+	self.lastHUDDraw = CurTime()
 	
 	//SetupScopeChop(self)
 
@@ -252,6 +287,8 @@ local lissay = 4
 local lissasep = math.pi / 2
 function SWEP:GetViewModelPosition( pos, ang )
 	if not CLIENT then return pos, ang end	// idk.
+	
+	self.lastaccuracy = self.lastaccuracy or self.MaxInaccuracy
 	
 	local time = CurTime() * 0.33
 	local accuracy = (self.Inaccuracy * 0.02 + self.lastaccuracy * 0.98) * 0.25
