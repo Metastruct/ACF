@@ -35,3 +35,12 @@ r416
 
 *r434
 --Changed how fuel tank are sorted in size selection.
+
+*r435
+--Reworked link system, non-physical driveshafts
+
+*r437
+--Removed some legacy code causing clientside lag when firing weapons.
+
+*r438
+--Fixed MG sound; made RAC sound a bit less stuttery.
