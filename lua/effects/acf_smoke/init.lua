@@ -73,7 +73,7 @@ function EFFECT:Shockwave( Ground, SmokeColor )
 	local Density = Radius/20
 	--print(Density, SmokeColor)
 	local Angle
-	local wind = GetConVarNumber( "xcf_smokewind" ) or 0
+	local wind = XCF.SmokeWind or 0
 	for i=0, Density do	
 		
 		local ShootVector = Angle and Angle:Up() or Ground.HitNormal * 0.5
@@ -116,4 +116,5 @@ end
 function EFFECT:Render()
 end
 
+ 
  

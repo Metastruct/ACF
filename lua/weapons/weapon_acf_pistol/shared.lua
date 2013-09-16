@@ -54,10 +54,10 @@ SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 SWEP.MinInaccuracy = 1
 SWEP.MaxInaccuracy = 5
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.1
-SWEP.AccuracyDecay = 0.3
+SWEP.InaccuracyDecay = 0.15
+SWEP.AccuracyDecay = 0.25
 SWEP.InaccuracyPerShot = 3
-SWEP.InaccuracyCrouchBonus = 1.2
+SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 2
 
 SWEP.Stamina = 1

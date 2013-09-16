@@ -36,7 +36,7 @@ SWEP.Primary.Delay			= 0.09
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
-SWEP.Primary.Sound 			= "Weapon_Para.Single"
+SWEP.Primary.Sound 			= "Weapon_M249.Single"
 
 SWEP.ReloadTime				= 8
 

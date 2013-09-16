@@ -28,3 +28,11 @@ end
 hook.Add("OnEntityCreated","cluaeffect",function(ent)
     if(req) then effect = ent end
 end)
+
+
+
+
+local function recvSmokeWind(len)
+	XCF.SmokeWind = net.ReadFloat()
+end
+net.Receive("xcf_smokewind", recvSmokeWind)

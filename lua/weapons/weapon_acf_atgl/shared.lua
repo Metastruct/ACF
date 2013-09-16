@@ -36,7 +36,7 @@ SWEP.Primary.Delay			= 0.1
 SWEP.Primary.DefaultClip	= 5
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "RPG_Round"
-SWEP.Primary.Sound 			= "weapons/launcher_fire.wav"
+SWEP.Primary.Sound 			= "acf_extra/tankfx/gnomefather/8mm1.wav"
 
 util.PrecacheSound( SWEP.Primary.Sound )
 

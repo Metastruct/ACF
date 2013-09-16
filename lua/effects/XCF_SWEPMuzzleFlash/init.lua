@@ -17,6 +17,8 @@
 		Class = "C"
 	end
 		
+		
+	local gunSound = Gun:GetNWString( "Sound" ) or ACF.Classes["GunClass"][Class]["sound"] or ""
 	//print("muzzle", Gun, Propellant, ReloadTime, Class, RoundType)
 		
 	if Gun:IsValid() then
@@ -24,18 +26,19 @@
 		
 			local SoundPressure = (Propellant*1000)^0.5
 			
-			sound.Play( ACF.Classes["GunClass"][Class]["sound"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			sound.Play( ACF.Classes["GunClass"][Class]["sound"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			sound.Play( ACF.Classes["GunClass"][Class]["soundDistance"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			sound.Play( ACF.Classes["GunClass"][Class]["soundNormal"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
-			
 			Muzzle =
 			{
-				["Pos"] = Gun.Owner:GetShootPos(),
-				["Ang"] = Gun.Owner:EyeAngles()
+				Pos = Gun.Owner:GetShootPos(),
+				Ang = Gun.Owner:EyeAngles()
 			}
 			
-			local muzzoffset = (Muzzle.Ang:Forward() * Gun.AimOffset.x) + (Muzzle.Ang:Right() * Gun.AimOffset.y) + (Muzzle.Ang:Up() * Gun.AimOffset.z)
+			sound.Play( gunSound, Muzzle.Pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
+			if not ((Class == "MG") or (Class == "RAC")) then
+				sound.Play( gunSound, Muzzle.Pos , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
+			end
+			
+			local aimoffset = Gun.AimOffset or Vector()
+			local muzzoffset = (Muzzle.Ang:Forward() * aimoffset.x) + (Muzzle.Ang:Right() * aimoffset.y) + (Muzzle.Ang:Up() * aimoffset.z)
 			
 			Muzzle.Pos = Muzzle.Pos + muzzoffset
 			
@@ -44,7 +47,7 @@
 			ParticleEffect( flash, Muzzle.Pos, Muzzle.Ang, Gun )
 			
 			if Gun.Launcher then
-				local muzzoffset = (Muzzle.Ang:Forward() * -Gun.AimOffset.x) + (Muzzle.Ang:Right() * Gun.AimOffset.y) + (Muzzle.Ang:Up() * Gun.AimOffset.z)
+				local muzzoffset = (Muzzle.Ang:Forward() * -aimoffset.x) + (Muzzle.Ang:Right() * aimoffset.y) + (Muzzle.Ang:Up() * aimoffset.z)
 			
 				Muzzle.Pos = Gun.Owner:GetShootPos() + muzzoffset
 				Muzzle.Ang = (-Muzzle.Ang:Forward()):Angle()
@@ -55,6 +58,9 @@
 	end
 	
  end 
+ 
+ 
+ 
    
    
 /*---------------------------------------------------------

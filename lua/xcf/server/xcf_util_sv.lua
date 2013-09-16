@@ -64,7 +64,52 @@ function XCF_CreateBulletSWEP( BulletData, Swep, LagComp )
 end
 
 
-CreateConVar( "xcf_smokewind", 20 + math.random()*60, {FCVAR_REPLICATED}, 
+
+
+XCF.SmokeWind = 5 + math.random()*35
+
+local function msgtoconsole(hud, msg)
+	print(msg)
+end
+
+util.AddNetworkString("xcf_smokewind")
+concommand.Add( "xcf_smokewind", function(ply, cmd, args, str)
+	local validply = IsValid(ply)
+	local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+	
+	if not args[1] then printmsg(HUD_PRINTCONSOLE,
 		"Set the wind intensity upon all smoke munitions." ..
 		"\n   This affects the ability of smoke to be used for screening effect." ..
-		"\n   Example; xcf_smokewind 300" )
+		"\n   Example; xcf_smokewind 300")
+		return false
+	end
+	
+	if validply and not ply:IsAdmin() then
+		printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+		return false
+		
+	else
+		local wind = tonumber(args[1])
+
+		if not wind then
+			printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: that wind value could not be interpreted as a number!")
+			return false
+		end
+		
+		XCF.SmokeWind = wind
+		
+		net.Start("xcf_smokewind")
+			net.WriteFloat(wind)
+		net.Broadcast()
+		
+		printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: set smoke-wind to " .. wind .. "!")
+		return true	
+	end
+end)
+
+local function sendSmokeWind(ply)
+	net.Start("xcf_smokewind")
+		net.WriteFloat(XCF.SmokeWind)
+	net.Send(ply)
+end
+hook.Add( "PlayerInitialSpawn", "XCF_SendSmokeWind", sendSmokeWind )

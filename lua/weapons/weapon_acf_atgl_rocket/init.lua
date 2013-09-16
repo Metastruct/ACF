@@ -133,6 +133,7 @@ function SWEP:GrabRocketFromCrate(crate)
 	self:UpdateFakeCrate()
 	
 	self.Owner:SendLua( string.format( "GAMEMODE:AddNotify(%q,%s,7)", "Reloaded the ATGL with ".. rkdata.Id .." ammo!", "NOTIFY_GENERIC" ) )
+	self:DoAmmoStatDisplay()
 	
 end
 
