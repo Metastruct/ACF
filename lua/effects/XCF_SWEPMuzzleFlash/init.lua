@@ -19,7 +19,7 @@
 		
 		
 	local gunSound = Gun:GetNWString( "Sound" ) or ACF.Classes["GunClass"][Class]["sound"] or ""
-	//print("muzzle", Gun, Propellant, ReloadTime, Class, RoundType)
+	--print("muzzle", Gun, Propellant, ReloadTime, Class, RoundType)
 		
 	if Gun:IsValid() then
 		if Propellant > 0 then

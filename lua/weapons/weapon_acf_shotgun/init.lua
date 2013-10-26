@@ -12,36 +12,6 @@ SWEP.AutoSwitchFrom		= false
 
 
 
-function SWEP:Initialize()
-	self:SetWeaponHoldType(self.HoldType)
-	
-	self.BulletData = {}
-	//*
-	self.BulletData["BoomPower"]			= 0.00054724535712
-	self.BulletData["Caliber"]			= 0.762
-	self.BulletData["DragCoef"]			= 0.0024820055068243
-	self.BulletData["FrAera"]			= 0.4560377976
-	self.BulletData["Id"]			= "7.62mmMG"
-	self.BulletData["KETransfert"]			= 0.1
-	self.BulletData["LimitVel"]			= 800
-	self.BulletData["MuzzleVel"]			= 250.09306022354
-	self.BulletData["PenAera"]			= 0.51303939370339
-	self.BulletData["ProjLength"]			= 5.0999999046326
-	self.BulletData["ProjMass"]			= 0.018373762521724
-	self.BulletData["PropLength"]			= 0.75
-	self.BulletData["PropMass"]			= 0.00054724535712
-	self.BulletData["Ricochet"]			= 75
-	self.BulletData["RoundVolume"]			= 2.6678210724688
-	self.BulletData["ShovePower"]			= 0.2
-	self.BulletData["Tracer"]			= 0
-	self.BulletData["Type"]			= "AP"
-	self.BulletData["InvalidateTraceback"]			= true
-	
-	self:UpdateFakeCrate()
-end
-
-
-
 
 function SWEP:FireBullet()
 

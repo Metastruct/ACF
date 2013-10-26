@@ -36,3 +36,25 @@ local function recvSmokeWind(len)
 	XCF.SmokeWind = net.ReadFloat()
 end
 net.Receive("xcf_smokewind", recvSmokeWind)
+
+
+
+
+local function recvSWEPMuzzle(len)
+	local ent = net.ReadEntity()
+	local prop = net.ReadFloat()
+	local type = net.ReadInt(8)
+	
+	local lply = LocalPlayer()
+	if ent.Owner and ent.Owner == lply or ent:GetOwner() == lply then return end
+	
+	local Effect = EffectData()
+		Effect:SetEntity( ent )
+		Effect:SetScale( prop )
+		Effect:SetMagnitude( 1 )
+		Effect:SetSurfaceProp( type )	--Encoding the ammo type into a table index
+	util.Effect( "XCF_SWEPMuzzleFlash", Effect, true)
+end
+net.Receive("XCF_SWEPMuzzle", recvSWEPMuzzle)
+
+

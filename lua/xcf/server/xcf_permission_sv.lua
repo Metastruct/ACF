@@ -10,6 +10,7 @@ XCF.Permissions.Safezones = false
 
 XCF.Permissions.Modes = {}
 XCF.Permissions.ModeDescs = {}
+XCF.Permissions.ModeThinks = {}
 
 //TODO: convar this
 local mapSZDir = "xcf/safezones/"
@@ -432,10 +433,11 @@ end
 
 
 
-function XCF.Permissions.RegisterMode(mode, name, desc, default)
+function XCF.Permissions.RegisterMode(mode, name, desc, default, think)
 
 	XCF.Permissions.Modes[name] = mode
 	XCF.Permissions.ModeDescs[name] = desc
+	XCF.Permissions.ModeThinks[name] = think or function() end
 	print("XCF: Registered damage permission mode \"" .. name .. "\"!")
 	
 	
@@ -446,6 +448,22 @@ function XCF.Permissions.RegisterMode(mode, name, desc, default)
 	end
 	
 end
+
+
+XCF.Permissions.thinkWrapper = function()
+	local curmode = table.KeyFromValue(XCF.Permissions.Modes, XCF.DamagePermission)
+	--print(curmode)
+	local think = XCF.Permissions.ModeThinks[curmode]
+	local nextthink
+	
+	if think then
+		nextthink = think()
+	end
+	
+	timer.Simple(nextthink or 0.01, XCF.Permissions.thinkWrapper)
+end
+
+timer.Simple(0.01, XCF.Permissions.thinkWrapper)
 
  
 function XCF.GetDamagePermissions(ownerid)

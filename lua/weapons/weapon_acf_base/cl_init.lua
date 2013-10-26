@@ -33,6 +33,8 @@ function SWEP:Initialize()
 	self:SetWeaponHoldType( self.HoldType )
 	self.defaultFOV = self.Owner:GetFOV()
 	self.lastaccuracy = self.MaxInaccuracy
+	self.wasReloading = false
+	self.reloadBegin = 0
 	
 	self.lastHUDDraw = CurTime()
 	
@@ -42,6 +44,8 @@ function SWEP:Initialize()
 	self.curServInacc = self.MaxInaccuracy
 	self.curVisInacc = self.MaxInaccuracy
 	self.smoothFactor = 0
+	
+	self:InitBulletData()
 	
 	//self.Zoomed = false
 	/*
@@ -226,6 +230,23 @@ end
 
 
 
+surface.CreateFont( "XCFSWEPReload", {
+	font = "Arial",
+	size = 18,
+	weight = 500,
+	blursize = 0,
+	scanlines = 0,
+	antialias = false,
+	underline = false,
+	italic = false,
+	strikeout = false,
+	symbol = false,
+	rotary = false,
+	shadow = false,
+	additive = false,
+	outline = true
+} )
+
 function SWEP:DrawHUD()
 
 	
@@ -255,7 +276,24 @@ function SWEP:DrawHUD()
 		self.curVisInacc = math.Clamp(self.curVisInacc + self.smoothFactor, math.min(self.lastServInacc, self.curServInacc), math.max(self.lastServInacc, self.curServInacc))
 		--print(self.curVisInacc, self.smoothFactor)
 		--surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * servinacc / self.Owner:GetFOV() , Color(0, 0, 0, 128) )
-		surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.curVisInacc / self.Owner:GetFOV() , HSVToColor( circlehue, 1, isReloading and 0 or 1 ) )
+		local aimRadius = ScrW() / 2 * self.curVisInacc / self.Owner:GetFOV()
+		surface.DrawCircle(scrpos.x, scrpos.y, aimRadius, HSVToColor( circlehue, 1, isReloading and 0 or 1 ) )
+		
+		if isReloading then
+			if not self.wasReloading then
+				self.reloadBegin = CurTime()
+				--print(self:Clip1(), type(self:Clip1()))
+				self.lastReloadTime = self.ReloadByRound and (self.ReloadTime * (self.Primary.ClipSize - self:Clip1()) + self.ReloadTime) or self.ReloadTime
+			end
+			
+			local fractLeft = math.Clamp(self.lastReloadTime - (CurTime() - self.reloadBegin), 0, self.lastReloadTime) / self.lastReloadTime
+			local fontcol = HSVToColor( 120 - fractLeft * 120, 1, 1 )
+			surface.SetFont( "XCFSWEPReload" )
+			surface.SetTextColor( fontcol.r, fontcol.g, fontcol.b, 255 )
+			surface.SetTextPos( scrpos.x - aimRadius - 4, scrpos.y + aimRadius - 14 ) 
+			surface.DrawText( math.Round(100 - fractLeft * 100, 0) .. "%" )
+		end
+		self.wasReloading = isReloading
 		
 		if self.ShotSpread and self.ShotSpread > 0 then
 			surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV() , Color(0, 0, 0, 128) )

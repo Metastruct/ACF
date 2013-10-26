@@ -11,6 +11,7 @@ function ENT:Initialize()
 	
 	self.BulletData = {}	
 	self.SpecialDamage = true	--If true needs a special ACF_OnDamage function
+	self.ShouldTrace = false
 	
 	self.Model = "models/missiles/aim54.mdl"
 	self:SetModelEasy(self.Model)
@@ -144,10 +145,26 @@ end
 
 
 
+local trace = {}
+local thinktime = 0.1
 function ENT:Think()
  	
-	return true
+	if self.ShouldTrace then
+		local pos = self:GetPos()
+		trace.start = pos
+		trace.endpos = pos + self:GetVelocity() * thinktime
+		trace.filter = self
 
+		local res = util.TraceEntity( trace, self ) 
+		if res.Hit then
+			self:OnTraceContact(res)
+		end
+	end
+	
+	self:NextThink(CurTime() + thinktime)
+	
+	return true
+		
 end
 
 
@@ -170,4 +187,24 @@ function ENT:Detonate()
 	--timer.Simple(15, function() if self and self.Entity and IsValid(self.Entity) then self.Entity:Remove() end end)
 	--self.Entity:Remove()
 
+end
+
+
+--local undonked = true
+function ENT:OnTraceContact(trace)
+	/*
+	if undonked then
+		print("donk!")
+		printByName(trace)
+		undonked = false
+	end
+	//*/
+end
+
+
+
+function ENT:SetShouldTrace(bool)
+	self.ShouldTrace = bool and true
+	--print(self.ShouldTrace)
+	self:NextThink(CurTime())
 end

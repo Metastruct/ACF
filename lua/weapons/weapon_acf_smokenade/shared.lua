@@ -69,3 +69,30 @@ SWEP.StaminaJumpDrain = 0.07
 SWEP.Class = "MG"
 SWEP.FlashClass = "MG"
 SWEP.Launcher = false
+
+
+function SWEP:InitBulletData()
+
+	self.BulletData = {}
+	self.BulletData["BoomPower"]	= 0.07806550085885
+	self.BulletData["Caliber"]		= 8
+	self.BulletData["DragCoef"]		= 0.0012252117505705
+	self.BulletData["FillerMass"]	= 0.07726125125885
+	self.BulletData["FrAera"]		= 50.2656
+	self.BulletData["Id"]			= "8cmB1"
+	self.BulletData["KETransfert"]	= 0.1
+	self.BulletData["LimitVel"]		= 100
+	self.BulletData["MuzzleVel"]	= 20.289680830208
+	self.BulletData["PenAera"]		= 27.930598395101
+	self.BulletData["ProjLength"]	= 12
+	self.BulletData["ProjMass"]		= 4.1026051192044
+	self.BulletData["PropLength"]	= 0.01
+	self.BulletData["PropMass"]		= 0.0008042496
+	self.BulletData["Ricochet"]		= 60
+	self.BulletData["RoundVolume"]	= 603.689856
+	self.BulletData["ShovePower"]	= 0.1
+	self.BulletData["Tracer"]		= 0
+	self.BulletData["Type"]			= "SM"
+	--self.BulletData["Colour"]		= Color(100, 200, 255)
+
+end

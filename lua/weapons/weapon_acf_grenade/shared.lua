@@ -72,6 +72,32 @@ SWEP.Launcher = false
 
 
 
+function SWEP:InitBulletData()
+	
+	self.BulletData = {}
+	self.BulletData["BoomPower"]	= 0.49494626772744
+	self.BulletData["Caliber"]		= 8
+	self.BulletData["DragCoef"]		= 0.0017372329950914
+	self.BulletData["FillerMass"]	= 0.49414201812744
+	self.BulletData["FrAera"]		= 50.2656
+	self.BulletData["Id"]			= "8cmB4"
+	self.BulletData["KETransfert"]	= 0.1
+	self.BulletData["LimitVel"]		= 100
+	self.BulletData["MuzzleVel"]	= 24.160096985541
+	self.BulletData["PenAera"]		= 27.930598395101
+	self.BulletData["ProjLength"]	= 12
+	self.BulletData["ProjMass"]		= 2.8934288113354
+	self.BulletData["PropLength"]	= 0.01
+	self.BulletData["PropMass"]		= 0.0008042496
+	self.BulletData["Ricochet"]		= 60
+	self.BulletData["RoundVolume"]	= 603.689856
+	self.BulletData["ShovePower"]	= 0.1
+	self.BulletData["Tracer"]		= 0
+	self.BulletData["Type"]			= "HE"
+end
+
+
+
 //*
 function SWEP:PrimaryAttack()
 	if self:CanPrimaryAttack() then
@@ -95,7 +121,7 @@ function SWEP:ThinkBefore()
 		self.PressedTime = nil
 		
 		if SERVER then
-			self.Weapon:SendWeaponAnim(ACT_VM_THROW)
+			self:ShootEffects()
 			self.Weapon:EmitSound( self.Primary.Sound )
 			self.Weapon:TakePrimaryAmmo(1)
 			self:FireBullet()
@@ -106,4 +132,10 @@ function SWEP:ThinkBefore()
 		self.Inaccuracy = math.Clamp(self.Inaccuracy + self.InaccuracyPerShot, self.MinInaccuracy, self.MaxInaccuracy)
 	end
 	
+end
+
+
+function SWEP:ShootEffects()
+	self:SendWeaponAnim( ACT_VM_THROW )		// View model animation
+	self.Owner:SetAnimation( PLAYER_ATTACK1 )	// 3rd Person Animation
 end

@@ -13,6 +13,11 @@ local modename = "battle"
 local modedescription = "Enables safe-zones and battlefield.  No ACF damage can occur in a safe-zone."
 
 
+// battle-mode specifics: how much hp/armour should the players have?
+local MAX_HP = 100
+local MAX_Armour = 50
+
+
 /*
 	Defines the behaviour of XCF damage protection under this protection mode.
 	This function is called every time an entity can be affected by potential ACF damage.
@@ -46,5 +51,27 @@ hook.Add("XCF_PlayerChangedZone", "XCF_TellPlyAboutSafezone", tellPlyAboutZones)
 
 
 
+local function modethink()
+	for k, ply in pairs(player.GetAll()) do
+		--print(ply:GetPos(), XCF.IsInSafezone(ply:GetPos()))
+		if not XCF.IsInSafezone(ply:GetPos()) then
+			ply:GodDisable()
+			local HP = ply:Health()
+			local AR = ply:Armor()
+			
+			if HP > MAX_HP then
+				ply:SetHealth(MAX_HP)
+			end
+			
+			if AR > MAX_Armour then
+				ply:SetArmor(MAX_Armour)
+			end
+		end
+	end
+	
+	return 0.25
+end
+
+
 if not XCF or not XCF.Permissions or not XCF.Permissions.RegisterMode then error("XCF: Tried to load the " .. modename .. " permission-mode before the permission-core has loaded!") end
-XCF.Permissions.RegisterMode(modepermission, modename, modedescription)
+XCF.Permissions.RegisterMode(modepermission, modename, modedescription, false, modethink)
