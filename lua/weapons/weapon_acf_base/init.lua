@@ -13,7 +13,10 @@ SWEP.AutoSwitchFrom		= false
 
 function SWEP:Initialize()
 	self:SetWeaponHoldType(self.HoldType)
-	
+	if IsValid(self:GetParent()) then
+		self.Owner = self:GetParent()
+		self:SetOwner(self:GetParent())
+	end
 	self:InitBulletData()
 	self:UpdateFakeCrate()
 end

@@ -27,8 +27,8 @@ SWEP.WorldModel 		= "models/weapons/w_snip_sg550.mdl";
 SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
-SWEP.AutoSwitchTo		= false
-SWEP.AutoSwitchFrom		= false
+SWEP.AutoSwitchTo		= true
+SWEP.AutoSwitchFrom		= true
 
 SWEP.Primary.Recoil			= 5
 SWEP.Primary.ClipSize		= 5
@@ -308,6 +308,12 @@ function SWEP:VisRecoil()
 	if SERVER then
 		local rnda = self.Primary.Recoil * -1 
 		local rndb = self.Primary.Recoil * math.random(-1, 1) 
+		
+		if self.Zoomed then
+			rnda = rnda * 0.25
+			rndb = rndb * 0.25
+		end
+		
 		self.Owner:ViewPunch( Angle( rnda,rndb,rnda/4 ) ) 
 	end
 end

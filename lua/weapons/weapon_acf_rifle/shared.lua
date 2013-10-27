@@ -61,12 +61,12 @@ SWEP.InaccuracyCrouchBonus = 1.4
 SWEP.InaccuracyDuckPenalty = 6
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.004
+SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true
 SWEP.HasScope = true
-SWEP.ZoomInaccuracyMod = 0.3
+SWEP.ZoomInaccuracyMod = 0.5
 SWEP.ZoomDecayMod = 1.3
 SWEP.ZoomFOV = 30
 

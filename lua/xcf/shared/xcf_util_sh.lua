@@ -25,10 +25,11 @@ end
 
 concommand.Add( "xcf_debugprint", function(ply, cmd, args, str)
 	if not args[1] then ply:PrintMessage(HUD_PRINTCONSOLE,
-		"\"xcf_debugprint\" = " .. XCFDebug ..
+		"\"xcf_debugprint\" = " .. tostring(XCFDebug) ..
 		"\n - Toggles XCF debug console messages")
 		return
 	end
 	
 	XCFDebug = (tonumber(args[1]) == 1) and true or false
+	XCF.Debug = XCFDebug
 end)

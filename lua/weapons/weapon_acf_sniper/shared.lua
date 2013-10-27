@@ -22,8 +22,8 @@ SWEP.ViewModelFlip			= false
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= false
 SWEP.Category			= "ACF"
-SWEP.ViewModel 			= "models/weapons/v_snip_awp.mdl";
-SWEP.WorldModel 		= "models/weapons/w_snip_awp.mdl";
+SWEP.ViewModel 			= "models/weapons/v_snip_scout.mdl";
+SWEP.WorldModel 		= "models/weapons/w_snip_scout.mdl";
 SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
@@ -36,7 +36,7 @@ SWEP.Primary.Delay			= 1.6
 SWEP.Primary.DefaultClip	= 10
 SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "XBowBolt"
-SWEP.Primary.Sound 			= "Weapon_AWP.Single"
+SWEP.Primary.Sound 			= "acf_extra/tankfx/gnomefather/mortar2.wav"--"Weapon_AWP.Single"
 
 SWEP.ReloadTime				= 5
 
@@ -63,11 +63,11 @@ SWEP.InaccuracyDuckPenalty = 8
 SWEP.HasZoom = true
 SWEP.HasScope = true
 SWEP.ZoomInaccuracyMod = 0.01
-SWEP.ZoomDecayMod = 10
+SWEP.ZoomDecayMod = 2
 SWEP.ZoomFOV = 15
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.006
+SWEP.StaminaDrain = 0.006 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.Class = "HMG"

@@ -47,6 +47,8 @@ function SWEP:Initialize()
 	
 	self:InitBulletData()
 	
+	print(self:GetParent())
+	
 	//self.Zoomed = false
 	/*
 	self.VMInstance = self.Owner:GetViewModel()
@@ -115,6 +117,10 @@ function SWEP:DrawScope()
 	local scrw2 = ScrW() / 2
 	local scrh = ScrH()
 	local scrh2 = ScrH() / 2
+	
+	local scrpos = self.Owner:GetEyeTrace().HitPos:ToScreen()
+	local devx = scrw2 - scrpos.x
+	local devy = scrh2 - scrpos.y
 
 	surface.SetDrawColor(0, 0, 0, 255) 
 
@@ -126,21 +132,31 @@ function SWEP:DrawScope()
 	local basewide = scrh * 0.01
 	local basewide2 = basewide * 2
 	local centersep = scrh * 0.02
-	surface.DrawRect(0, scrh2 - basewide, baselen, basewide2)
-	surface.DrawRect(scrw - baselen, scrh2 - basewide, baselen, basewide2)
-	surface.DrawRect(scrw2 - basewide, scrh - (baselen - rectsides*1.5), basewide2, (baselen - rectsides*1.5))
+	surface.DrawRect(0 - devx, scrh2 - basewide - devy, baselen, basewide2)
+	surface.DrawRect(scrw - baselen - devx, scrh2 - basewide - devy, baselen, basewide2)
+	surface.DrawRect(scrw2 - basewide - devx, scrh - (baselen - rectsides*1.5) - devy, basewide2, (baselen - rectsides*1.5))
 	
-	surface.DrawLine(0, scrh2, scrw2 - centersep, scrh2)
-	surface.DrawLine(scrw2 + centersep, scrh2, scrw, scrh2)
-	surface.DrawLine(scrw2, scrh, scrw2, scrh2 + centersep)
+	surface.DrawLine(0 - devx, scrh2 - devy, scrw2 - centersep - devx, scrh2 - devy)
+	surface.DrawLine(scrw2 + centersep - devx, scrh2 - devy, scrw - devx, scrh2 - devy)
+	surface.DrawLine(scrw2 - devx, scrh - devy, scrw2 - devx, scrh2 + centersep - devy)
 	
-	surface.DrawCircle(scrw2, scrh2, 2, Color(0,0,0))
+	local aimRadius = scrw / 2 * self.curVisInacc / self.Owner:GetFOV()
+	surface.DrawCircle(scrpos.x, scrpos.y, aimRadius, Color(50, 50, 50, 200) )
+	
+	surface.DrawCircle(scrw2 - devx, scrh2 - devy, 2, Color(0,0,0))
+	
+	surface.SetDrawColor(0, 0, 0, 255) 
 	
 	surface.SetMaterial(Material("gmod/scope"))
-	surface.DrawTexturedRect(rectsides, 0, scrw - rectsides * 2, scrh)
+	surface.DrawTexturedRect(rectsides - devx, 0 - devy, scrw - rectsides * 2, scrh)
 	
-	surface.DrawRect(0, 0, rectsides + 2, scrh)
-	surface.DrawRect(scrw - rectsides - 2, 0, rectsides + 4, scrh)
+	surface.DrawRect(0, 0, rectsides + 2 - devx, scrh)
+	surface.DrawRect(scrw - rectsides - 2 - devx, 0, rectsides + 2 + devx, scrh)
+	
+	if math.abs(devy) >= 0.5 then
+		surface.DrawRect(rectsides + 2 - devx, 0, scrw - rectsides * 2, -devy)
+		surface.DrawRect(rectsides + 2 - devx, scrh - devy, scrw - rectsides * 2, devy)
+	end
 	
 	return true
 end
@@ -249,43 +265,40 @@ surface.CreateFont( "XCFSWEPReload", {
 
 function SWEP:DrawHUD()
 
-	
-
 	if not (self.Owner:Alive() or self.Owner:InVehicle()) then return end
 
 	local drawcircle = not self:DrawScope()
 	
+	local scrpos = drawcircle and self.Owner:GetEyeTrace().HitPos:ToScreen()
+	local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )
+	local servstam = self.Weapon:GetNetworkedFloat("ServerStam", 0)
+	
+	local servinacc = self.Weapon:GetNetworkedFloat("ServerInacc", self.MaxInaccuracy)
+	if servinacc ~= self.curServInacc then
+		self.timeDiff = CurTime() - self.lastServRecv
+		self.lastServRecv = CurTime()
+		self.lastServInacc = self.curServInacc
+		self.curServInacc = servinacc
+		self.curVisInacc = self.lastServInacc
+		self.smoothFactor = (self.curServInacc - self.lastServInacc) * self.timeDiff
+	end
+
+	self.curVisInacc = math.Clamp(self.curVisInacc + self.smoothFactor, math.min(self.lastServInacc, self.curServInacc), math.max(self.lastServInacc, self.curServInacc))
+
+	local aimRadius = drawcircle and ScrW() / 2 * self.curVisInacc / self.Owner:GetFOV()
+	
 	if drawcircle then
-		local scrpos = self.Owner:GetEyeTrace().HitPos:ToScreen()
-		local isReloading = self.Weapon:GetNetworkedBool( "reloading", false )
-		local servstam = self.Weapon:GetNetworkedFloat("ServerStam", 0)
 		local circlehue = servstam * 120
-		--surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * self.Inaccuracy / self.Owner:GetFOV() , HSVToColor( self.Stamina * 120, 1, isReloading and 0 or 1 ) )
-		
-		local servinacc = self.Weapon:GetNetworkedFloat("ServerInacc", self.MaxInaccuracy)
-		if servinacc ~= self.curServInacc then
-			self.timeDiff = CurTime() - self.lastServRecv
-			self.lastServRecv = CurTime()
-			self.lastServInacc = self.curServInacc
-			self.curServInacc = servinacc
-			self.curVisInacc = self.lastServInacc
-			self.smoothFactor = (self.curServInacc - self.lastServInacc) * self.timeDiff-- * (CurTime() - self.lastHUDDraw)
-		end
-		--self.visinacc = self.visinacc or self.MaxInaccuracy
-		--self.visinacc = self.visinacc + self.smoothFactor * (CurTime() - self.lastHUDDraw)
-		self.curVisInacc = math.Clamp(self.curVisInacc + self.smoothFactor, math.min(self.lastServInacc, self.curServInacc), math.max(self.lastServInacc, self.curServInacc))
-		--print(self.curVisInacc, self.smoothFactor)
-		--surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * servinacc / self.Owner:GetFOV() , Color(0, 0, 0, 128) )
-		local aimRadius = ScrW() / 2 * self.curVisInacc / self.Owner:GetFOV()
 		surface.DrawCircle(scrpos.x, scrpos.y, aimRadius, HSVToColor( circlehue, 1, isReloading and 0 or 1 ) )
+	end
 		
-		if isReloading then
-			if not self.wasReloading then
-				self.reloadBegin = CurTime()
-				--print(self:Clip1(), type(self:Clip1()))
-				self.lastReloadTime = self.ReloadByRound and (self.ReloadTime * (self.Primary.ClipSize - self:Clip1()) + self.ReloadTime) or self.ReloadTime
-			end
-			
+	if isReloading then
+		if not self.wasReloading then
+			self.reloadBegin = CurTime()
+			self.lastReloadTime = self.ReloadByRound and (self.ReloadTime * (self.Primary.ClipSize - self:Clip1()) + self.ReloadTime) or self.ReloadTime
+		end
+		
+		if drawcircle then
 			local fractLeft = math.Clamp(self.lastReloadTime - (CurTime() - self.reloadBegin), 0, self.lastReloadTime) / self.lastReloadTime
 			local fontcol = HSVToColor( 120 - fractLeft * 120, 1, 1 )
 			surface.SetFont( "XCFSWEPReload" )
@@ -293,11 +306,11 @@ function SWEP:DrawHUD()
 			surface.SetTextPos( scrpos.x - aimRadius - 4, scrpos.y + aimRadius - 14 ) 
 			surface.DrawText( math.Round(100 - fractLeft * 100, 0) .. "%" )
 		end
-		self.wasReloading = isReloading
-		
-		if self.ShotSpread and self.ShotSpread > 0 then
-			surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV() , Color(0, 0, 0, 128) )
-		end
+	end
+	self.wasReloading = isReloading
+	
+	if drawcircle and self.ShotSpread and self.ShotSpread > 0 then
+		surface.DrawCircle(scrpos.x, scrpos.y, ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV() , Color(0, 0, 0, 128) )
 	end
 	
 	self.lastHUDDraw = CurTime()

@@ -54,14 +54,14 @@ SWEP.WeaponBone = false
 SWEP.MinInaccuracy = 1
 SWEP.MaxInaccuracy = 12
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.07
+SWEP.InaccuracyDecay = 0.13
 SWEP.AccuracyDecay = 0.3
 SWEP.InaccuracyPerShot = 11
 SWEP.InaccuracyCrouchBonus = 1.4
 SWEP.InaccuracyDuckPenalty = 5
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.02
+SWEP.StaminaDrain = 0.02 / 1
 SWEP.StaminaJumpDrain = 0.25
 
 SWEP.HasZoom = true

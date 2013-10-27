@@ -27,12 +27,10 @@ SWEP.WorldModel 		= "models/weapons/w_shot_xm1014.mdl";
 SWEP.ViewModelFlip		= true
 
 SWEP.Weight				= 5
-SWEP.AutoSwitchTo		= false
-SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Recoil			= 2
-SWEP.Primary.ClipSize		= 5
-SWEP.Primary.Delay			= 0.6
+SWEP.Primary.ClipSize		= 6
+SWEP.Primary.Delay			= 0.3
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
@@ -64,7 +62,7 @@ SWEP.InaccuracyDuckPenalty = 1
 SWEP.ShotSpread = 3
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.004
+SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true

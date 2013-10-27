@@ -51,17 +51,17 @@ SWEP.ScopeChopPos = false
 SWEP.ScopeChopAngle = false
 SWEP.WeaponBone = false//"v_weapon.aug_Parent"
 
-SWEP.MinInaccuracy = 0.9
-SWEP.MaxInaccuracy = 15
+SWEP.MinInaccuracy = 0.8
+SWEP.MaxInaccuracy = 10
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.12
+SWEP.InaccuracyDecay = 0.14
 SWEP.AccuracyDecay = 0.5
-SWEP.InaccuracyPerShot = 2
+SWEP.InaccuracyPerShot = 1.8
 SWEP.InaccuracyCrouchBonus = 2.3
 SWEP.InaccuracyDuckPenalty = 10
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.014
+SWEP.StaminaDrain = 0.008 / 1
 SWEP.StaminaJumpDrain = 0.2
 
 SWEP.HasZoom = true

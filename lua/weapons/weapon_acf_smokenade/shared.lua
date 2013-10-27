@@ -63,7 +63,7 @@ SWEP.InaccuracyCrouchBonus = 1
 SWEP.InaccuracyDuckPenalty = 4
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.004
+SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.07
 
 SWEP.Class = "MG"

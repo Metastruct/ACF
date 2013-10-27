@@ -27,8 +27,6 @@ SWEP.WorldModel 		= "models/weapons/w_rif_galil.mdl";
 SWEP.ViewModelFlip		= false
 
 SWEP.Weight				= 5
-SWEP.AutoSwitchTo		= false
-SWEP.AutoSwitchFrom		= false
 
 SWEP.Primary.Recoil			= 2
 SWEP.Primary.ClipSize		= 20
@@ -61,7 +59,7 @@ SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 4
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.004
+SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.HasZoom = true
