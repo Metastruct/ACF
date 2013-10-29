@@ -47,7 +47,7 @@ function SWEP:Initialize()
 	
 	self:InitBulletData()
 	
-	print(self:GetParent())
+	--print(self:GetParent())
 	
 	//self.Zoomed = false
 	/*

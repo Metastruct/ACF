@@ -117,4 +117,8 @@ function SWEP:InitBulletData()
 	self.BulletData["Tracer"]			= 1.3513513513514
 	self.BulletData["InvalidateTraceback"]			= true
 
+	if SERVER then
+		self.BulletData.CallbackEndFlight = self.CallbackEndFlight
+	end
+	
 end
