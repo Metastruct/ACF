@@ -16,7 +16,7 @@
 
 local req = false
 local effect
-function util.ClientsideEffect(name, data)
+function XCF.ClientsideEffect(name, data)
     req = true
     util.Effect(name, data)
     req = false
@@ -25,7 +25,7 @@ function util.ClientsideEffect(name, data)
     return ent
 end
  
-hook.Add("OnEntityCreated","cluaeffect",function(ent)
+hook.Add("OnEntityCreated","XCF_CLuaEffect",function(ent)
     if(req) then effect = ent end
 end)
 

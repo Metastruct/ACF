@@ -7,12 +7,18 @@
  function EFFECT:Init( data ) 
 	
 	local Gun = data:GetEntity()
+	
+	if not IsValid(Gun) then error("Received a muzzleflash for an invalid gun!") return end
+	
 	local Sound = Gun:GetNWString( "Sound" )
 	local Propellant = data:GetScale()
 	local ReloadTime = data:GetMagnitude()
 	
-	local Class = Gun:GetNWString( "Class" ) or error("Couldn't find the gun's class while making a muzzleflash!")
-	local Id = Gun:GetNWString( "Id" ) or error("Couldn't find the gun's ID while making a muzzleflash!")
+	local Class = Gun:GetNWString( "Class" )
+	local guntable = ACF.Classes["GunClass"][Class]
+	if not guntable then error("Couldn't find the gun's class for a muzzleflash! (" .. Class .. ")") return end
+	
+	--local Id = Gun:GetNWString( "Id" ) or error("Couldn't find the gun's ID while making a muzzleflash!")
 	local RoundType = ACF.IdRounds[data:GetSurfaceProp()]
 		
 	if Gun:IsValid() then
@@ -27,7 +33,7 @@
 			--sound.Play( ACF.Classes["GunClass"][Class]["soundNormal"], Gun:GetPos() , math.Clamp(SoundPressure,75,255), math.Clamp(100,15,255))
 			
 			local Muzzle = Gun:GetAttachment( Gun:LookupAttachment( "muzzle" ) ) or { Pos = Gun:GetPos(), Ang = Gun:GetAngles() }
-			ParticleEffect( ACF.Classes["GunClass"][Class]["muzzleflash"], Muzzle.Pos, Muzzle.Ang, Gun )
+			ParticleEffect( guntable["muzzleflash"], Muzzle.Pos, Muzzle.Ang, Gun )
 			Gun:Animate( Class, ReloadTime, false )
 		else
 			Gun:Animate( Class, ReloadTime, true )
