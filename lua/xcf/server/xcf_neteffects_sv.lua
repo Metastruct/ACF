@@ -246,6 +246,42 @@ end
 
 
 
+function this.ClientAmmoRequest(len, ply)
+
+	local uid = net.ReadDouble()
+
+	--print("Received resend request", ply, uid)
+	
+	if not uid then 
+		--print("Bad uid!")
+		return
+	end
+	
+	local ammodata = ammouids[tostring(uid)]
+	--print(ammodata and "Found" or "Didn't find", "ammo data for uid", uid)
+	if not ammodata then return end
+	
+	--printByName(ammodata.BulletData)
+	
+	local tosend = ammodata.BulletData
+	
+	net.Start(str.AMMOREG)
+	net.WriteDouble(uid)
+	vectorhack(true)
+	local success, err = pcall(net.WriteTable, tosend)
+	vectorhack(false)
+	
+	if not success then error("Failure to register requested ammo (" .. tostring(uid) .. ") to player (" .. tostring(ply) .. ") " .. err .. "\n" .. debug.traceback()) end
+	
+	net.Send(ply)
+	
+	return tosend
+end
+net.Receive(str.BADUID, this.ClientAmmoRequest)
+
+
+
+
 function this.AddToAmmoRegistry(ammo, ammodata)
 
 	if not ammouids then error("Couldn't find ammo registry!") return end

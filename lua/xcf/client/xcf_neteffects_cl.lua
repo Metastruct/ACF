@@ -59,7 +59,9 @@ function this.AmmoRegister(len)
 	print("AMMOREG END\n\n")
 	--]]--
 	//*
-	local tblproj = ammouids[tostring(uid)]
+	local uidstr = tostring(uid)
+	local tblproj = ammouids[uidstr]
+	
 	if tblproj then
 		local vtype
 		for k, v in pairs(tblproj) do
@@ -76,7 +78,7 @@ function this.AmmoRegister(len)
 			end
 		end
 	else
-		ammouids[tostring(uid)] = proj
+		ammouids[uidstr] = proj
 		--[[
 		print("REPLACING ammouids", uid, "=")
 		printByName(proj)
@@ -84,6 +86,7 @@ function this.AmmoRegister(len)
 	end
 	//*/
 	
+	this.UIDLastBad[uidstr] = nil
 end
 net.Receive(str.AMMOREG, this.AmmoRegister)
 
@@ -100,6 +103,39 @@ function this.AmmoDeregister(len)
 	this.AmmoQueuedDeregister(uid)
 end
 net.Receive(str.AMMODEREG, this.AmmoDeregister)
+
+
+
+this.UIDLastBad = {}
+this.PerBadUIDWait = 1
+function this.UnknownAmmoUID(uid)
+
+	local uidtype = type(uid)
+	local uidstr
+	
+	if uidtype == "string" then
+		uidstr = uid
+		uid = tonumber(uid)
+	elseif uidtype == "number" then 
+		uidstr = tostring(uid)
+	else
+		error("Tried to request resend of an invalid ammo UID!")
+		return
+	end
+	
+	local lastbad = this.UIDLastBad[uidstr]
+	local curtime = CurTime()
+	
+	if not lastbad or (lastbad + this.PerBadUIDWait <= curtime) then
+		--print("Requesting resend of ammo UID", uid, "...")
+		net.Start(str.BADUID)
+			net.WriteDouble(uid)
+		net.SendToServer()
+		
+		this.UIDLastBad[uidstr] = curtime
+	end
+
+end
 
 
 
@@ -152,7 +188,12 @@ function this.ReceiveProjUID(len)
 	print("RECVUID END\n\n")
 	//*/
 	
-	local ammoType = ammouids[tostring(compact.ID)] or error("Couldn't find appropriate ammo info for projectile " .. index .. "!")
+	local ammoType = ammouids[tostring(compact.ID)]--	or error("Couldn't find appropriate ammo info for projectile " .. index .. "!")
+	if not ammoType then
+		print("Couldn't find appropriate ammo info for projectile " .. index .. "!")
+		this.UnknownAmmoUID(compact.ID)
+		return
+	end
 	
 	local proj = table.Copy(ammoType)
 	proj.Pos = compact.Pos
@@ -254,7 +295,7 @@ function this.AlterProj(len)
 	//print(tostring(success), tostring(diffs))
 	
 	if not (index and success and diffs) then
-		print("Received an invalid update for projectile " .. index .. "!")
+		--print("Received an invalid update for projectile " .. index .. "!")
 		return
 	end
 	

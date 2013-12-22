@@ -6,6 +6,9 @@ DEFINE_BASECLASS( "base_wire_entity" )
 ENT.PrintName = "ACF Gun"
 ENT.WireDebugName = "ACF Gun"
 
+local MUZZLE = "xcfGnMzl"
+local RELOAD = "xcfGnRld"
+
 if CLIENT then
 
 	function ENT:Initialize()
@@ -80,6 +83,51 @@ if CLIENT then
 		acfmenupanel.CustomDisplay:PerformLayout()
 		
 	end
+	
+	
+	local netfx = XCF.NetFX or error("Gun entity loaded before NetFX")
+	local uids = netfx.AmmoUIDs
+
+	function XCF_GunReceiveMuzzle(len)
+		local gun = net.ReadEntity()
+		local ammo = net.ReadDouble()
+		local time = net.ReadDouble()
+		if not IsValid(gun) then return end
+		
+		--print("Muzzle in!", ammo, gun)
+		
+		local ammodata = uids[tostring(ammo)]
+		if not ammodata then 
+			netfx.UnknownAmmoUID(ammo)
+			return
+		end
+		
+		local Effect = EffectData()
+			Effect:SetEntity( gun )
+			Effect:SetScale( ammodata.PropMass )
+			Effect:SetMagnitude( time ) //TODO: reload is relevant in muzzle?
+			Effect:SetSurfaceProp( ACF.RoundTypes[ammodata.Type].netid  )	--Encoding the ammo type into a table index
+		util.Effect( "ACF_MuzzleFlash", Effect, true)
+		
+	end
+	net.Receive(MUZZLE, XCF_GunReceiveMuzzle)
+	
+
+	function XCF_GunReceiveReload(len)
+		local gun = net.ReadEntity()
+		local time = net.ReadDouble()
+		if not IsValid(gun) then return end
+		
+		--print("Reload in!", time, gun)
+		
+		local Effect = EffectData()
+			Effect:SetEntity( gun )
+			Effect:SetScale( 0 )
+			Effect:SetMagnitude( time )
+			Effect:SetSurfaceProp( 1 )	--Encoding the ammo type into a table index
+		util.Effect( "ACF_MuzzleFlash", Effect, true)
+	end
+	net.Receive(RELOAD, XCF_GunReceiveReload)
 	
 	return
 	
@@ -642,27 +690,37 @@ function ENT:UnloadAmmo()
 
 end
 
+
+
+util.AddNetworkString(MUZZLE)
 function ENT:MuzzleEffect()
-	
-	local Effect = EffectData()
-		Effect:SetEntity( self )
-		Effect:SetScale( self.BulletData.PropMass )
-		Effect:SetMagnitude( self.ReloadTime )
-		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData.Type].netid  )	--Encoding the ammo type into a table index
-	util.Effect( "ACF_MuzzleFlash", Effect, true, true )
+	--print("Muzzle out!", self.BulletData.NetUID)
+
+	net.Start(MUZZLE)
+		net.WriteEntity(self)
+		net.WriteDouble(self.BulletData.NetUID)
+		net.WriteDouble(self.ReloadTime)
+	net.Broadcast()
 
 end
 
+
+
+
+util.AddNetworkString(RELOAD)
 function ENT:ReloadEffect()
 
-	local Effect = EffectData()
-		Effect:SetEntity( self )
-		Effect:SetScale( 0 )
-		Effect:SetMagnitude( self.ReloadTime )
-		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData.Type].netid  )	--Encoding the ammo type into a table index
-	util.Effect( "ACF_MuzzleFlash", Effect, true, true )
+	--print("Reload out!", self.ReloadTime)
+
+	net.Start(RELOAD)
+		net.WriteEntity(self)
+		net.WriteDouble(self.ReloadTime)
+	net.Broadcast()
 	
 end
+
+
+
 
 function ENT:PreEntityCopy()
 
