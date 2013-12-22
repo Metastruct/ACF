@@ -6,6 +6,10 @@ AddCSLuaFile( "cl_init.lua" )
 include('shared.lua')
 
 
+local MUZZLE = "xcfRkMzl"
+local RELOAD = "xcfRkRld"
+
+
 local permittedRackAmmo = 
 {
 	Rocket = true,
@@ -360,7 +364,7 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 		Rack.PGRoFmod = math.max(0, gundef["rofmod"])
 	end
 	-- Custom BS for karbine. Magazine Size, Mag reload Time
-	Rack.CurrentShot = 0
+	
 	Rack.MagSize = 1
 	if(gundef["magsize"]) then
 		Rack.MagSize = math.max(Rack.MagSize, gundef["magsize"] or 1)
@@ -368,6 +372,12 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	Rack.MagReload = 0
 	if(gundef["magreload"]) then
 		Rack.MagReload = math.max(Rack.MagReload, gundef["magreload"])
+	end
+	
+	if not UpdateRack then
+		Rack.CurrentShot = 0
+	else
+		Rack.CurrentShot = math.Clamp(Rack.CurrentShot, 0, Rack.MagSize)
 	end
 	-- self.CurrentShot, self.MagSize, self.MagReload
 	
@@ -529,7 +539,31 @@ end
 
 
 
+util.AddNetworkString(MUZZLE)
+function ENT:MuzzleEffect(attach)
+	--print("Muzzle out!", self.BulletData.NetUID)
 
+	net.Start(MUZZLE)
+		net.WriteEntity(self)
+		net.WriteDouble(self.BulletData.NetUID)
+		net.WriteDouble(self.ReloadTime)
+		net.WriteDouble(attach or 0)
+	net.Broadcast()
+
+end
+
+util.AddNetworkString(RELOAD)
+function ENT:ReloadEffect()
+
+	--print("Reload out!", self.ReloadTime)
+
+	net.Start(RELOAD)
+		net.WriteEntity(self)
+		net.WriteDouble(self.ReloadTime)
+	net.Broadcast()
+	
+end
+/*
 function ENT:MuzzleEffect( attach )
 	
 	local Effect = EffectData()
@@ -555,6 +589,7 @@ function ENT:ReloadEffect()
 	util.Effect( "ACF_MuzzleFlash", Effect, true, true )
 	
 end
+//*/
 
 
 

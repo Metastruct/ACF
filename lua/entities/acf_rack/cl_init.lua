@@ -4,6 +4,10 @@ include ("shared.lua")
 
 ENT.RenderGroup 		= RENDERGROUP_OPAQUE
 
+local MUZZLE = "xcfRkMzl"
+local RELOAD = "xcfRkRld"
+
+
 function ENT:Draw()
 	self:DoNormalDraw()
 	self:DrawModel()	
@@ -77,3 +81,51 @@ end
 function ENT:Animate( Class, ReloadTime, LoadOnly )
 
 end
+
+
+
+local netfx = XCF.NetFX or error("Rack entity loaded before NetFX")
+local uids = netfx.AmmoUIDs
+
+function XCF_RackReceiveMuzzle(len)
+	local gun = net.ReadEntity()
+	local ammo = net.ReadDouble()
+	local time = net.ReadDouble()
+	local attach = net.ReadDouble()
+	if not IsValid(gun) then return end
+	
+	--print("Muzzle in!", ammo, gun, time, attach)
+	
+	local ammodata = uids[tostring(ammo)]
+	if not ammodata then 
+		netfx.UnknownAmmoUID(ammo)
+		return
+	end
+	
+	local Effect = EffectData()
+		Effect:SetEntity( gun )
+		Effect:SetScale( ammodata.PropMass )
+		Effect:SetMagnitude( time )
+		Effect:SetRadius( attach )
+		Effect:SetSurfaceProp( ACF.RoundTypes[ammodata.Type].netid  )	--Encoding the ammo type into a table index
+	util.Effect( "ACF_MuzzleFlash", Effect, true)
+	
+end
+net.Receive(MUZZLE, XCF_RackReceiveMuzzle)
+
+
+function XCF_RackReceiveReload(len)
+	local gun = net.ReadEntity()
+	local time = net.ReadDouble()
+	if not IsValid(gun) then return end
+	
+	--print("Reload in!", time, gun)
+	
+	local Effect = EffectData()
+		Effect:SetEntity( gun )
+		Effect:SetScale( 0 )
+		Effect:SetMagnitude( time )
+		Effect:SetSurfaceProp( 1 )	--Encoding the ammo type into a table index
+	util.Effect( "ACF_MuzzleFlash", Effect, true)
+end
+net.Receive(RELOAD, XCF_RackReceiveReload)
