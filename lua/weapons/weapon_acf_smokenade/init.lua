@@ -13,6 +13,9 @@ SWEP.AutoSwitchFrom		= false
 
 
 
+
+
+
 function SWEP.grenadeExplode(bomb)
 	if IsValid(bomb) then 
 		local decibels 	= 90
@@ -21,4 +24,24 @@ function SWEP.grenadeExplode(bomb)
 	
 		bomb:Detonate()
 	end
+end
+
+
+
+util.AddNetworkString("XCFSGCol")
+function SWEP:SecondaryAttack()
+
+	if not self.SmokeColourIdx then 
+		self.SmokeColourIdx = 1
+	else
+		self.SmokeColourIdx = (self.SmokeColourIdx % #self.SmokeColours) + 1
+	end
+	
+	self.BulletData.Colour = self.SmokeColours[self.SmokeColourIdx][2]
+	
+	net.Start("XCFSGCol")
+		net.WriteEntity(self)
+		net.WriteInt(self.SmokeColourIdx, 8)
+	net.Send(self.Owner)
+
 end

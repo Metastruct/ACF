@@ -10,7 +10,7 @@ if (CLIENT) then
 	SWEP.IconLetter			= "f"
 	SWEP.DrawCrosshair		= false
 	SWEP.Purpose		= "420 blaze it #yolo"
-	SWEP.Instructions       = "Reload at Bomb Ammo-boxes!"
+	SWEP.Instructions       = "Change colours with Secondary attack!\n Reload at Bomb Ammo-boxes!"
 
 end
 
@@ -71,6 +71,17 @@ SWEP.FlashClass = "MG"
 SWEP.Launcher = false
 
 
+SWEP.SmokeColours = 
+{
+	{"WHITE",  Color(255, 255, 255)},
+	{"BLUE",   Color(110, 180, 255)},
+	{"RED",    Color(255, 130, 100)},
+	{"GREEN",  Color(100, 255, 130)},
+	{"PURPLE", Color(220, 130, 255)},
+	{"YELLOW", Color(255, 230, 100)}
+}
+
+
 function SWEP:InitBulletData()
 
 	self.BulletData = {}
@@ -93,6 +104,6 @@ function SWEP:InitBulletData()
 	self.BulletData["ShovePower"]	= 0.1
 	self.BulletData["Tracer"]		= 0
 	self.BulletData["Type"]			= "SM"
-	--self.BulletData["Colour"]		= Color(100, 200, 255)
+	self.BulletData["Colour"]		= Color(255, 255, 255)
 
 end
