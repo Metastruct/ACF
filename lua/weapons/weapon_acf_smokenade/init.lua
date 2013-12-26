@@ -32,7 +32,7 @@ util.AddNetworkString("XCFSGCol")
 function SWEP:SecondaryAttack()
 
 	if not self.SmokeColourIdx then 
-		self.SmokeColourIdx = 1
+		self.SmokeColourIdx = 2
 	else
 		self.SmokeColourIdx = (self.SmokeColourIdx % #self.SmokeColours) + 1
 	end
