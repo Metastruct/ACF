@@ -30,7 +30,7 @@ SWEP.Weight				= 5
 SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
-SWEP.Primary.Recoil			= 1.5
+SWEP.Primary.Recoil			= 0.8
 SWEP.Primary.ClipSize		= 100
 SWEP.Primary.Delay			= 0.09
 SWEP.Primary.DefaultClip	= 100
@@ -38,7 +38,7 @@ SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
 SWEP.Primary.Sound 			= "Weapon_M249.Single"
 
-SWEP.ReloadTime				= 8
+SWEP.ReloadTime				= 7
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -55,13 +55,13 @@ SWEP.MinInaccuracy = 0.8
 SWEP.MaxInaccuracy = 10
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.14
-SWEP.AccuracyDecay = 0.5
-SWEP.InaccuracyPerShot = 1.8
-SWEP.InaccuracyCrouchBonus = 2.3
+SWEP.AccuracyDecay = 6
+SWEP.InaccuracyPerShot = 1.6
+SWEP.InaccuracyCrouchBonus = 6
 SWEP.InaccuracyDuckPenalty = 10
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.008 / 1
+SWEP.StaminaDrain = 0.006 / 1
 SWEP.StaminaJumpDrain = 0.2
 
 SWEP.HasZoom = true

@@ -40,7 +40,7 @@ SWEP.Primary.Sound 			= "acf_extra/tankfx/gnomefather/2pdr2.wav"
 
 util.PrecacheSound( SWEP.Primary.Sound )
 
-SWEP.ReloadTime				= 10
+SWEP.ReloadTime				= 8
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -61,7 +61,7 @@ SWEP.InaccuracyCrouchBonus = 1.7
 SWEP.InaccuracyDuckPenalty = 4
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.015 / 1
+SWEP.StaminaDrain = 0.004 / 1
 SWEP.StaminaJumpDrain = 0.15
 
 SWEP.HasZoom = true

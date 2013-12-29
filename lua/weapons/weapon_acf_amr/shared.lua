@@ -39,7 +39,7 @@ SWEP.Primary.Automatic		= false
 SWEP.Primary.Ammo			= "XBowBolt"
 SWEP.Primary.Sound 			= "acf_extra/tankfx/gnomefather/40mm3.wav"
 
-SWEP.ReloadTime				= 6
+SWEP.ReloadTime				= 5
 
 SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
@@ -55,8 +55,8 @@ SWEP.WeaponBone = "v_weapon.sg550_Parent"
 SWEP.MinInaccuracy = 3
 SWEP.MaxInaccuracy = 16
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
-SWEP.InaccuracyDecay = 0.04
-SWEP.AccuracyDecay = 0.6
+SWEP.InaccuracyDecay = 0.06
+SWEP.AccuracyDecay = 0.5
 SWEP.InaccuracyPerShot = 16
 SWEP.InaccuracyCrouchBonus = 1.7
 SWEP.InaccuracyDuckPenalty = 8
@@ -68,7 +68,7 @@ SWEP.ZoomDecayMod = 1.6
 SWEP.ZoomFOV = 25
 
 SWEP.Stamina = 1
-SWEP.StaminaDrain = 0.012 / 1
+SWEP.StaminaDrain = 0.003 / 1
 SWEP.StaminaJumpDrain = 0.1
 
 SWEP.Class = "SA"

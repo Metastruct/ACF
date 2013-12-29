@@ -30,7 +30,7 @@ SWEP.Weight				= 5
 
 SWEP.Primary.Recoil			= 2
 SWEP.Primary.ClipSize		= 20
-SWEP.Primary.Delay			= 0.11
+SWEP.Primary.Delay			= 0.13
 SWEP.Primary.DefaultClip	= 100
 SWEP.Primary.Automatic		= true
 SWEP.Primary.Ammo			= "XBowBolt"
@@ -54,7 +54,7 @@ SWEP.MaxInaccuracy = 7
 SWEP.Inaccuracy = SWEP.MaxInaccuracy
 SWEP.InaccuracyDecay = 0.2
 SWEP.AccuracyDecay = 0.3
-SWEP.InaccuracyPerShot = 2.5
+SWEP.InaccuracyPerShot = 3
 SWEP.InaccuracyCrouchBonus = 1.3
 SWEP.InaccuracyDuckPenalty = 4
 
