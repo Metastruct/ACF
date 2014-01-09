@@ -72,6 +72,8 @@ CreateConVar('sbox_max_acf_ammo', 32)
 CreateConVar('sbox_max_acf_misc', 32)
 CreateConVar('acf_meshvalue', 1)
 
+CreateConVar('sbox_max_xcf_bomb', 12)
+
 AddCSLuaFile()
 AddCSLuaFile( "acf/client/cl_acfballistics.lua" )
 AddCSLuaFile( "acf/client/cl_acfmenu_gui.lua" )

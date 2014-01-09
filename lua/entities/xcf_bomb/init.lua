@@ -38,15 +38,29 @@ end
 
 
 
+
+function ENT:TriggerInput( inp, value )
+	if inp == "Detonate" and value ~= 0 then
+		self:Detonate()
+	end
+end
+
+
+
+
 function MakeXCF_Bomb(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
+
+	--print(Owner, Pos, Angle, Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Mdl)
 
 	if not Owner:CheckLimit("_xcf_bomb") then return false end
 	
 	--print(Id, Data1, Data2)
 	local weapon = ACF.Weapons.Guns[Data1]
+	---[[
 	if not (weapon and weapon.roundclass and weapon.roundclass == "Bomb") then
 		return false, "Can't make a bomb with non-bomb round-data!"
 	end
+	--]]--
 	
 	local Bomb = ents.Create("xcf_bomb")
 	if not Bomb:IsValid() then return false end
@@ -207,4 +221,24 @@ function ENT:SetShouldTrace(bool)
 	self.ShouldTrace = bool and true
 	--print(self.ShouldTrace)
 	self:NextThink(CurTime())
+end
+
+
+
+
+function ENT:EnableClientInfo(bool)
+	self.ClientInfo = bool
+	self:SetNetworkedBool("VisInfo", bool)
+	
+	if bool then
+		self:RefreshClientInfo()
+	end
+end
+
+
+
+function ENT:RefreshClientInfo()
+	self:SetNetworkedString("RoundId", self.RoundId)
+	self:SetNetworkedString("RoundType", self.RoundType)
+	self:SetNetworkedFloat("FillerVol", self.RoundData5)
 end
