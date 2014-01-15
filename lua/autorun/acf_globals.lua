@@ -104,6 +104,7 @@ elseif CLIENT then
 	killicon.Add( "acf_SA", "HUD/killicons/acf_SA", Color( 200, 200, 48, 255 ) )
 	killicon.Add( "acf_ammo", "HUD/killicons/acf_ammo", Color( 200, 200, 48, 255 ) )
 	
+	CreateConVar("acf_cl_particlemul", 1)
 end
 
 include("acf/shared/rounds/roundap.lua")
