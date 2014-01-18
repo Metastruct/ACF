@@ -180,7 +180,7 @@ end
 
 function Round.guicreate( Panel, Table )
 
-	acfmenupanel:AmmoSelect()
+	acfmenupanel:AmmoSelect( ACF.AmmoBlacklist.SM )
 
 	acfmenupanel:CPanelText("Desc", "")	--Description (Name, Desc)
 	acfmenupanel:CPanelText("LengthDisplay", "")	--Total round length (Name, Desc)
