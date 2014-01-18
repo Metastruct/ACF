@@ -19,6 +19,8 @@ function ENT:Initialize()
 	self.Inputs = Wire_CreateInputs( self, { "Detonate" } )
 	self.Outputs = Wire_CreateOutputs( self, {} )
 	
+	--self.ACF_HEIgnore = true
+	
 end
 
 
@@ -30,7 +32,7 @@ function ENT:ACF_OnDamage( Entity , Energy , FrAera , Angle , Inflictor )
 	local CanDo = hook.Run("ACF_AmmoExplode", self, self.BulletData )
 	if CanDo == false then return HitRes end
 	
-	HitRes.Kill = true
+	HitRes.Kill = false
 	self:Detonate()
 	
 	return HitRes --This function needs to return HitRes
@@ -150,6 +152,7 @@ end
 
 function ENT:SetBulletData(bdata)
 	self.BulletData = table.Copy(bdata)
+	self.BulletData.Entity = self
 	local phys = self.Entity:GetPhysicsObject()  	
 	if (IsValid(phys)) then  		
 		phys:SetMass( bdata.ProjMass or bdata.RoundMass or bdata.Mass or 10 ) 
@@ -186,9 +189,10 @@ end
 
 function ENT:Detonate()
 	
+	if self.Detonated then return end
+	
 	--print("boom2!")
 	self.Detonated = true
-	self.Entity:Remove()
 	
 	--print(self.BulletData.Type, ACF.RoundTypes[self.BulletData.Type]["endflight"])
 	ACF.RoundTypes[self.BulletData.Type]["endflight"]( -1337, self.BulletData, self:GetPos(), self:GetUp() )
@@ -197,6 +201,8 @@ function ENT:Detonate()
 	local phys = self:GetPhysicsObject()
 	self.BulletData.SimFlight = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
 	ACF.RoundTypes[self.BulletData.Type]["endeffect"]( nil, self.BulletData)
+	
+	self.Entity:Remove()
 	
 	--timer.Simple(15, function() if self and self.Entity and IsValid(self.Entity) then self.Entity:Remove() end end)
 	--self.Entity:Remove()
