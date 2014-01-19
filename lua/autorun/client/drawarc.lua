@@ -83,34 +83,3 @@ function draw.Arc(cx,cy,radius,thickness,startang,endang,roughness,color,bClockw
 	surface.SetDrawColor(color)
 	surface.DrawArc(surface.PrecacheArc(cx,cy,radius,thickness,startang,endang,roughness,bClockwise))
 end
-
-concommand.Add("test_arc", function()
-	hook.Remove("HUDPaint", "arcTest")
-	
-	local arcs = {}
-	
-	local function AddArc()
-		local r = math.Rand(10,250)
-		table.insert(arcs, {
-			r = r,
-			t = math.Clamp(r - math.Rand(r-5,r-100),5,r-8),
-			x = math.random(ScrW()),
-			y = math.random(ScrH()),
-			sa = math.random(358), 
-			ea = math.random(358),
-			rough = math.random(25),
-			c = Color(math.random(255),math.random(255),math.random(255),math.random(200,255))
-		})
-	end
-	--timer.Create("AddArc", .5,0,AddArc)
-	
-	AddArc()
-	
-	hook.Add("HUDPaint", "arcTest", function()
-		for k,arc in pairs(arcs)do
-			arc.sa = arc.sa + 5
-			arc.ea = arc.ea + 5
-			draw.Arc(arc.x,arc.y,arc.r,arc.t,arc.sa,arc.ea,arc.rough,arc.c)
-		end
-	end)
-end)
