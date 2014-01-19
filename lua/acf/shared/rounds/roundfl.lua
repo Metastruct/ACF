@@ -15,23 +15,7 @@ Round.netid = 8 --Unique ammotype ID for network transmission
 function Round.create( Gun, BulletData )
 	
 	--setup flechettes
-	local FlechetteData = {}
-	FlechetteData["Caliber"] = math.Round( BulletData["FlechetteRadius"]*0.2 ,2)
-	FlechetteData["Id"] = BulletData["Id"]
-	FlechetteData["Type"] = "AP" --BulletData["Type"]
-	FlechetteData["Owner"] = BulletData["Owner"]
-	FlechetteData["Crate"] = BulletData["Crate"]
-	FlechetteData["Gun"] = BulletData["Gun"]
-	FlechetteData["Pos"] = BulletData["Pos"]
-	FlechetteData["FrAera"] = BulletData["FlechetteArea"]
-	FlechetteData["ProjMass"] = BulletData["FlechetteMass"]
-	FlechetteData["DragCoef"] = BulletData["FlechetteDragCoef"]
-	FlechetteData["Tracer"] = BulletData["Tracer"]
-	FlechetteData["LimitVel"] = BulletData["LimitVel"]
-	FlechetteData["Ricochet"] = BulletData["Ricochet"]
-	FlechetteData["PenAera"] = BulletData["FlechettePenArea"]
-	FlechetteData["ShovePower"] = BulletData["ShovePower"]
-	FlechetteData["KETransfert"] = BulletData["KETransfert"]
+	local FlechetteData = Round.getFlechetteData(BulletData)
 
 	local I=1
 	local Inaccuracy
@@ -52,6 +36,35 @@ function Round.create( Gun, BulletData )
 	end
 	
 end
+
+
+function Round.getFlechetteData(BulletData)
+
+	local FlechetteData = {}
+	FlechetteData["Caliber"] = math.Round( BulletData["FlechetteRadius"]*0.2 ,2)
+	FlechetteData["Id"] = BulletData["Id"]
+	FlechetteData["Type"] = "AP" --BulletData["Type"]
+	FlechetteData["Owner"] = BulletData["Owner"]
+	FlechetteData["Crate"] = BulletData["Crate"]
+	FlechetteData["Gun"] = BulletData["Gun"]
+	FlechetteData["Pos"] = BulletData["Pos"]
+	FlechetteData["FrAera"] = BulletData["FlechetteArea"]
+	FlechetteData["ProjMass"] = BulletData["FlechetteMass"]
+	FlechetteData["DragCoef"] = BulletData["FlechetteDragCoef"]
+	FlechetteData["Tracer"] = BulletData["Tracer"]
+	FlechetteData["LimitVel"] = BulletData["LimitVel"]
+	FlechetteData["Ricochet"] = BulletData["Ricochet"]
+	FlechetteData["PenAera"] = BulletData["FlechettePenArea"]
+	FlechetteData["ShovePower"] = BulletData["ShovePower"]
+	FlechetteData["KETransfert"] = BulletData["KETransfert"]
+	FlechetteData["NetUID"] = BulletData.ChildUID
+	FlechetteData["Colour"] = BulletData.Colour
+	FlechetteData["ProjClass"] = XCF.ProjClasses.Shell
+
+	return FlechetteData
+	
+end
+
 
 -- Function to convert the player's slider data into the complete round data
 function Round.convert( Crate, PlayerData )
@@ -146,7 +159,7 @@ end
 
 function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 
-	if ACF_Check( Target ) then
+	if XCF_Check( Target, Bullet.Owner ) then
 
 		local Speed = Bullet["Flight"]:Length() / ACF.VelScale
 		local Energy = ACF_Kinetic( Speed , Bullet["ProjMass"], Bullet["LimitVel"] )

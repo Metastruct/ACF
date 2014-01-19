@@ -347,8 +347,8 @@ function ENT:CreateAmmo(Id, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Dat
 	self.RoundType = bdata.Type		--Type of round, IE AP, HE, HEAT ...
 	self.RoundPropellant = bdata.PropLength or 0--Lenght of propellant
 	self.RoundProjectile = bdata.ProjLength or 0--Lenght of the projectile
-	self.RoundData5 = ( bdata.FillerVol or bdata.Data5 or 0 )
-	self.RoundData6 = ( bdata.ConeAng or bdata.Data6 or 0 )
+	self.RoundData5 = ( bdata.FillerVol or bdata.Flechettes or bdata.Data5 or 0 )
+	self.RoundData6 = ( bdata.ConeAng or bdata.FlechetteSpread or bdata.Data6 or 0 )
 	self.RoundData7 = ( bdata.Data7 or 0 )
 	self.RoundData8 = ( bdata.Data8 or 0 )
 	self.RoundData9 = ( bdata.Data9 or 0 )
