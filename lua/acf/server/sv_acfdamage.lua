@@ -266,6 +266,20 @@ function ACF_KEShove(Target, Pos, Vec, KE )
 	
 end
 
+
+
+ACF.IgniteDebris = 
+{
+	acf_ammo = true,
+	acf_gun = true,
+	acf_gearbox = true,
+	acf_fueltank = true,
+	acf_engine = true,
+	acf_rack = true
+}
+
+
+
 function ACF_HEKill( Entity , HitVector , Energy )
 	--print("ACF_HEKill ent: ".. Entity:GetModel() or "unknown")
 	--print("ACF_HEKill Energy "..Energy or "nill")
@@ -290,7 +304,11 @@ function ACF_HEKill( Entity , HitVector , Energy )
 		Debris:SetPos( Entity:GetPos() )
 		Debris:SetMaterial("models/props_wasteland/metal_tram001a")
 		Debris:Spawn()
-		Debris:Ignite(60,0)
+		
+		if ACF.IgniteDebris[Entity:GetClass()] then
+			Debris:Ignite(60,0)
+		end
+		
 		Debris:Activate()
 
 	local phys = Debris:GetPhysicsObject() 
