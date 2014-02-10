@@ -7,6 +7,8 @@ if not aaa_foldergen_wasloaded then include("autorun/aaa_foldergen.lua") end
 // Requires manual sorting.
 include("xcf/shared/xcf_acf_additions.lua")
 
+include("autorun/client/drawarc.lua")
+
 aaa_IncludeHere("xcf/shared/gunclass")
 
 include("xcf/shared/xcf_missiledefs_shared.lua")
