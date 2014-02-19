@@ -1,4 +1,9 @@
 
+function XCF_Check(Ent, Inflictor)
+	print("WARNING: XCF_Check is no longer needed and is deprecated in favour of ACF_Check!")
+	return ACF_Check(Ent)
+end
+
 
 function XCF_CreateBulletSWEP( BulletData, Swep, LagComp )
 
