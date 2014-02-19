@@ -14,7 +14,7 @@ end
 
 
 local function convertSZData()
-	local files, dirs = file.Find("*", mapSZDir)
+	local files, dirs = file.Find(mapSZDir .. "*", "DATA")
 	
 	if not files or #files == 0 then
 		print("Couldn't find any XCF SZ data!")
@@ -40,7 +40,7 @@ end
 
 
 local function convertDPData()
-	local files, dirs = file.Find("*", mapDPDir)
+	local files, dirs = file.Find(mapDPMDir .. "*", "DATA")
 	
 	if not files or #files == 0 then
 		print("Couldn't find any XCF Map-DP data!")
@@ -74,6 +74,9 @@ end
 
 local function convertDataToACFDP()
 
+	local files = file.Find("xcf/dp_moved.txt", "DATA")
+	if files and #files ~= 0 then return end
+
 	print("XCF DP has changed to ACF DP!  Converting SZ and DP files...")
 
 	file.CreateDir("acf")
@@ -87,6 +90,8 @@ local function convertDataToACFDP()
 	print("Done XCF DP -> ACF DP conversion!")
 	
 end
+
+convertDataToACFDP()
 
 
 
