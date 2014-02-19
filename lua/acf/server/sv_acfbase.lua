@@ -81,35 +81,32 @@ function ACF_Activate ( Entity , Recalc )
 end
 
 
-/**
-	XCF EDITED
-	This function has been superseded by XCF_Check, which requires an extra parameter for damage permission.
-//*/
 function ACF_Check ( Entity )
-	error("Some old code is calling ACF_Check, when it should be using the new XCF_Check function!")
+
+	if ( IsValid(Entity) ) then
+		if ( Entity:GetPhysicsObject():IsValid() and !Entity:IsWorld() and !Entity:IsWeapon() ) then
+			local Class = Entity:GetClass()
+			if ( Class != "gmod_ghost" and Class != "debris" and Class != "prop_ragdoll" and not string.find( Class , "func_" )  ) then
+				if !Entity.ACF then 
+					ACF_Activate( Entity )
+				elseif Entity.ACF.Mass != Entity:GetPhysicsObject():GetMass() then
+					ACF_Activate( Entity , true )
+				end
+				--print("ACF_Check "..Entity.ACF.Type)
+				return Entity.ACF.Type	
+			end	
+		end
+	end
+	return false
+	
 end
 
 
 
-// A template for the result of an unpermitted damage attempt.
-local rejectHitRes =
-{
-	["Damage"] = 0,
-	["Overkill"] = 0,
-	["Loss"] = 0,
-	["Kill"] = false
-}
-
-/**
-	XCF EDITED
-	ACF_Damage function with added damage permission checking.
-//*/
 function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone ) 
 	
-	local Activated = XCF_Check( Entity, Inflictor )
+	local Activated = ACF_Check( Entity )
 	local CanDo = hook.Run("ACF_BulletDamage", Activated, Entity, Energy, FrAera, Angle, Inflictor, Bone, Gun )
-	
-	//print("cando is ", CanDo)
 	
 	if Activated and CanDo != false then
 		if Entity.SpecialDamage then
@@ -127,7 +124,13 @@ function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone )
 		end
 	end
 	
-	return table.Copy(rejectHitRes)
+	return
+	{
+		["Damage"] = 0,
+		["Overkill"] = 0,
+		["Loss"] = 0,
+		["Kill"] = false
+	}
 	
 end
 

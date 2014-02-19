@@ -164,7 +164,7 @@ end
 
 function Round.propimpact( Index, Bullet, Target, HitNormal, HitPos, Bone )
 	
-	if XCF_Check( Target, Bullet.Owner ) then
+	if ACF_Check( Target ) then
 			
 		if Bullet.Detonated then
 			

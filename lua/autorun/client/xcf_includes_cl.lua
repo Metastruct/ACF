@@ -16,7 +16,7 @@ include("xcf/shared/xcf_missilefuncs_shared.lua")
 
 include("xcf/client/xcf_util_cl.lua")
 include("xcf/client/xcf_sanitize_acf_table_cl.lua")
-include("xcf/client/xcf_permission_cl.lua")
+//include("xcf/client/xcf_permission_cl.lua")
 include("xcf/client/xcf_ballistics_cl.lua")
 include("xcf/client/xcf_neteffects_cl.lua")
 

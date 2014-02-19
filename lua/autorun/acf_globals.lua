@@ -69,7 +69,7 @@ ACF.GunInaccuracyScale = 1 -- A multiplier for gun accuracy.
 ACF.GunInaccuracyBias = 2  -- Higher numbers make shots more likely to be inaccurate.  Choose between 0.5 to 4. Default is 2 (unbiased).
 ACF.EngineHPMult = 1/8
 
-ACF.EnableDefaultDP = false -- Enable the inbuilt damage protection system.
+ACF.EnableDefaultDP = true -- Enable the inbuilt damage protection system.
 
 
 if file.Exists("acf/shared/acf_userconfig.lua", "LUA") then

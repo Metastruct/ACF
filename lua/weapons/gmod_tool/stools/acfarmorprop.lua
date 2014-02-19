@@ -123,7 +123,7 @@ function TOOL:LeftClick( trace )
 	
 	if not IsValid( ent ) or ent:IsPlayer() then return false end
 	if CLIENT then return true end
-	if not XCF_Check( ent, self:GetOwner() ) then return false end
+	if not ACF_Check( ent ) then return false end
 	
 	local ply = self:GetOwner()
 	
@@ -147,7 +147,7 @@ function TOOL:RightClick( trace )
 	
 	if not IsValid( ent ) or ent:IsPlayer() then return false end
 	if CLIENT then return true end
-	if not XCF_Check( ent, self:GetOwner() ) then return false end
+	if not ACF_Check( ent ) then return false end
 	
 	local ply = self:GetOwner()
 	
@@ -192,7 +192,7 @@ function TOOL:Think()
 	local ent = ply:GetEyeTrace().Entity
 	if ent == self.AimEntity then return end
 	
-	if XCF_Check( ent, self:GetOwner() ) then
+	if ACF_Check( ent ) then
 		
 		ply:ConCommand( "acfarmorprop_area " .. ent.ACF.Aera )
 		self.Weapon:SetNetworkedInt( "WeightMass", ent:GetPhysicsObject():GetMass() )

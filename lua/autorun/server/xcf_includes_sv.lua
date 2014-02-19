@@ -8,7 +8,7 @@ if not aaa_foldergen_wasloaded then include("autorun/aaa_foldergen.lua") end
 include("xcf/shared/xcf_acf_additions.lua")
 
 include("xcf/server/xcf_util_sv.lua")
-include("xcf/server/xcf_permission_sv.lua")
+//include("xcf/server/xcf_permission_sv.lua")
 include("xcf/server/xcf_ballistics_sv.lua")
 include("xcf/server/xcf_neteffects_sv.lua")
 
