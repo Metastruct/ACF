@@ -29,6 +29,7 @@ ACF.DragDiv = 40		--Drag fudge factor
 ACF.VelScale = 1		--Scale factor for the shell velocities in the game world
 -- local PhysEnv = physenv.GetPerformanceSettings()
 ACF.PhysMaxVel = 4000
+ACF.SmokeWind = 5 + math.random()*35 --affects the ability of smoke to be used for screening effect
 
 ACF.PBase = 1050		--1KG of propellant produces this much KE at the muzzle, in kj
 ACF.PScale = 1	--Gun Propellant power expotential
@@ -63,8 +64,17 @@ ACF.Year = 1945
 
 ACF.DebrisScale = 20 -- Ignore debris that is less than this bounding radius.
 ACF.TorqueScale = 1/4
-ACF.SpreadScale = 4
+ACF.SpreadScale = 4		-- The maximum amount that damage can decrease a gun's accuracy.  Default 4x
+ACF.GunInaccuracyScale = 1 -- A multiplier for gun accuracy.
+ACF.GunInaccuracyBias = 2  -- Higher numbers make shots more likely to be inaccurate.  Choose between 0.5 to 4. Default is 2 (unbiased).
 ACF.EngineHPMult = 1/8
+
+ACF.EnableDefaultDP = false -- Enable the inbuilt damage protection system.
+
+
+if file.Exists("acf/shared/acf_userconfig.lua", "LUA") then
+	include("acf/shared/acf_userconfig.lua")
+end
 
 
 CreateConVar('sbox_max_acf_gun', 12)
@@ -79,6 +89,11 @@ AddCSLuaFile( "acf/client/cl_acfballistics.lua" )
 AddCSLuaFile( "acf/client/cl_acfmenu_gui.lua" )
 AddCSLuaFile( "acf/client/cl_acfrender.lua" )
 
+if SERVER and ACF.EnableDefaultDP then
+	AddCSLuaFile( "acf/client/cl_acfpermission.lua" )
+	AddCSLuaFile( "acf/client/gui/cl_acfsetpermission.lua" )
+end
+
 if SERVER then
 
 	util.AddNetworkString( "ACF_KilledByACF" )
@@ -88,11 +103,20 @@ if SERVER then
 	include("acf/server/sv_acfbase.lua")
 	include("acf/server/sv_acfdamage.lua")
 	include("acf/server/sv_acfballistics.lua")
+	
+	if ACF.EnableDefaultDP then
+		include("acf/server/sv_acfpermission.lua")
+	end
 
 elseif CLIENT then
 
 	include("acf/client/cl_acfballistics.lua")
 	include("acf/client/cl_acfrender.lua")
+	
+	if ACF.EnableDefaultDP then
+		include("acf/client/cl_acfpermission.lua")
+		include("acf/client/gui/cl_acfsetpermission.lua")
+	end
 	
 	killicon.Add( "acf_AC", "HUD/killicons/acf_AC", Color( 200, 200, 48, 255 ) )
 	killicon.Add( "acf_AL", "HUD/killicons/acf_AL", Color( 200, 200, 48, 255 ) )
@@ -309,6 +333,60 @@ cvars.AddChangeCallback("acf_armormod", ACF_CVarChangeCallback)
 cvars.AddChangeCallback("acf_ammomod", ACF_CVarChangeCallback)
 cvars.AddChangeCallback("acf_spalling", ACF_CVarChangeCallback)
 cvars.AddChangeCallback("acf_gunfire", ACF_CVarChangeCallback)
+
+-- smoke-wind cvar handling
+if SERVER then
+	local function msgtoconsole(hud, msg)
+			print(msg)
+	end
+
+	util.AddNetworkString("acf_smokewind")
+	concommand.Add( "acf_smokewind", function(ply, cmd, args, str)
+			local validply = IsValid(ply)
+			local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
+			
+			if not args[1] then printmsg(HUD_PRINTCONSOLE,
+					"Set the wind intensity upon all smoke munitions." ..
+					"\n   This affects the ability of smoke to be used for screening effect." ..
+					"\n   Example; acf_smokewind 300")
+					return false
+			end
+			
+			if validply and not ply:IsAdmin() then
+					printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
+					return false
+					
+			else
+					local wind = tonumber(args[1])
+
+					if not wind then
+							printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: that wind value could not be interpreted as a number!")
+							return false
+					end
+					
+					ACF.SmokeWind = wind
+					
+					net.Start("acf_smokewind")
+							net.WriteFloat(wind)
+					net.Broadcast()
+					
+					printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: set smoke-wind to " .. wind .. "!")
+					return true        
+			end
+	end)
+
+	local function sendSmokeWind(ply)
+			net.Start("acf_smokewind")
+					net.WriteFloat(ACF.SmokeWind)
+			net.Send(ply)
+	end
+	hook.Add( "PlayerInitialSpawn", "ACF_SendSmokeWind", sendSmokeWind )
+else
+	local function recvSmokeWind(len)
+		ACF.SmokeWind = net.ReadFloat()
+	end
+	net.Receive("acf_smokewind", recvSmokeWind)
+end
 
 /*
 ONE HUGE HACK to get good killicons.

@@ -394,8 +394,10 @@ function ENT:GetUser( inp )
 			return self:GetUser(inp.Inputs.Shoot.Src) 
 		elseif inp.Inputs then
 			for _,v in pairs(inp.Inputs) do
-				if table.HasValue(WireTable, v.Src:GetClass()) then
-					return self:GetUser(v.Src) 
+				if v.Src then
+					if table.HasValue(WireTable, v.Src:GetClass()) then
+						return self:GetUser(v.Src) 
+					end
 				end
 			end
 		end
@@ -530,6 +532,23 @@ function ENT:ReloadMag()
 	end
 end
 
+
+
+function ENT:GetInaccuracy()
+	local SpreadScale = ACF.SpreadScale
+	local IaccMult = 1
+	
+	if (self.ACF.Health and self.ACF.MaxHealth) then
+		IaccMult = math.Clamp(((1 - SpreadScale) / (0.5)) * ((self.ACF.Health/self.ACF.MaxHealth) - 1) + 1, 1, SpreadScale)
+	end
+	
+	local coneAng = (math.tan(math.rad(self.Inaccuracy)) * IaccMult) * ACF.GunInaccuracyScale
+	
+	return coneAng
+end
+
+
+
 function ENT:FireShell()
 	
 	local CanDo = hook.Run("ACF_FireShell", self, self.BulletData )
@@ -561,17 +580,16 @@ function ENT:FireShell()
 		
 			local MuzzlePos = self:LocalToWorld(self.Muzzle)
 			local MuzzleVec = self:GetForward()
-			local SpreadScale = ACF.SpreadScale
-			local IaccMult = 1
-			if (self.ACF.Health and self.ACF.MaxHealth) then
-				IaccMult = math.Clamp(((1 - SpreadScale) / (0.5)) * ((self.ACF.Health/self.ACF.MaxHealth) - 1) + 1, 1, SpreadScale)
-			end
-			local Inaccuracy = (VectorRand() / 360 * self.Inaccuracy) * IaccMult
+			
+			local coneAng = self:GetInaccuracy()
+			local randUnitSquare = (self:GetUp() * (2 * math.random() - 1) + self:GetRight() * (2 * math.random() - 1))
+			local spread = randUnitSquare:GetNormalized() * coneAng * (math.random() ^ (1 / math.Clamp(ACF.GunInaccuracyBias, 0.5, 4)))
+			local ShootVec = (MuzzleVec + spread):GetNormalized()
 			
 			self:MuzzleEffect( MuzzlePos, MuzzleVec )
 			
 			self.BulletData.Pos = MuzzlePos
-			self.BulletData.Flight = (MuzzleVec+Inaccuracy):GetNormalized() * self.BulletData.MuzzleVel * 39.37 + self:GetVelocity()
+			self.BulletData.Flight = ShootVec * self.BulletData.MuzzleVel * 39.37 + self:GetVelocity()
 			self.BulletData.Owner = self.User
 			self.BulletData.Gun = self
 			self.CreateShell = ACF.RoundTypes[self.BulletData.Type].create

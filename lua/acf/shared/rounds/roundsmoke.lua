@@ -140,6 +140,13 @@ function Round.endeffect( Effect, Bullet )
 			Flash:SetStart(Vector(255, 255, 255))
 		end
 		Flash:SetRadius( math.max( Radius, 1 ) )
+		
+		local vec = Bullet.Crate:GetNetworkedVector( "TracerColour" )
+		if not vec then
+			local col = Bullet.Crate:GetColor()
+			vec = Vector(col.r, col.g, col.b)
+		end
+		Flash:SetStart(vec)
 	util.Effect( "ACF_Smoke", Flash )
 
 end

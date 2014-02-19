@@ -256,10 +256,18 @@ end
 
 function ACF_KEShove(Target, Pos, Vec, KE )
 	
-	local phys = Target:GetPhysicsObject() 
-	if (Target:GetParent():IsValid()) then
-		phys = Target:GetParent():GetPhysicsObject() 
+	local phys = Target:GetPhysicsObject()
+	local parent = Target:GetParent()
+	local depth = 0
+	
+	if parent:IsValid() then
+		while parent:GetParent():IsValid() and depth<5 do
+			depth = depth + 1
+			parent = parent:GetParent()
+		end
+		phys = parent:GetPhysicsObject()
 	end
+	
 	if (phys:IsValid()) then	
 		phys:ApplyForceOffset( Vec:GetNormal() * KE, Pos )
 	end
@@ -292,6 +300,9 @@ function ACF_HEKill( Entity , HitVector , Energy )
 		mass = obj:GetMass()
 	end
 	constraint.RemoveAll( Entity )
+	
+	local entClass = Entity:GetClass()
+	
 	Entity:Remove()
 	
 	if(Entity:BoundingRadius() < ACF.DebrisScale) then
@@ -305,7 +316,7 @@ function ACF_HEKill( Entity , HitVector , Energy )
 		Debris:SetMaterial("models/props_wasteland/metal_tram001a")
 		Debris:Spawn()
 		
-		if ACF.IgniteDebris[Entity:GetClass()] then
+		if ACF.IgniteDebris[entClass] then
 			Debris:Ignite(60,0)
 		end
 		
