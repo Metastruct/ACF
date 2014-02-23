@@ -51,3 +51,5 @@ function aaa_IncludeShared(dir)
 	end
  
 end
+
+aaa_foldergen_wasloaded = true
