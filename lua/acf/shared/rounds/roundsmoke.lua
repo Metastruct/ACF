@@ -131,7 +131,7 @@ end
 
 function Round.endflight( Index, Bullet, HitPos, HitNormal )
 	
-	printByName(Bullet)
+	--printByName(Bullet)
 	
 	ACF_HE( HitPos - Bullet.Flight:GetNormalized()*3 , HitNormal, Bullet.FillerMass, Bullet.ProjMass - Bullet.FillerMass, Bullet.Owner, Bullet.Entity )
 	ACF_RemoveBullet( Index )
@@ -147,19 +147,22 @@ function Round.endeffect( Effect, Bullet )
 		--printByName(Bullet.Colour)
 		if Bullet.Colour then 
 			local col = Bullet.Colour
-			--print("col", col)
+			--print("bcol", col)
 			Flash:SetStart(Vector(col.r, col.g, col.b))
 		else
 			Flash:SetStart(Vector(255, 255, 255))
 		end
 		Flash:SetRadius( math.max( Radius, 1 ) )
-		
+		/*
 		local vec = Bullet.Crate:GetNetworkedVector( "TracerColour" )
+		--print("cvec", tostring(vec))
 		if not vec then
 			local col = Bullet.Crate:GetColor()
 			vec = Vector(col.r, col.g, col.b)
+			--print("ccol", tostring(vec))
 		end
-		Flash:SetStart(vec)
+		//*/
+		--Flash:SetStart(vec)
 	util.Effect( "ACF_Smoke", Flash )
 
 end

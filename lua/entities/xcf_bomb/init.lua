@@ -153,6 +153,10 @@ end
 function ENT:SetBulletData(bdata)
 	self.BulletData = table.Copy(bdata)
 	self.BulletData.Entity = self
+	self.BulletData.Crate = self
+	
+	--self:SetColor(self.BulletData.Colour or Vector(255, 255, 255))
+	
 	local phys = self.Entity:GetPhysicsObject()  	
 	if (IsValid(phys)) then  		
 		phys:SetMass( bdata.ProjMass or bdata.RoundMass or bdata.Mass or 10 ) 

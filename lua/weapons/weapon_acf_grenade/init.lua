@@ -98,6 +98,7 @@ function SWEP:FireBullet()
 		local angvel = self.Owner:LocalToWorld(Vector(400 + math.random()*300, 1000 + math.random()*1000, 40 + math.random()*30)) - self.Owner:GetPos()
 		phys:AddAngleVelocity( angvel * throwmod)
 		bomb.PhysicsCollide = self.grenadeDonk
+		construct.SetPhysProp( nil, bomb, 0, phys, { GravityToggle = true, Material = "rubber" } ) 
 	end
 	
 	
