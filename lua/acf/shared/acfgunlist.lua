@@ -871,6 +871,7 @@ local ShortGun37mm = {}
 	ShortGun37mm.caliber = 3.7
 	ShortGun37mm.gunclass = "SC"
 	ShortGun37mm.weight = 200
+	ShortGun37mm.rofmod = 1.4
 	ShortGun37mm.year = 1915
 	ShortGun37mm.sound = "weapons/ACF_Gun/ac_fire4.wav"
 		ShortGun37mm.round = {}
