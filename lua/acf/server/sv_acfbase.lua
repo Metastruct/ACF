@@ -101,9 +101,7 @@ function ACF_Check ( Entity )
 	
 end
 
-
-
-function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone ) 
+function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone, Gun, Type ) 
 	
 	local Activated = ACF_Check( Entity )
 	local CanDo = hook.Run("ACF_BulletDamage", Activated, Entity, Energy, FrAera, Angle, Inflictor, Bone, Gun )
