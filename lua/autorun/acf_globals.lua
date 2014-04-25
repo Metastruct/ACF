@@ -205,6 +205,7 @@ end
 
 -- Global Ratio Setting Function
 function ACF_CalcMassRatio( obj )
+	if not IsValid(obj) then return end
 	local Mass = 0
 	local PhysMass = 0
 	
