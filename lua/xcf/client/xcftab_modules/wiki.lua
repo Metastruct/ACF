@@ -51,6 +51,11 @@ local extractPagenameRegex =
 '/.-/.-/wiki/(.*)'
 
 
+local function wikiPagesFailed(callback)
+	callback()
+end
+
+
 local function wikiPagesSuccess(html, callback)
 	
 	local linklist = string.match(html, pagelistRegex)
@@ -68,11 +73,6 @@ local function wikiPagesSuccess(html, callback)
 		wikiPagesFailed(callback)
 	end
 	
-end
-
-
-local function wikiPagesFailed(callback)
-	callback()
 end
 
 
