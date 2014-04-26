@@ -13,7 +13,7 @@ Round.netid = 4 --Unique ammotype ID for network transmission
 
 function Round.create( Gun, BulletData )
 	
-	printByName(BulletData)
+	--printByName(BulletData)
 	ACF_CreateBullet( BulletData )
 	
 end

@@ -17,8 +17,18 @@ function SWEP:Initialize()
 		self.Owner = self:GetParent()
 		self:SetOwner(self:GetParent())
 	end
+	
 	self:InitBulletData()
+	
+	local bType = self.BulletData.Type
+	local round = ACF.RoundTypes[bType]
+	if not round then
+		self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", "This weapon wasn't loaded witha valid ammo type!"))
+		self:Remove()
+	end
+	
 	self:UpdateFakeCrate()
+	
 end
 
 
@@ -48,6 +58,7 @@ end
 
 local nosplode = {AP = true, HP = true}
 local nopen = {HE = true, SM = true}
+--[[
 function SWEP:DoAmmoStatDisplay()
 	local bType = self.BulletData.Type
 	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
@@ -77,6 +88,38 @@ function SWEP:DoAmmoStatDisplay()
 	
 	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
 end
+]]--
+
+
+
+
+function SWEP:DoAmmoStatDisplay()
+	local bType = self.BulletData.Type
+	local round = ACF.RoundTypes[bType]
+	
+	local stats = round.getDisplayData(self.BulletData)
+	
+	pbn(stats)
+	
+	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
+									tostring(self.BulletData.Caliber * 10),
+									bType,
+									self.BulletData.MuzzleVel
+								  )
+	
+	if not nopen[bType] then
+		local maxpen = stats.MaxPen or self.BulletData.MaxPen
+		sendInfo = sendInfo .. string.format(", %.1fmm pen", maxpen)
+	end
+
+	if not nosplode[bType] then
+		sendInfo = sendInfo .. string.format(", %.1fm blast", (stats.BlastRadius or self.BulletData.BlastRadius))
+	end
+	
+	
+	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
+end
+
 
 
 

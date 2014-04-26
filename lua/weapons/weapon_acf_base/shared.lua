@@ -73,6 +73,7 @@ SWEP.Launcher = false
 
 
 
+/*
 function SWEP:InitBulletData()
 	
 	self.BulletData = {}
@@ -105,6 +106,7 @@ function SWEP:InitBulletData()
 	self.BulletData["InvalidateTraceback"]			= true
 
 end
+//*/
 
 
 

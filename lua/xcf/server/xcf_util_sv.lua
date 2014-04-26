@@ -19,6 +19,8 @@ function XCF_CreateBulletSWEP( BulletData, Swep, LagComp )
 	BulletData.Filter[#BulletData.Filter + 1] = Swep
 	BulletData.Filter[#BulletData.Filter + 1] = owner
 	
+	--pbn(BulletData)
+	
 	local BulletData = XCF.Ballistics.Launch(BulletData)
 	if LagComp then
 		BulletData.LastThink = SysTime() - owner:Ping() / 1000
