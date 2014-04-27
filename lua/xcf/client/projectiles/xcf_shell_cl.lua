@@ -75,7 +75,7 @@ function this:DoFlight()
 	self.FlightTime = self.FlightTime + DeltaTime
 	
 	
-	debugoverlay.Line( self.StartTrace, self.NextPos, 4, Color(255, 255, 0), false )
+	--debugoverlay.Line( self.StartTrace, self.NextPos, 4, Color(255, 255, 0), false )
 	
 	return true
 end

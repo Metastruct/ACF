@@ -84,7 +84,7 @@ function this.DoFlight(self, isRetry)
 	
 	self.Travelled = self.Travelled + Step
 	
-	debugoverlay.Line( self.Pos, self.NextPos, 4, Color(255, 255, 0), false )
+	--debugoverlay.Line( self.Pos, self.NextPos, 4, Color(255, 255, 0), false )
 	
 	self.Pos = self.NextPos
 	

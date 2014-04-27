@@ -166,7 +166,7 @@ function this.DoTrace(self)
 	local FlightRes = util.TraceLine(FlightTr)					--Trace to see if it will hit anything
 	
 	
-	debugoverlay.Line( self.NextPos, self.NextPos + self.Forward * 100, 20, Color(0, 255, 255), false )
+	--debugoverlay.Line( self.NextPos, self.NextPos + self.Forward * 100, 20, Color(0, 255, 255), false )
 	//debugoverlay.Line( self.StartTrace, FlightRes.HitPos, 20, Color(0, 255, 255), false )
 	
 	if not FlightRes.Hit or FlightRes.HitSky then 
@@ -277,8 +277,8 @@ function this.Penetrate(Index, Proj, FlightRes)
 	//*/
 	
 	if Proj.CallbackPenetrate then Proj.CallbackPenetrate(Index, Proj, FlightRes) end
-	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
-	debugoverlay.Text( FlightRes.HitPos, "PENETRATE: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
+	--debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
+	--debugoverlay.Text( FlightRes.HitPos, "PENETRATE: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	this.DoTrace(Proj) // discarded return here is the reason for incomplete client display.  see below todo
 	
 	local ret = this.GetUpdate(Proj)
@@ -296,8 +296,8 @@ function this.Ricochet(Index, Proj, FlightRes)
 	//Proj.InvalidateBacktrace = true
 	Proj.StartTrace = FlightRes.HitPos
 	
-	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
-	debugoverlay.Text( FlightRes.HitPos, "RICOCHET: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
+	--debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
+	--debugoverlay.Text( FlightRes.HitPos, "RICOCHET: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	this.DoFlight( Proj ) // discarded return here is the reason for incomplete client display.  see below todo
 	
 	local ret = this.GetUpdate(Proj)
@@ -323,8 +323,8 @@ function this.EndFlight(Index, Proj, FlightRes)
 		ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
 	end
 	
-	debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
-	debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY") .. (willdud and " - DUDDED!" or ""), 10 )
+	--debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
+	--debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY") .. (willdud and " - DUDDED!" or ""), 10 )
 	
 	local ret = this.GetUpdate(Proj)
 	//ret.UpdateType = willdud and hit.HIT_RICOCHET or hit.HIT_END
