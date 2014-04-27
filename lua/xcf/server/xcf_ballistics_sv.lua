@@ -54,6 +54,7 @@ function this.Launch( Proj, ProjClass )
 	//xcf_dbgprint(XCF.LastProj, XCF.ProjectilesLimit, XCF.LastProj % XCF.ProjectilesLimit)
 	local curind = (XCF.LastProj % XCF.ProjectilesLimit) + 1 	// TODO: can improve efficiency by caching table length and updating upon add/remove
 	XCF.LastProj = curind
+	ACF.CurBulletIndex = curind
 	
 	if curind > XCF.ProjectilesLimit then return end
 	

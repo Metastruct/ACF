@@ -99,10 +99,10 @@ function SWEP:DoAmmoStatDisplay()
 	
 	local stats = round.getDisplayData(self.BulletData)
 	
-	pbn(stats)
+	--pbn(stats)
 	
 	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
-									tostring(self.BulletData.Caliber * 10),
+									tostring(math.Round(self.BulletData.Caliber * 10, 1)),
 									bType,
 									self.BulletData.MuzzleVel
 								  )

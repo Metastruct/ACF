@@ -168,18 +168,25 @@ end
 
 local trace = {}
 local thinktime = 0.1
+function ENT:TraceFunction()
+	local pos = self:GetPos()
+	trace.start = pos
+	trace.endpos = pos + self:GetVelocity() * thinktime
+	trace.filter = self
+
+	local res = util.TraceEntity( trace, self ) 
+	if res.Hit then
+		self:OnTraceContact(res)
+	end
+end
+
+
+
+
 function ENT:Think()
  	
 	if self.ShouldTrace then
-		local pos = self:GetPos()
-		trace.start = pos
-		trace.endpos = pos + self:GetVelocity() * thinktime
-		trace.filter = self
-
-		local res = util.TraceEntity( trace, self ) 
-		if res.Hit then
-			self:OnTraceContact(res)
-		end
+		self:TraceFunction()
 	end
 	
 	self:NextThink(CurTime() + thinktime)
@@ -195,21 +202,22 @@ function ENT:Detonate()
 	
 	if self.Detonated then return end
 	
-	--print("boom2!")
 	self.Detonated = true
 	
-	--print(self.BulletData.Type, ACF.RoundTypes[self.BulletData.Type]["endflight"])
-	ACF.RoundTypes[self.BulletData.Type]["endflight"]( -1337, self.BulletData, self:GetPos(), self:GetUp() )
-	
-	self.BulletData.SimPos = self:GetPos()
+	local bdata = self.BulletData
+	local pos = self:GetPos()
+	local up = self:GetUp()
 	local phys = self:GetPhysicsObject()
-	self.BulletData.SimFlight = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
-	ACF.RoundTypes[self.BulletData.Type]["endeffect"]( nil, self.BulletData)
+	local phyvel = phys and phys:GetVelocity() or Vector(0, 0, 0.01)
 	
 	self.Entity:Remove()
 	
-	--timer.Simple(15, function() if self and self.Entity and IsValid(self.Entity) then self.Entity:Remove() end end)
-	--self.Entity:Remove()
+	ACF.RoundTypes[bdata.Type]["endflight"]( -1337, bdata, pos, up )
+	
+	bdata.SimPos = pos
+	bdata.SimFlight = phyvel
+	
+	ACF.RoundTypes[bdata.Type]["endeffect"]( nil, bdata)
 
 end
 
@@ -252,3 +260,6 @@ function ENT:RefreshClientInfo()
 	self:SetNetworkedString("RoundType", self.RoundType)
 	self:SetNetworkedFloat("FillerVol", self.RoundData5)
 end
+
+
+
