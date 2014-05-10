@@ -6,6 +6,9 @@ XCF.Projectiles = XCF.Projectiles or {}
 XCF.ProjectilesLimit = 250  --The maximum number of bullets in flight at any one time
 XCF.LastProj = 0
 
+ACF.BulletIndexLimt = XCF.ProjectilesLimit
+ACF.CurBulletIndex = ACF.CurBulletIndex or XCF.LastProj
+
 local projmin = 50
 local projmax = 1000
 concommand.Add( "xcf_maxprojectiles", function(ply, cmd, args, str)

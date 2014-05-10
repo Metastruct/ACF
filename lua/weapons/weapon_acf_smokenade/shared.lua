@@ -90,7 +90,7 @@ function SWEP:InitBulletData()
 	self.BulletData["DragCoef"]		= 0.0012252117505705
 	self.BulletData["FillerMass"]	= 0.07726125125885
 	self.BulletData["FrAera"]		= 50.2656
-	self.BulletData["Id"]			= "8cmB1"
+	self.BulletData["Id"]			= "40mmSL"
 	self.BulletData["KETransfert"]	= 0.1
 	self.BulletData["LimitVel"]		= 100
 	self.BulletData["MuzzleVel"]	= 20.289680830208

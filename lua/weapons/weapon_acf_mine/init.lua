@@ -14,6 +14,9 @@ SWEP.AutoSwitchFrom		= false
 
 local MIN_DONK_DELAY = 0.2
 local MIN_DONK_VEL = 50
+local MINE_TIMEOUT = 600
+local MINE_TRACEDIST = 48
+
 function SWEP.grenadeDonk(nade)
 
 	local phys = nade:GetPhysicsObject()
@@ -34,7 +37,7 @@ end
 
 
 
-function SWEP.grenadeExplode(bomb)
+function SWEP.mineExplode(bomb)
 	if IsValid(bomb) then 
 		bomb:Detonate()
 	end
@@ -43,16 +46,65 @@ end
 
 
 
-function SWEP.grenadeTraceHit(bomb, trace)
-	if not trace.HitWorld and IsValid(trace.Entity) then
-		local setpos = trace.HitPos - (trace.HitPos - trace.StartPos):GetNormalized() * (bomb:BoundingRadius() * 1.1)
+function SWEP.mineTraceHit(bomb, trace)
+	if not trace.HitWorld then
+		--local setpos = trace.HitPos - (trace.HitPos - trace.StartPos):GetNormalized() * (bomb:BoundingRadius() * 1.1)
 		
 		--debugoverlay.Sphere( setpos, bomb:BoundingRadius(), 10, Color(255, 0, 0), true )
 		--debugoverlay.Cross( trace.HitPos, 10, 10, Color(0, 255, 0), true )
 		
-		bomb:SetPos(setpos)
-		bomb.grenadeExplode(bomb)
+		--bomb:SetPos(setpos)
+		bomb.mineExplode(bomb)
 	end
+end
+
+
+
+
+local trace = {}
+local up = Vector(0, 0, 1)
+local thinktime = 0.1
+function SWEP.mineTrace(bomb)
+
+	if not bomb.Timeout then bomb.Timeout = CurTime() + 1 end
+	
+	
+	local pos = bomb:GetPos()
+	local vel = bomb:GetVelocity()
+	trace.start = pos
+	trace.filter = bomb.Timeout < CurTime() and bomb or {bomb, bomb.Owner}
+	
+	if vel:Length() < 10 then
+		local entup = bomb:GetUp()
+		local entdn = -entup
+		
+		local tracedir
+		
+		if entup:Dot(up) >= entdn:Dot(up) then
+			tracedir = entup
+		else
+			tracedir = entdn
+		end
+		
+		trace.endpos = pos + tracedir * MINE_TRACEDIST
+		
+	else
+		trace.endpos = pos + vel * bomb.ThinkDelay
+	end
+	
+	
+	debugoverlay.Cross( trace.start, 4, 0.11, Color(255, 0, 0), true )
+	debugoverlay.Line( trace.start, trace.endpos, 0.11, Color(255, 0, 0), true )
+	
+
+	local res = util.TraceEntity( trace, bomb ) 
+	if res.Hit then
+		bomb:OnTraceContact(res)
+	end	
+	
+
+	
+	
 end
 
 
@@ -73,23 +125,27 @@ function SWEP:FireBullet()
 	self.BulletData["Gun"] = self
 	--self.BulletData.ProjClass = XCF.ProjClasses.Bomb or error("Could not find the Bomb projectile type!")
 	
-	local flight = MuzzleVecFinal * self.BulletData["MuzzleVel"] * 39.37 + self.Owner:GetVelocity()
-	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 1) * 1.5
+	local flight = MuzzleVecFinal * (self.BulletData["MuzzleVel"] or 5) * 39.37 + self.Owner:GetVelocity()
+	local throwmod = math.Clamp((self.PressedDuration or self.ChargeTime) / self.ChargeTime, 0.33, 0.66) * 1
 	self.BulletData["Flight"] = flight * throwmod
 	
+	--[[
 	local bomb = ents.Create("acf_grenade")
 	bomb:SetPos(MuzzlePos2)
 	bomb:SetOwner(self.Owner)
 	bomb:Spawn()
 	bomb:SetModelEasy(self.ThrowModel)
 	bomb:SetBulletData(self.BulletData)
-	local expfunc = self.grenadeExplode
-	bomb.grenadeExplode = expfunc
-	timer.Simple(5, function() expfunc(bomb) end)
+	]]--
+	local bomb = MakeACF_Grenade(self.Owner, MuzzlePos2, Angle(0,0,0), self.BulletData, self.ThrowModel)
+	local expfunc = self.mineExplode
+	bomb.mineExplode = expfunc
+	timer.Simple(MINE_TIMEOUT, function() expfunc(bomb) end)
 	
+	bomb.TraceFunction = self.mineTrace
 	
 	bomb:SetShouldTrace(true)
-	bomb.OnTraceContact = self.grenadeTraceHit
+	bomb.OnTraceContact = self.mineTraceHit
 	
 	constraint.NoCollide(bomb, self.Owner)
 	local phys = bomb:GetPhysicsObject()

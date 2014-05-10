@@ -11,68 +11,70 @@ SWEP.AutoSwitchTo		= false
 SWEP.AutoSwitchFrom		= false
 
 
+
 function SWEP:Initialize()
 	self:SetWeaponHoldType(self.HoldType)
 	if IsValid(self:GetParent()) then
 		self.Owner = self:GetParent()
 		self:SetOwner(self:GetParent())
 	end
-	
 	self:InitBulletData()
-	
-	local bType = self.BulletData.Type
-	local round = ACF.RoundTypes[bType]
-	if not round then
-		self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", "This weapon wasn't loaded witha valid ammo type!"))
-		self:Remove()
-	end
-	
 	self:UpdateFakeCrate()
-	
 end
+
+
 
 
 function SWEP:UpdateFakeCrate(realcrate)
-	self:SetNetworkedInt( "Caliber",		self.BulletData.Caliber or 10 )
-	self:SetNetworkedInt( "ProjMass",		self.BulletData.ProjMass or 10 )
-	self:SetNetworkedInt( "FillerMass",		self.BulletData.FillerMass or 0 )
-	self:SetNetworkedInt( "DragCoef",		self.BulletData.DragCoef or 1 )
-	self:SetNetworkedString( "AmmoType",	self.BulletData.Type or "AP" )
-	self:SetNetworkedInt( "Tracer",  		self.BulletData.Tracer or 0)
-	self:SetNetworkedVector( "Accel",		Vector(0,0,-600))
-	self:SetNetworkedString( "Sound",		self.Primary.Sound)
-	
-	if realcrate then
-		self:SetColor(realcrate:GetColor())
+
+	if not IsValid(self.FakeCrate) then
+		self.FakeCrate = ents.Create("acf_fakecrate")
 	end
+
+	self.FakeCrate:RegisterTo(self)
 	
-	self.BulletData["Crate"] = self:EntIndex()
+	self.BulletData["Crate"] = self.FakeCrate:EntIndex()
+	self:SetNWString( "Sound", self.Primary.Sound )
 end
+
 
 
 
 function SWEP:OnRemove()
+
+	if not IsValid(self.FakeCrate) then return end
+	
+	local crate = self.FakeCrate
+	timer.Simple(15, function() if IsValid(crate) then crate:Remove() end end)
+
 end
+
 
 
 
 local nosplode = {AP = true, HP = true}
 local nopen = {HE = true, SM = true}
---[[
 function SWEP:DoAmmoStatDisplay()
-	local bType = self.BulletData.Type
+
+	local bdata = self.BulletData
+
+	if bdata.IsShortForm then
+		bdata = ACF_ExpandBulletData(bdata)
+	end
+
+	local bType = bdata.Type
 	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
-									tostring(self.BulletData.Caliber * 10),
+									tostring(bdata.Caliber * 10),
 									bType,
-									self.BulletData.MuzzleVel
+									bdata.MuzzleVel
 								  )
 	
 	if not nopen[bType] then
-		local maxpen = self.BulletData.MaxPen or (ACF_Kinetic(
-														(self.BulletData.SlugMV or self.BulletData.MuzzleVel)*39.37,
-														(self.BulletData.SlugMass or self.BulletData.ProjMass),
-														self.BulletData.SlugMV and 999999 or self.BulletData.LimitVel or 900
-													  ).Penetration / (self.BulletData.SlugPenAera or self.BulletData.PenAera) * ACF.KEtoRHA
+		local maxpen = bdata.MaxPen or (ACF_Kinetic(
+														(bdata.SlugMV or bdata.MuzzleVel)*39.37,
+														(bdata.SlugMass or bdata.ProjMass),
+														bdata.SlugMV and 999999 or bdata.LimitVel or 900
+													  ).Penetration / (bdata.SlugPenAera or bdata.PenAera) * ACF.KEtoRHA
 												 )
 	
 		sendInfo = sendInfo .. string.format( 	", %.1fmm pen",
@@ -82,44 +84,12 @@ function SWEP:DoAmmoStatDisplay()
 
 	if not nosplode[bType] then
 		sendInfo = sendInfo .. string.format( 	", %.1fm blast",
-												(self.BulletData.BlastRadius or (((self.BulletData.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
+												(bdata.BlastRadius or (((bdata.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
 											)
 	end
 	
 	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
 end
-]]--
-
-
-
-
-function SWEP:DoAmmoStatDisplay()
-	local bType = self.BulletData.Type
-	local round = ACF.RoundTypes[bType]
-	
-	local stats = round.getDisplayData(self.BulletData)
-	
-	--pbn(stats)
-	
-	local sendInfo = string.format( "%smm %s ammo: %im/s speed",
-									tostring(math.Round(self.BulletData.Caliber * 10, 1)),
-									bType,
-									self.BulletData.MuzzleVel
-								  )
-	
-	if not nopen[bType] then
-		local maxpen = stats.MaxPen or self.BulletData.MaxPen
-		sendInfo = sendInfo .. string.format(", %.1fmm pen", maxpen)
-	end
-
-	if not nosplode[bType] then
-		sendInfo = sendInfo .. string.format(", %.1fm blast", (stats.BlastRadius or self.BulletData.BlastRadius))
-	end
-	
-	
-	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
-end
-
 
 
 
@@ -142,7 +112,7 @@ function SWEP:FireBullet()
 	local MuzzleVecFinal = self:inaccuracy(MuzzleVec, self.Inaccuracy)
 	
 	self.BulletData["Pos"] = MuzzlePos
-	self.BulletData["Flight"] = MuzzleVecFinal * self.BulletData["MuzzleVel"] * 39.37 + self.Owner:GetVelocity()
+	self.BulletData["Flight"] = MuzzleVecFinal * self.BulletData["MuzzleVel"] * 39.37 + self.Owner:GetVelocity() + MuzzleVecFinal * 16
 	self.BulletData["Owner"] = self.Owner
 	self.BulletData["Gun"] = self
 	
@@ -150,7 +120,7 @@ function SWEP:FireBullet()
 		self:BeforeFire()
 	end
 	
-	XCF_CreateBulletSWEP(self.BulletData, self, true)
+	ACF_CreateBulletSWEP(self.BulletData, self, true)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )
 	
@@ -160,22 +130,27 @@ end
 
 
 
+/*
 local FlashID = "XCF_SWEPMuzzle"
 util.AddNetworkString(FlashID)
+//*/
 function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir )
-	
+	/*
 	net.Start(FlashID)
 		net.WriteEntity(self)
 		net.WriteFloat(self.BulletData["PropMass"] or 1)
 		net.WriteInt(ACF.RoundTypes[self.BulletData["Type"]]["netid"] or 1, 8)
 	net.SendPVS(MuzzlePos)
 	net.SendPAS(MuzzlePos)
-	/*
+	//*/
+	//*
+	if CLIENT then return end
+	
 	local Effect = EffectData()
 		Effect:SetEntity( self )
-		Effect:SetScale( self.BulletData["PropMass"] or 1 )
+		Effect:SetScale( self.BulletData.PropMass or 1 )
 		Effect:SetMagnitude( self.ReloadTime )
-		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData["Type"]]["netid"] or 1 )	--Encoding the ammo type into a table index
-	util.Effect( "XCF_SWEPMuzzleFlash", Effect, true, true )
+		Effect:SetSurfaceProp( ACF.RoundTypes[self.BulletData.Type].netid or 1 )	--Encoding the ammo type into a table index
+	util.Effect( "ACF_SWEPMuzzleFlash", Effect, true, true )
 	//*/
 end
