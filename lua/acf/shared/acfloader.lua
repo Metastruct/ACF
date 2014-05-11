@@ -105,6 +105,14 @@ for k, v in pairs( fueltanks ) do
 	include( "acf/shared/fueltanks/" .. v )
 end
 
+
+
+if file.Exists("acfextras/acf_extraguns.lua", "LUA") then
+	include("acfextras/acf_extraguns.lua")
+end
+
+
+
 -- now that the tables are populated, throw them in the acf ents list
 list.Set( "ACFClasses", "GunClass", GunClasses )
 list.Set( "ACFEnts", "Guns", GunTable )
