@@ -93,8 +93,9 @@ if CLIENT then
 			acfmenupanel.CData.DisplayModel:SetSize(acfmenupanel:GetWide(),acfmenupanel:GetWide())
 			acfmenupanel.CData.DisplayModel.LayoutEntity = function( panel, entity ) end
 		acfmenupanel.CustomDisplay:AddItem( acfmenupanel.CData.DisplayModel )
-			
-		acfmenupanel:CPanelText("Desc", Table.desc)
+		
+		acfmenupanel:CPanelText("ClassDesc", list.Get("ACFClasses").GunClass[Table.gunclass].desc)	
+		acfmenupanel:CPanelText("GunDesc", Table.desc)
 		acfmenupanel:CPanelText("Caliber", "Caliber : "..(Table.caliber*10).."mm")
 		acfmenupanel:CPanelText("Weight", "Weight : "..Table.weight.."kg")
 		
@@ -157,6 +158,7 @@ function ENT:Initialize()
 	self.Ready = true
 	self.Firing = nil
 	self.Reloading = nil
+	self.CrateBonus = 1
 	self.NextFire = 0
 	self.LastSend = 0
 	self.LastLoadDuration = 0
@@ -468,11 +470,16 @@ function ENT:Think()
 	local Time = CurTime()
 	if self.LastSend+1 <= Time then
 		local Ammo = 0
+		local CrateBonus = {}
+		local rofbonus = 0
+		local totalcap = 0
 		
 		for Key, Crate in pairs(self.AmmoLink) do
 			if IsValid( Crate ) and Crate.Load then
 				if RetDist( self, Crate ) < 512 then
 					Ammo = Ammo + (Crate.Ammo or 0)
+					CrateBonus[Crate.RoFMul] = (CrateBonus[Crate.RoFMul] or 0) + Crate.Capacity
+					totalcap = totalcap + Crate.Capacity
 				else
 					self:Unlink( Crate )
 					soundstr =  "physics/metal/metal_box_impact_bullet" .. tostring(math.random(1, 3)) .. ".wav"
@@ -481,6 +488,11 @@ function ENT:Think()
 			end
 		end
 		
+		for mul, cap in pairs(CrateBonus) do
+			rofbonus = rofbonus + (cap/totalcap)*mul 
+		end
+
+		self.CrateBonus = rofbonus or 1
 		self.Ammo = Ammo
 		self:UpdateOverlayText()
 		
@@ -708,7 +720,7 @@ function ENT:LoadAmmo( AddTime, Reload )
 		
 		self.BulletData.Crate = AmmoEnt:EntIndex()
 		
-		self.ReloadTime = ((self.BulletData.RoundVolume/500)^0.60)*self.RoFmod*self.PGRoFmod
+		self.ReloadTime = ((self.BulletData.RoundVolume/500)^0.60)*self.RoFmod*self.PGRoFmod * (self.MagReload == 0 and self.CrateBonus or 1)
 		Wire_TriggerOutput(self, "Loaded", self.BulletData.Type)
 		
 		self.RateOfFire = (60/self.ReloadTime)
@@ -720,7 +732,7 @@ function ENT:LoadAmmo( AddTime, Reload )
 		local reloadTime = self.ReloadTime
 		
 		if AddTime then
-			reloadTime = reloadTime + AddTime
+			reloadTime = reloadTime + AddTime * self.CrateBonus
 		end
 		if Reload then
 			self:ReloadEffect()
