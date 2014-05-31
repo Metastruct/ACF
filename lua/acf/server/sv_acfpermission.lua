@@ -393,7 +393,7 @@ concommand.Add( "ACF_ReloadPermissionModes", function(ply, cmd, args, str)
 		local mode = table.KeyFromValue(this.Modes, this.DamagePermission)
 		
 		if not mode then
-			this.DamagePermission = function() return true end
+			this.DamagePermission = function() end
 			hook.Call("ACF_ProtectionModeChanged", GAMEMODE, "default", nil)
 			mode = "default"
 		end
@@ -657,7 +657,7 @@ hook.Add("ACF_ProtectionModeChanged", "ACF_ResendPermissionsOnChanged", this.Res
 -- -- -- -- -- Initial DP mode load -- -- -- -- --
 
 if not aaa_IncludeHere then
-	this.DamagePermission = function() return true end
+	this.DamagePermission = function() end
 	hook.Call("ACF_ProtectionModeChanged", GAMEMODE, "default", nil)
 	mode = "default"
 else
@@ -666,7 +666,7 @@ else
 	local mode = table.KeyFromValue(this.Modes, this.DamagePermission)
 
 	if not mode then
-		this.DamagePermission = function() return true end
+		this.DamagePermission = function() end
 		hook.Call("ACF_ProtectionModeChanged", GAMEMODE, "default", nil)
 		mode = "default"
 	end

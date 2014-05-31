@@ -43,7 +43,7 @@ local function modepermission(owner, attacker, ent)
 	
 	if ownerperms[attackerid] then
 		--print("permitted")
-		return true
+		return
 	end
 	
 	--print("disallowed")
