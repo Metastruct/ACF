@@ -231,9 +231,9 @@ function MakeACF_Gun(Owner, Pos, Angle, Id)
 	
 	local gunclass = Classes["GunClass"][Gun.Class] or error("Couldn't find the " .. tostring(Gun.Class) .. " gun-class in acfgunlist.lua!")
 	
-	Gun.Muzzleflash = gundef.muzzleflash or gunclass.muzzleflash or ""
+	Gun.Muzzleflash = Lookup.muzzleflash or gunclass.muzzleflash or ""
 	Gun.RoFmod = gunclass["rofmod"]
-	Gun.Sound = gundef.sound or gunclass.sound or "vo/npc/barney/ba_turret.wav"
+	Gun.Sound = Lookup.sound or gunclass.sound or "vo/npc/barney/ba_turret.wav"
 	Gun:SetNWString( "Sound", Gun.Sound )
 	Gun.Inaccuracy = gunclass["spread"]
 	Gun:SetModel( Gun.Model )	
