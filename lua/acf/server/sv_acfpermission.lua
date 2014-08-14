@@ -462,12 +462,14 @@ function this.CanDamage(Type, Entity, Energy, FrAera, Angle, Inflictor, Bone, Gu
 		if IsValid(Entity) and Entity:IsPlayer() then
 			owner = Entity
 		else
-			return this.DefaultCanDamage
+			if this.DefaultCanDamage then return
+			else return this.DefaultCanDamage end
 		end
 	end
 	
 	if not (IsValid(Inflictor) and Inflictor:IsPlayer()) then
-		return this.DefaultCanDamage
+		if this.DefaultCanDamage then return
+		else return this.DefaultCanDamage end
 	end
 	
 	return this.DamagePermission(owner, Inflictor, Entity)

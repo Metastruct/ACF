@@ -195,34 +195,37 @@ function MakeACF_Gun(Owner, Pos, Angle, Id)
 	Gun:SetAngles(Angle)
 	Gun:SetPos(Pos)
 	Gun:Spawn()
+	
+	local EID
+	if List.Guns[Id] then EID = Id else EID = "50mmC" end
+	local Lookup = List.Guns[EID]
 
 	Gun:SetPlayer(Owner)
 	Gun.Owner = Owner
 	Gun.Id = Id
-	local gundef = List["Guns"][Id] or error("Couldn't find the " .. tostring(Id) .. " gun-definition in acfgunlist.lua!")
-	Gun.Caliber	= gundef["caliber"]
-	Gun.Model = gundef["model"]
-	Gun.Mass = gundef["weight"]
-	Gun.Class = gundef["gunclass"]
+	Gun.Caliber	= Lookup.caliber
+	Gun.Model = Lookup.model
+	Gun.Mass = Lookup.weight
+	Gun.Class = Lookup.gunclass
 	-- Custom BS for karbine. Per Gun ROF.
 	Gun.PGRoFmod = 1
-	if(gundef["rofmod"]) then
-		Gun.PGRoFmod = math.max(0, gundef["rofmod"])
+	if(Lookup.rofmod) then
+		Gun.PGRoFmod = math.max(0, Lookup.rofmod)
 	end
 	-- Custom BS for karbine. Magazine Size, Mag reload Time
 	Gun.CurrentShot = 0
 	Gun.MagSize = 1
-	if(gundef["magsize"]) then
-		Gun.MagSize = math.max(Gun.MagSize, gundef["magsize"])
+	if(Lookup.magsize) then
+		Gun.MagSize = math.max(Gun.MagSize, Lookup.magsize)
 	else
 		Gun.Inputs = Wire_AdjustInputs( Gun, { "Fire", "Unload" } )
 	end
 	Gun.MagReload = 0
-	if(gundef["magreload"]) then
-		Gun.MagReload = math.max(Gun.MagReload, gundef["magreload"])
+	if(Lookup.magreload) then
+		Gun.MagReload = math.max(Gun.MagReload, Lookup.magreload)
 	end
 	
-	Gun:SetNetworkedString( "WireName", List.Guns[Id].name )
+	Gun:SetNetworkedString( "WireName", Lookup.name )
 	Gun:SetNWString( "Class", Gun.Class )
 	Gun:SetNWString( "ID" , Gun.Id )
 	
@@ -720,7 +723,13 @@ function ENT:LoadAmmo( AddTime, Reload )
 		
 		self.BulletData.Crate = AmmoEnt:EntIndex()
 		
-		self.ReloadTime = ((self.BulletData.RoundVolume/500)^0.60)*self.RoFmod*self.PGRoFmod * (self.MagReload == 0 and self.CrateBonus or 1)
+		local cb = 1
+		if(self.CrateBonus and (self.MagReload == 0)) then
+			cb = self.CrateBonus
+			if (cb == 0) then cb = 1 end
+		end
+		
+		self.ReloadTime = ((self.BulletData.RoundVolume/500)^0.60)*self.RoFmod*self.PGRoFmod * cb
 		Wire_TriggerOutput(self, "Loaded", self.BulletData.Type)
 		
 		self.RateOfFire = (60/self.ReloadTime)

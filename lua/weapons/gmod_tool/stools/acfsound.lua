@@ -14,17 +14,18 @@ end
 local function ReplaceSound( ply , Entity , data)
 	if !IsValid( Entity ) then return end
 	local sound = data[1]
+	local pitch = data[2] or 1
 	timer.Simple(1, function()
 		if Entity:GetClass() == "acf_engine" then
 			Entity.SoundPath = sound
-			Entity.SoundPitch = ply:GetInfo("acfsound_pitch")
+			Entity.SoundPitch = pitch
 		elseif Entity:GetClass() == "acf_gun" then
 			Entity.Sound = sound
 			Entity:SetNWString( "Sound", sound )
 		end
 	end)
 			
-	duplicator.StoreEntityModifier( Entity, "acf_replacesound", {sound} )
+	duplicator.StoreEntityModifier( Entity, "acf_replacesound", {sound, pitch} )
 end
 
 duplicator.RegisterEntityModifier( "acf_replacesound", ReplaceSound )
@@ -48,7 +49,8 @@ end
 function TOOL:LeftClick( trace )
 	if CLIENT or IsReallyValid( trace, self:GetOwner() ) then return false end
 	local sound = self:GetOwner():GetInfo("wire_soundemitter_sound")
-	ReplaceSound( self:GetOwner(), trace.Entity, {sound} )
+	local pitch = self:GetOwner():GetInfo("acfsound_pitch")
+	ReplaceSound( self:GetOwner(), trace.Entity, {sound, pitch} )
 	return true
 end
 
@@ -68,8 +70,9 @@ function TOOL:Reload( trace )
 	if trace.Entity:GetClass() == "acf_engine" then
 		local Id = trace.Entity.Id
 		local List = list.Get("ACFEnts")
-		self:GetOwner():ConCommand("acfsound_pitch " ..(List["Mobility"][Id]["pitch"] or 1));
-		ReplaceSound( self:GetOwner(), trace.Entity, {List["Mobility"][Id]["sound"]} )
+		local pitch = List["Mobility"][Id]["pitch"] or 1
+		self:GetOwner():ConCommand("acfsound_pitch " ..pitch);
+		ReplaceSound( self:GetOwner(), trace.Entity, {List["Mobility"][Id]["sound"], pitch} )
 	elseif trace.Entity:GetClass() == "acf_gun" then
 		local Class = trace.Entity.Class
 		local Classes = list.Get("ACFClasses")
