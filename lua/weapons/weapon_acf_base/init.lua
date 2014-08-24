@@ -124,7 +124,7 @@ function SWEP:FireBullet()
 		self:BeforeFire()
 	end
 	
-	ACF_CreateBulletSWEP(self.BulletData, self, true)
+	ACF_CreateBulletSWEP(self.BulletData, self, ACF.SWEP.LagComp or false)
 	
 	self:MuzzleEffect( MuzzlePos2, MuzzleVec, true )
 	
