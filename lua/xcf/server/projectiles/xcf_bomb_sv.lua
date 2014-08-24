@@ -312,8 +312,6 @@ function this.EndFlight(Index, Proj, FlightRes)
 
 	//print("END")
 	//printByName(Proj.Filter)
-			
-	if Proj.CallbackEndFlight then Proj.CallbackEndFlight(Index, Proj, FlightRes) end
 	
 	local willdud = this.ShouldDud(Proj, FlightRes)
 	if willdud then

@@ -91,9 +91,7 @@ function this.ProjLoop()
 
 	local Proj
 	for i, Proj in pairs(XCF.Projectiles) do
-		if not Proj then continue end
-		if not Proj.ProjClass then print("Removing glitched projectile (no assigned class)") this.RemoveProj(i) continue end
-		
+		if not Proj or Proj.HandlesOwnIteration then continue end		
 		this.CalcFlight( i, Proj )
 	end
 	
@@ -110,6 +108,8 @@ function this.RemoveProj( Index, quiet )
 	if not Proj then return end
 	XCF.Projectiles[Index] = nil
 	
+	if Proj.OnRemoved then Proj:OnRemoved() end
+	
 	this.NotifyClients(Index, Proj, quiet and this.PROJ_REMQUIET or this.PROJ_REMOVE)
 	local removed = Proj.ProjClass.Removed
 	if removed then removed(Proj) end
@@ -120,6 +120,12 @@ end
 
 
 function this.CalcFlight( Index, Proj, isRetry )
+	
+	if not Proj.ProjClass then 
+		print("Removing glitched projectile (no assigned class)")
+		this.RemoveProj(Index)
+		return
+	end
 	
 	local result, trace = Proj.ProjClass.DoFlight(Proj, isRetry)
 	if not result then

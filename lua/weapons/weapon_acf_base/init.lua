@@ -107,7 +107,7 @@ end
 
 function SWEP:FireBullet()
 
-	self.Owner:LagCompensation( true )
+	--self.Owner:LagCompensation( true )
 
 	local MuzzlePos = self.Owner:GetShootPos()
 	local MuzzleVec = self.Owner:GetAimVector()
@@ -128,7 +128,7 @@ function SWEP:FireBullet()
 	
 	self:MuzzleEffect( MuzzlePos2, MuzzleVec, true )
 	
-	self.Owner:LagCompensation( false )
+	--self.Owner:LagCompensation( false )
 	
 end
 
