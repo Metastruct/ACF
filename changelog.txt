@@ -74,3 +74,22 @@ r400
 -Updated emotor standalone and single cylinder model bodygroups
 -Fixed 7.62mm MG model size
 -Fixed 20mm AC firing too fast
+
+*r506
+-Added per-bullet callbacks OnPenetrated, OnRicochet, OnEndFlight, PreCalcFlight, PostCalcFlight.
+-HandlesOwnIteration bullet key to disable bullet iteration.
+-Battle DP mode can now optionally disable noclip.
+
+*r507
+-Fixed v10 model physbox
+-Added i3 engines
+
+*r508
+-Fuel is now drained from all active tanks, instead of sequentially
+-Slightly nerfed 4.1L i5 diesel torque
+-Dropped 40mm HMG weight from 960 to 600, increased mag size from 30 to 35
+-MG/HMG recoloring fixed
+-Removed a few redundant sounds
+
+*r509
+-Fixed engine bug in r508
