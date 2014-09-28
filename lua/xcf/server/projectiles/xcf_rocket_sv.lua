@@ -196,7 +196,7 @@ function this.Penetrate(Index, Proj, FlightRes)
 	//Proj.StartTrace = FlightRes.HitPos
 	Proj.StartTrace = Proj.Pos
 	
-	if Proj.CallbackPenetrate then Proj.CallbackPenetrate(Index, Proj, FlightRes) end
+	if Proj.OnPenetrate then Proj.OnPenetrate(Index, Proj, FlightRes) end
 	--debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
 	--debugoverlay.Text( FlightRes.HitPos, "PENETRATE: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
 	this.DoTrace(Proj) // INFO: discarded return here is the reason for incomplete client display.  see below todo
@@ -210,7 +210,7 @@ end
 
 
 function this.Ricochet(Index, Proj, FlightRes)
-	if Proj.CallbackRicochet then Proj.CallbackRicochet(Index, Proj, FlightRes) end
+	if Proj.OnRicochet then Proj.OnRicochet(Index, Proj, FlightRes) end
 	
 	//Proj.InvalidateBacktrace = true
 	Proj.StartTrace = FlightRes.HitPos
@@ -232,7 +232,7 @@ function this.EndFlight(Index, Proj, FlightRes)
 	//print("END")
 	//printByName(Proj.Filter)
 
-	if Proj.CallbackEndFlight then Proj.CallbackEndFlight(Index, Proj, FlightRes) end
+	if Proj.OnEndFlight then Proj.OnEndFlight(Index, Proj, FlightRes) end
 	ACF.RoundTypes[Proj.Type]["endflight"]( Index, Proj, FlightRes.HitPos, FlightRes.HitNormal )
 	--debugoverlay.Cross( FlightRes.HitPos, 10, 10, Color(0, 255, 0), true )
 	--debugoverlay.Text( FlightRes.HitPos, "ENDFLIGHT: " .. (FlightRes.Entity and tostring(FlightRes.Entity) or "NON-ENTITY"), 10 )
