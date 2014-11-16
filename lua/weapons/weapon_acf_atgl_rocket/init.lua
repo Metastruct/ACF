@@ -40,6 +40,11 @@ function SWEP:FireBullet()
 	self.BulletData["Gun"] = self
 	self.BulletData.ProjClass = XCF.ProjClasses.Rocket or error("Could not find the Rocket projectile type!")
 	
+	local filter = self.BulletData["Filter"] or {}
+	filter[#filter + 1] = self.Owner
+	filter[#filter + 1] = self.Owner:GetVehicle() or nil
+	self.BulletData["Filter"] = filter
+	
 	XCF_CreateBulletSWEP(self.BulletData, self, true)
 	
 	self:MuzzleEffect( MuzzlePos2 , MuzzleVec )

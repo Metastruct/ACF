@@ -79,7 +79,7 @@ function aim.WOT(self)
 	//print(self.Owner:GetVelocity():Length())
 	self.LastAim = self.LastAim or Vector(1, 0, 0)
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end
@@ -154,7 +154,7 @@ function aim.Shooter(self)
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
 	//print(self.Owner:GetVelocity():Length())
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK then
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end
