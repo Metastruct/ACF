@@ -163,6 +163,7 @@ function ENT:Initialize()
 	self.LastSend = 0
 	self.LastLoadDuration = 0
 	self.Owner = self
+	self.Parentable = false
 	
 	self.IsMaster = true
 	self.AmmoLink = {}
@@ -207,6 +208,7 @@ function MakeACF_Gun(Owner, Pos, Angle, Id)
 	Gun.Model = Lookup.model
 	Gun.Mass = Lookup.weight
 	Gun.Class = Lookup.gunclass
+	Gun.Parentable = Lookup.canparent
 	-- Custom BS for karbine. Per Gun ROF.
 	Gun.PGRoFmod = 1
 	if(Lookup.rofmod) then
@@ -570,7 +572,7 @@ function ENT:ReloadMag()
 			self.IsUnderWeight = self:CheckWeight()
 		end
 	end
-	if ( (self.CurrentShot > 0) and self.IsUnderWeight and self.Ready and self:GetPhysicsObject():GetMass() >= self.Mass and not self:GetParent():IsValid() ) then
+	if ( (self.CurrentShot > 0) and self.IsUnderWeight and self.Ready and self:GetPhysicsObject():GetMass() >= self.Mass and not (self:GetParent():IsValid() and not self.Parentable) ) then
 		if ( ACF.RoundTypes[self.BulletData.Type] ) then		--Check if the roundtype loaded actually exists
 			self:LoadAmmo(self.MagReload, false)	
 			self:EmitSound("weapons/357/357_reload4.wav",500,100)
@@ -584,8 +586,6 @@ function ENT:ReloadMag()
 		end
 	end
 end
-
-
 
 function ENT:GetInaccuracy()
 	local SpreadScale = ACF.SpreadScale
@@ -622,7 +622,7 @@ function ENT:FireShell()
 			bool = false
 		end
 	end
-	if ( bool and self.IsUnderWeight and self.Ready and self:GetPhysicsObject():GetMass() >= self.Mass and not self:GetParent():IsValid() ) then
+	if ( bool and self.IsUnderWeight and self.Ready and self:GetPhysicsObject():GetMass() >= self.Mass and not (self:GetParent():IsValid() and not self.Parentable) ) then
 		Blacklist = {}
 		if not ACF.AmmoBlacklist[self.BulletData.Type] then
 			Blacklist = {}
@@ -648,18 +648,7 @@ function ENT:FireShell()
 			self.CreateShell = ACF.RoundTypes[self.BulletData.Type].create
 			self:CreateShell( self.BulletData )
 		
-			local Gun = self:GetPhysicsObject()  	
-			if (Gun:IsValid()) then 	
-				if(!self.acflastupdatemass) or (self.acflastupdatemass < (CurTime() + 10)) then
-					ACF_CalcMassRatio( self )
-				end
-				local pushscale = GetConVarNumber("acf_recoilpush") or 1
-				local physratio = 1 * pushscale
-				if(self.acfphystotal) and (self.acftotal) then
-					physratio = self.acfphystotal / self.acftotal
-				end
-				Gun:ApplyForceCenter( self:GetForward() * -(self.BulletData.ProjMass * self.BulletData.MuzzleVel * 39.37 + self.BulletData.PropMass * 3000 * 39.37) * physratio)			
-			end
+			ACF_KEShove(self, util.LocalToWorld(self, self:GetPhysicsObject():GetMassCenter(), 0), -self:GetForward(), (self.BulletData.ProjMass * self.BulletData.MuzzleVel * 39.37 + self.BulletData.PropMass * 3000 * 39.37)*(GetConVarNumber("acf_recoilpush") or 1) )
 			
 			self.Ready = false
 			self.CurrentShot = math.min(self.CurrentShot + 1, self.MagSize)

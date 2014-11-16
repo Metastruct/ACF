@@ -84,6 +84,7 @@ CreateConVar('sbox_max_acf_gun', 12)
 CreateConVar('sbox_max_acf_ammo', 32)
 CreateConVar('sbox_max_acf_misc', 32)
 CreateConVar('acf_meshvalue', 1)
+CreateConVar("sbox_acf_restrictinfo", 1) -- 0=any, 1=owned
 
 CreateConVar('sbox_max_xcf_bomb', 12)
 
@@ -164,6 +165,26 @@ game.AddParticles("particles/rocket_motor.pcf")
 
 game.AddDecal("GunShot1", "decals/METAL/shot5")
 
+-- Add the ACF tool category
+if CLIENT then
+
+	ACF.CustomToolCategory = CreateClientConVar( "acf_tool_category", 0, true, false );
+
+	if( ACF.CustomToolCategory:GetBool() ) then
+
+		language.Add( "spawnmenu.tools.acf", "ACF" );
+
+		-- We use this hook so that the ACF category is always at the top
+		hook.Add( "AddToolMenuTabs", "CreateACFCategory", function()
+
+			spawnmenu.AddToolCategory( "Main", "ACF", "#spawnmenu.tools.acf" );
+
+		end );
+
+	end
+
+end
+
 timer.Simple( 0, function()
 	for Class,Table in pairs(ACF.Classes["GunClass"]) do
 		PrecacheParticleSystem(Table["muzzleflash"])
@@ -209,12 +230,21 @@ function ACF_CalcMassRatio( obj )
 	local Mass = 0
 	local PhysMass = 0
 	
+	-- find the physical parent highest up the chain
+	local Parent = obj
+	local depth = 0
+	
+	while Parent:GetParent():IsValid() and depth<6 do
+		Parent = Parent:GetParent()
+		depth = depth + 1
+	end
+	
 	-- get the shit that is physically attached to the vehicle
-	local PhysEnts = ACF_GetAllPhysicalConstraints( obj )
+	local PhysEnts = ACF_GetAllPhysicalConstraints( Parent )
 	
 	-- add any parented but not constrained props you sneaky bastards
 	local AllEnts = table.Copy( PhysEnts )
-	for k, v in pairs( PhysEnts ) do
+	for k, v in pairs( AllEnts ) do
 		
 		table.Merge( AllEnts, ACF_GetAllChildren( v ) )
 	
@@ -299,9 +329,8 @@ else
 end
 
 function ACF_UpdateChecking( )
-	
 	http.Fetch("https://github.com/nrlulz/ACF",function(contents,size)
-		local rev = tonumber(string.match( contents, "history\"></span>\n%s*(%d+)\n%s*</span>" ))
+		local rev = tonumber(string.match( contents, "%s*(%d+)\n%s*</span>\n%s*commits" )) or 0 --"history\"></span>\n%s*(%d+)\n%s*</span>"
 		if rev and ACF.Version >= rev then
 			print("[ACF] ACF Is Up To Date, Latest Version: "..rev)
 		elseif !rev then
