@@ -145,12 +145,10 @@ function SWEP:DrawScope()
 	local scrh2 = ScrH() / 2
 	
 	
-	local trace = util.TraceLine( 
-		{
-			start = EyePos(), 
-			endpos = EyePos() + EyeAngles():Forward() * 50000, 
-			filter = {self.Owner, self.Owner:GetVehicle() or nil}
-		} )	
+	local traceargs = util.GetPlayerTrace(LocalPlayer())
+	traceargs.filter = {self.Owner, self.Owner:GetVehicle() or nil}
+	local trace = util.TraceLine(traceargs)
+		
 	local scrpos = trace.HitPos:ToScreen()
 	local devx = scrw2 - scrpos.x
 	local devy = scrh2 - scrpos.y
@@ -320,12 +318,9 @@ hook.Add("HUDPaint", "ACFWep_HUD", function()
 	
 	local scrpos
 	if drawcircle then
-		local trace = util.TraceLine( 
-		{
-			start = EyePos(), 
-			endpos = EyePos() + EyeAngles():Forward() * 50000, 
-			filter = {self.Owner, self.Owner:GetVehicle() or nil}
-		} )
+		local traceargs = util.GetPlayerTrace(LocalPlayer())
+		traceargs.filter = {self.Owner, self.Owner:GetVehicle() or nil}
+		local trace = util.TraceLine(traceargs)
 
 		scrpos = trace.HitPos:ToScreen()
 	end
