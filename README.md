@@ -5,6 +5,9 @@
 
 XCF is an extension to ACF which includes whatever I find interesting to add to it.
 
+The SWEPs are configurable!
+Find all the options in 'lua\autorun\acf_swepconfig.lua'.  They're easy to change - have fun!
+
 Please see the wiki and issues page for current features, planned features and usage documentation.
 
 ***

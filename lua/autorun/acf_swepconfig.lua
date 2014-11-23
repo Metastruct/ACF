@@ -111,8 +111,7 @@ function WOT.Think(self)
 
 	local timediff = CurTime() - self.LastThink
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
-	//print(self.Owner:GetVelocity():Length())
-	self.LastAim = self.LastAim or Vector(1, 0, 0)
+	self.LastAim = type(self.LastAim) == "Vector" and self.LastAim or Vector(1, 0, 0)
 	
 	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
 		self.Inaccuracy = self.MaxInaccuracy
@@ -135,6 +134,7 @@ function WOT.Think(self)
 		local diffaim = math.min(aim:Distance(self.LastAim) * 30, difflimit)
 		
 		local crouching = self.Owner:Crouching()
+		local jumping = not (self.Owner:OnGround() or inVehicle)
 		local decay = self.InaccuracyDecay * WOT_ACC_SCALE
 		local penalty = 0
 		
@@ -160,6 +160,13 @@ function WOT.Think(self)
 			penalty = penalty + self.InaccuracyDuckPenalty
 		end
 		
+		if jumping then
+			penalty = penalty + self.InaccuracyPerShot
+			if not self.WasJumping and self.Owner:KeyDown(IN_JUMP) then
+				self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaJumpDrain, 0, 1)
+			end
+		end
+		
 		//self.Inaccuracy = math.Clamp(self.Inaccuracy + (vel + diffaim + penalty - decay) * timediff, self.MinInaccuracy, self.MaxInaccuracy)
 		local rawinaccuracy = self.MinInaccuracy + vel * timediff
 		local idealinaccuracy = biasedapproach(self.Inaccuracy, rawinaccuracy, decay, self.AccuracyDecay) + penalty + diffaim
@@ -171,6 +178,7 @@ function WOT.Think(self)
 		XCFDBG_ThinkTime = timediff
 		self.LastThink = CurTime()
 		self.WasCrouched = self.Owner:Crouching()
+		self.WasJumping = jumping
 	
 		//PrintMessage( HUD_PRINTCENTER, "vel = " .. math.Round(vel, 2) .. "inacc = " .. math.Round(rawinaccuracy, 2) )
 	end
@@ -189,13 +197,14 @@ local Shooter = aim.Shooter
 function Shooter.Think(self)
 
 	self.AddInacc = self.AddInacc or 0
-	self.WasJumping = self.WasJumping or true
+	--self.WasJumping = self.WasJumping or true
 
 	local timediff = CurTime() - self.LastThink
 	self.Owner.XCFStamina = self.Owner.XCFStamina or 0
-	//print(self.Owner:GetVelocity():Length())
 	
-	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not self.Owner:InVehicle() then
+	local inVehicle = self.Owner:InVehicle()
+	
+	if self.Owner:GetMoveType() ~= MOVETYPE_WALK and not inVehicle then
 		self.Inaccuracy = self.MaxInaccuracy
 		self.Owner.XCFStamina = 0
 	end
@@ -209,34 +218,42 @@ function Shooter.Think(self)
 		local moving = self.Owner:KeyDown(IN_FORWARD) or self.Owner:KeyDown(IN_BACK) or self.Owner:KeyDown(IN_MOVELEFT) or self.Owner:KeyDown(IN_MOVERIGHT)
 		local sprinting = self.Owner:KeyDown(IN_SPEED)
 		local walking = self.Owner:KeyDown(IN_WALK)
-		local crouching = self.Owner:KeyDown(IN_DUCK)
+		local crouching = self.Owner:KeyDown(IN_DUCK) or inVehicle
+		local zoomed = self:GetNetworkedBool("Zoomed")
+		local jumping = not (self.Owner:OnGround() or inVehicle)
 		
-		local inacc = 0
+		local inacc = 0.25
 		
-		if moving then
-			inacc = inacc + 0.333
-			
-			if sprinting then
-				inacc = inacc + 0.4
-			elseif walking then
-				inacc = inacc - 0.2			
+		if zoomed then 
+			if crouching and not moving then 
+				inacc = 0
+			elseif not moving then
+				inacc = inacc * 0.08
+			elseif crouching then 
+				inacc = inacc * 0.33
+			else
+				inacc = inacc * 0.66
+			end
+		elseif crouching then
+			inacc = inacc * 0.5
+		end
+		
+		if moving then 
+			if sprinting then 
+				inacc = inacc * 4
+			elseif walking 
+				then inacc = inacc * 1.5
+			else
+				inacc = inacc * 2
 			end
 		end
 		
-		if not crouching then
-			inacc = inacc + 0.25
+		if jumping then
+			inacc = inacc * 4 
+			if not self.WasJumping and self.Owner:KeyDown(IN_JUMP) then
+				self.Owner.XCFStamina = math.Clamp(self.Owner.XCFStamina - self.StaminaJumpDrain, 0, 1)
+			end
 		end
-		
-		
-		local zoomed = self:GetNetworkedBool("Zoomed")
-		if zoomed then inacc = inacc * 0.5 end
-		
-		
-		--local jumping = self.Owner:KeyDown(IN_JUMP)
-		--if jumping and not self.WasJumping then--and self.Owner:OnGround() then
-		--	self.Inaccuracy = self.Inaccuracy + 0.5 * inaccuracydiff
-		--end
-		
 		
 		local healthFract = self.Owner:Health() / 100
 		self.MaxStamina = math.Clamp(healthFract, 0.25, 1)
@@ -349,16 +366,20 @@ if CLIENT then
 	
 	function Circle.Draw(self, screenpos, radius, progress, colourFade)
 	
-		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
+		screenpos = Vector(math.floor(screenpos.x + 0.5), math.floor(screenpos.y + 0.5), 0)
+	
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 50 or 255
 	
 		local circlehue = Color(255, colourFade*255, colourFade*255, alpha)
 	
 		if self.ShotSpread and self.ShotSpread > 0 then
+			radius = ScrW() / 2 * (self.ShotSpread) / self.Owner:GetFOV()
 			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
+			
 			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
 		end
-		draw.Arc(screenpos.x, screenpos.y, radius, -3, (1-progress)*360, 360, 5, Color(0, 0, 0, alpha))
-		draw.Arc(screenpos.x, screenpos.y, radius, -1.5, (1-progress)*360, 360, 5, circlehue)
+		draw.Arc(screenpos.x, screenpos.y, radius, -2, (1-progress)*360, 360, 3, Color(0, 0, 0, alpha))
+		draw.Arc(screenpos.x, screenpos.y, radius, -1, (1-progress)*360, 360, 3, circlehue)
 		
 	end
 	
@@ -372,11 +393,13 @@ if CLIENT then
 	
 		screenpos = Vector(math.floor(screenpos.x + 0.5), math.floor(screenpos.y + 0.5), 0)
 	
-		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 35 or 255
+		local alpha = (self:GetNetworkedBool("Zoomed") and ACF.SWEP.IronSights and self.IronSights and not self.HasScope) and 70 or 255
 	
 		local circlehue = Color(255, colourFade*255, colourFade*255, alpha)
 	
 		if self.ShotSpread and self.ShotSpread > 0 then
+			radius = ScrW() / 2 * (self.ShotSpread) / self.Owner:GetFOV()
+			
 			surface.DrawCircle(screenpos.x, screenpos.y, radius , Color(0, 0, 0, 128) )
 			radius = ScrW() / 2 * (self.curVisInacc + self.ShotSpread) / self.Owner:GetFOV()
 		end
