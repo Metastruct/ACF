@@ -312,19 +312,19 @@ function ENT:DoReplicatedPropHit(Bullet)
 	--pbn(Bullet)
 	
 	if Retry == "Penetrated" then		--If we should do the same trace again, then do so
-		print("a")
+		--print("a")
 		if Bullet.OnPenetrated then Bullet.OnPenetrated(Index, Bullet, FlightRes) end
 		update.UpdateType = pclass.HitTypes.HIT_PENETRATE
 		balls.NotifyClients(Index, Bullet, balls.PROJ_UPDATE, update)
 		balls.CalcFlight( Index, Bullet )
 	elseif Retry == "Ricochet"  then
-		print("b")
+		--print("b")
 		if Bullet.OnRicocheted then Bullet.OnRicocheted(Index, Bullet, FlightRes) end
 		update.UpdateType = pclass.HitTypes.HIT_RICOCHET
 		balls.NotifyClients(Index, Bullet, balls.PROJ_UPDATE, update)
 		balls.CalcFlight( Index, Bullet )
 	else						--Else end the flight here
-		print("c")
+		--print("c")
 		if Bullet.OnEndFlight then Bullet.OnEndFlight(Index, Bullet, FlightRes) end
 		update.UpdateType = pclass.HitTypes.HIT_END
 		balls.NotifyClients(Index, Bullet, balls.PROJ_REMOVE, update)
