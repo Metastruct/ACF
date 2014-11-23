@@ -22,6 +22,13 @@ local bullets = ACF.SWEP.PlyBullets
 
 
 
+function ACF_ResetSWEPBullets()
+	ACF.SWEP.PlyBullets = {}
+	bullets = ACF.SWEP.PlyBullets
+end
+
+
+
 function ACF_CreateBulletSWEP( BulletData, Swep, LagComp )
 
 	if not IsValid(Swep) then error("Tried to create swep round with no swep or owner!") return end
@@ -148,6 +155,8 @@ function ACF_BulletLaunch(BData)
 		--ACF_CalcBulletFlight( ACF.CurBulletIndex, ACF.Bullet[ACF.CurBulletIndex] )
 	end
 	
+	return BData
+	
 end
 
 
@@ -155,7 +164,7 @@ end
 
 function ACF_CustomBulletLaunch(BData)
 
-	ACF_BulletLaunch(BData)
+	BData = ACF_BulletLaunch(BData)
 	
 	if BData.HandlesOwnIteration then
 		bullets[BData.Owner] = bullets[BData.Owner] or {}

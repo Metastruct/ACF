@@ -253,6 +253,7 @@ function ENT:Detonate()
 	bdata.Pos = pos + bdata.Flight:GetNormalized() * 3
 	bdata.Owner = self.Owner
 	bdata.NoOcc = self
+	bdata.Gun = self
 	
 	//pbn(bdata)
 	
@@ -267,7 +268,8 @@ function ENT:Detonate()
 	--print(bdata.Crate, Entity(bdata.Crate))
 	
 	
-	ACF_BulletLaunch(bdata)
+	bdata = ACF_BulletLaunch(bdata)
+	--print("idhdhd", bdata.Index)
 	--pbn(bdata)
 	
 	timer.Simple(1, function() if IsValid(self) then self:Remove() end end)
@@ -299,26 +301,35 @@ function ENT:DoReplicatedPropHit(Bullet)
 
 	local FlightRes = { Entity = self, HitNormal = Bullet.Flight, HitPos = Bullet.Pos, HitGroup = HITGROUP_GENERIC }
 	local Index = Bullet.Index
+	--pbn(Bullet)
 	
 	ACF_BulletPropImpact = ACF.RoundTypes[Bullet.Type]["propimpact"]		
 	local Retry = ACF_BulletPropImpact( Index, Bullet, FlightRes.Entity , FlightRes.HitNormal , FlightRes.HitPos , FlightRes.HitGroup )				--If we hit stuff then send the resolution to the damage function	
+	local balls = XCF.Ballistics
+	local pclass = Bullet.ProjClass or XCF.ProjClasses["Shell"] 
+	local update = pclass.GetUpdate(Bullet)
+	
+	--pbn(Bullet)
 	
 	if Retry == "Penetrated" then		--If we should do the same trace again, then do so
-		--print("a")
+		print("a")
 		if Bullet.OnPenetrated then Bullet.OnPenetrated(Index, Bullet, FlightRes) end
-		ACF_BulletClient( Index, Bullet, "Update" , 2 , FlightRes.HitPos  )
-		ACF_CalcBulletFlight( Index, Bullet, true )
+		update.UpdateType = pclass.HitTypes.HIT_PENETRATE
+		balls.NotifyClients(Index, Bullet, balls.PROJ_UPDATE, update)
+		balls.CalcFlight( Index, Bullet )
 	elseif Retry == "Ricochet"  then
-		--print("b")
+		print("b")
 		if Bullet.OnRicocheted then Bullet.OnRicocheted(Index, Bullet, FlightRes) end
-		ACF_BulletClient( Index, Bullet, "Update" , 3 , FlightRes.HitPos  )
-		ACF_CalcBulletFlight( Index, Bullet, true )
+		update.UpdateType = pclass.HitTypes.HIT_RICOCHET
+		balls.NotifyClients(Index, Bullet, balls.PROJ_UPDATE, update)
+		balls.CalcFlight( Index, Bullet )
 	else						--Else end the flight here
-		--print("c")
+		print("c")
 		if Bullet.OnEndFlight then Bullet.OnEndFlight(Index, Bullet, FlightRes) end
-		ACF_BulletClient( Index, Bullet, "Update" , 1 , FlightRes.HitPos  )
-		ACF_BulletEndFlight = ACF.RoundTypes[Bullet.Type]["endflight"]
-		ACF_BulletEndFlight( Index, Bullet, FlightRes.HitPos, FlightRes.HitNormal )	
+		update.UpdateType = pclass.HitTypes.HIT_END
+		balls.NotifyClients(Index, Bullet, balls.PROJ_REMOVE, update)
+		balls.RemoveProj(Index)
+		//pclass.EndFlight( Index, Bullet, FlightRes )	
 	end
 	
 end
