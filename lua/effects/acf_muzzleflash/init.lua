@@ -20,6 +20,10 @@
 	
 	--local Id = Gun:GetNWString( "Id" ) or error("Couldn't find the gun's ID while making a muzzleflash!")
 	local RoundType = ACF.IdRounds[data:GetSurfaceProp()]
+	
+	if( CLIENT and not IsValidSound( Sound ) ) then
+		Sound = ACF.Classes["GunClass"][Class]["sound"]
+	end
 		
 	if Gun:IsValid() then
 		if Propellant > 0 then

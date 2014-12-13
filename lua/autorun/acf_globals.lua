@@ -24,6 +24,7 @@ ACF.HEPower = 8000		--HE Filler power per KG in KJ
 ACF.HEDensity = 1.65	--HE Filler density (That's TNT density)
 ACF.HEFrag = 1500		--Mean fragment number for equal weight TNT and casing
 ACF.HEBlastPen = 0.4	--Blast penetration exponent based of HE power
+ACF.HEDuctAdjust = 0.8	--changes how duct affects HE damage; 1.0 dealing the same damage regardless of duct, to 0 being old behavior where -duct decreased HE damage taken
 
 ACF.HEATMVScale = 0.73	--Filler KE to HEAT slug KE conversion expotential
 
@@ -135,6 +136,18 @@ elseif CLIENT then
 	killicon.Add( "acf_ammo", "HUD/killicons/acf_ammo", Color( 200, 200, 48, 255 ) )
 	
 	CreateConVar("acf_cl_particlemul", 1)
+	
+	-- Cache results so we don't need to do expensive filesystem checks every time
+	local IsValidCache = {}
+
+	-- Returns whether or not a sound actually exists, fixes client timeout issues
+	function IsValidSound( path )
+		if IsValidCache[path] == nil then 
+			IsValidCache[path] = file.Exists( string.format( "sound/%s", tostring( path ) ), "GAME" ) and true or false
+		end
+		return IsValidCache[path]
+	end
+	
 end
 
 include("acf/shared/rounds/roundap.lua")
