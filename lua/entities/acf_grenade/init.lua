@@ -255,7 +255,7 @@ function ENT:Detonate()
 	bdata.NoOcc = self
 	bdata.Gun = self
 	
-	//pbn(bdata)
+	--pbn(bdata)
 	
 	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
 	
@@ -267,8 +267,12 @@ function ENT:Detonate()
 	--print(tostring(bdata.RoundMass), tostring(bdata.ProjMass))
 	--print(bdata.Crate, Entity(bdata.Crate))
 	
+    --print("\n\nBEFORE")
+    --pbn(bdata)
 	
 	bdata = ACF_BulletLaunch(bdata)
+    
+    --print("\n\nAFTER")
 	--print("idhdhd", bdata.Index)
 	--pbn(bdata)
 	
@@ -325,11 +329,10 @@ function ENT:DoReplicatedPropHit(Bullet)
 		balls.CalcFlight( Index, Bullet )
 	else						--Else end the flight here
 		--print("c")
-		if Bullet.OnEndFlight then Bullet.OnEndFlight(Index, Bullet, FlightRes) end
-		update.UpdateType = pclass.HitTypes.HIT_END
-		balls.NotifyClients(Index, Bullet, balls.PROJ_REMOVE, update)
+		local updType, ballsType = pclass.EndFlight( Index, Bullet, FlightRes )	
+		update.UpdateType = updType
+		balls.NotifyClients(Index, Bullet, ballsType, update)
 		balls.RemoveProj(Index)
-		//pclass.EndFlight( Index, Bullet, FlightRes )	
 	end
 	
 end
