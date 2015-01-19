@@ -131,9 +131,7 @@ end
 
 function Round.endflight( Index, Bullet, HitPos, HitNormal )
 	
-	--printByName(Bullet)
-	
-	ACF_HE( HitPos - Bullet.Flight:GetNormalized()*3 , HitNormal, Bullet.FillerMass, Bullet.ProjMass - Bullet.FillerMass, Bullet.Owner, Bullet.Entity )
+	--ACF_HE( HitPos - Bullet.Flight:GetNormalized()*3 , HitNormal, Bullet.FillerMass, Bullet.ProjMass - Bullet.FillerMass, Bullet.Owner )
 	ACF_RemoveBullet( Index )
 	
 end
