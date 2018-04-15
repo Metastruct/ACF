@@ -208,7 +208,7 @@ function this.OnAmmoRemoved(ammo, uid)
 		end
 		
 		
-		if #uids == 0 then print("WARNING: Tried to de-register an ammocrate with an unregistered net-id!") return end		
+		if #uids == 0 then return end		
 		
 		for _, reg in pairs(uids) do
 			if #reg == 0 then
@@ -216,7 +216,7 @@ function this.OnAmmoRemoved(ammo, uid)
 			end
 		end
 		
-		if not found then print("WARNING: Tried to de-register an unregistered ammocrate!") return end
+		if not found then return end
 	else
 	
 		local uids = ammouids[uid]
@@ -236,7 +236,7 @@ function this.OnAmmoRemoved(ammo, uid)
 			this.AmmoDeregisterNet(uid)
 		end
 		
-		if not found then print("WARNING: Tried to de-register an unregistered ammocrate!") return end
+		if not found then return end
 	end
 	
 end
