@@ -639,7 +639,7 @@ function ents_methods:acfFireRate( )
 	local this = unwrap( self )
 	
 	if not isGun( this ) then return 0 end
-	return math.Round( this.RateOfFire or 0, 3 )
+	return this.RateOfFire or 0
 end
 
 -- Returns the number of rounds left in a magazine for an ACF gun
@@ -776,7 +776,7 @@ function ents_methods:acfMuzzleVel( )
 	
 	if not isAmmo( this ) or isGun( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
-	return math.Round( ( this.BulletData[ "MuzzleVel" ] or 0 ) * ACF.VelScale, 3 )
+	return ( this.BulletData[ "MuzzleVel" ] or 0 ) * ACF.VelScale,
 end
 
 -- Returns the mass of the projectile in a crate or gun
@@ -786,7 +786,7 @@ function ents_methods:acfProjectileMass( )
 	
 	if not isAmmo( this ) or isGun( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
-	return math.Round( this.BulletData[ "ProjMass" ] or 0, 3 )
+	return this.BulletData[ "ProjMass" ] or 0
 end
 
 -- Returns the number of projectiles in a flechette round
@@ -808,7 +808,7 @@ function ents_methods:acfFLSpikeMass( )
 	if not isAmmo( this ) or isGun( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	if not this.BulletData[ "Type" ] == "FL" then return 0 end
-	return math.Round( this.BulletData[ "FlechetteMass" ] or 0, 3)
+	return this.BulletData[ "FlechetteMass" ] or 0
 end
 
 -- Returns the radius of the spikes in a flechette round in mm
@@ -819,7 +819,7 @@ function ents_methods:acfFLSpikeRadius( )
 	if not isAmmo( this ) or isGun( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	if not this.BulletData[ "Type" ] == "FL" then return 0 end
-	return math.Round( ( this.BulletData[ "FlechetteRadius" ] or 0 ) * 10, 3)
+	return ( this.BulletData[ "FlechetteRadius" ] or 0 ) * 10
 end
 
 -- Returns the penetration of an AP, APHE, or HEAT round
@@ -833,13 +833,13 @@ function ents_methods:acfPenetration( )
 	local Energy
 	if Type == "AP" or Type == "APHE" then
 		Energy = ACF_Kinetic( this.BulletData[ "MuzzleVel" ] * 39.37, this.BulletData[ "ProjMass" ] - ( this.BulletData[ "FillerMass" ] or 0 ), this.BulletData[ "LimitVel" ] )
-		return math.Round((Energy.Penetration/this.BulletData["PenAera"])*ACF.KEtoRHA,3)
+		return (Energy.Penetration/this.BulletData["PenAera"])*ACF.KEtoRHA
 	elseif Type == "HEAT" then
 		Energy = ACF_Kinetic( this.BulletData[ "SlugMV" ] * 39.37, this.BulletData[ "SlugMass" ], 9999999 )
-		return math.Round( ( Energy.Penetration / this.BulletData[ "SlugPenAera" ] ) * ACF.KEtoRHA, 3 )
+		return ( Energy.Penetration / this.BulletData[ "SlugPenAera" ] ) * ACF.KEtoRHA
 	elseif Type == "FL" then
 		Energy = ACF_Kinetic( this.BulletData[ "MuzzleVel" ] * 39.37 , this.BulletData[ "FlechetteMass" ], this.BulletData[ "LimitVel" ] )
-		return math.Round( ( Energy.Penetration / this.BulletData[ "FlechettePenArea" ] ) * ACF.KEtoRHA, 3 )
+		return ( Energy.Penetration / this.BulletData[ "FlechettePenArea" ] ) * ACF.KEtoRHA
 	end
 	return 0
 end
@@ -853,9 +853,9 @@ function ents_methods:acfBlastRadius( )
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	local Type = this.BulletData[ "Type" ] or ""
 	if Type == "HE" or Type == "APHE" then
-		return math.Round( this.BulletData[ "FillerMass" ]^0.33 * 8, 3 )
+		return this.BulletData[ "FillerMass" ]^0.33 * 8
 	elseif Type == "HEAT" then
-		return math.Round( ( this.BulletData[ "FillerMass" ]/3)^0.33 * 8, 3 )
+		return ( this.BulletData[ "FillerMass" ]/3)^0.33 * 8
 	end
 	return 0
 end
@@ -871,7 +871,7 @@ function ents_methods:acfPropHealth( )
 	if not validPhysics( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	if not ACF_Check( this ) then return 0 end
-	return math.Round( this.ACF.Health or 0, 3 )
+	return this.ACF.Health or 0
 end
 
 -- Returns the current armor of an entity
@@ -882,7 +882,7 @@ function ents_methods:acfPropArmor( )
 	if not validPhysics( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	if not ACF_Check( this ) then return 0 end
-	return math.Round( this.ACF.Armour or 0, 3 )
+	return this.ACF.Armour or 0
 end
 
 -- Returns the max health of an entity
@@ -893,7 +893,7 @@ function ents_methods:acfPropHealthMax( )
 	if not validPhysics( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	if not ACF_Check( this ) then return 0 end
-	return math.Round( this.ACF.MaxHealth or 0, 3 )
+	return this.ACF.MaxHealth or 0
 end
 
 -- Returns the max armor of an entity
@@ -904,7 +904,7 @@ function ents_methods:acfPropArmorMax( )
 	if not validPhysics( this ) then return 0 end
 	if restrictInfo( SF.instance.player, this ) then return 0 end
 	if not ACF_Check( this ) then return 0 end
-	return math.Round( this.ACF.MaxArmour or 0, 3 )
+	return this.ACF.MaxArmour or 0
 end
 
 -- Returns the ductility of an entity
@@ -956,7 +956,7 @@ function ents_methods:acfFuel( )
 	
 	if isFuel( this ) then
 		if restrictInfo( SF.instance.player, this ) then return 0 end
-		return math.Round( this.Fuel, 3 )
+		return this.Fuel
 	elseif isEngine( this ) then
 		if restrictInfo( SF.instance.player, this ) then return 0 end
 		if not #(this.FuelLink) then return 0 end --if no tanks, return 0
@@ -968,7 +968,7 @@ function ents_methods:acfFuel( )
 			end
 		end
 		
-		return math.Round( liters, 3 )
+		return liters
 	end
 	return 0
 end
@@ -980,7 +980,7 @@ function ents_methods:acfFuelLevel( )
 	
 	if isFuel( this ) then
 		if restrictInfo( SF.instance.player, this ) then return 0 end
-		return math.Round( this.Fuel / this.Capacity, 3 )
+		return this.Fuel / this.Capacity
 	elseif isEngine( this ) then
 		if restrictInfo( SF.instance.player, this ) then return 0 end
 		if not #( this.FuelLink ) then return 0 end --if no tanks, return 0
@@ -995,7 +995,7 @@ function ents_methods:acfFuelLevel( )
 		end
 		if not capacity > 0 then return 0 end
 		
-		return math.Round( liters / capacity, 3 )
+		return liters / capacity
 	end
 	return 0
 end
@@ -1025,7 +1025,7 @@ function ents_methods:acfFuelUse( )
 		local Load = 0.3 + this.Throttle * 0.7
 		Consumption = 60 * Load * this.FuelUse * ( this.FlyRPM / this.PeakKwRPM ) / ACF.FuelDensity[ tank.FuelType ]
 	end
-	return math.Round( Consumption, 3 )
+	return Consumption
 end
 
 -- Returns the peak fuel consumption in liters per minute or kilowatts of an engine at powerband max, for the current fuel type the engine is using
@@ -1051,5 +1051,5 @@ function ents_methods:acfPeakFuelUse( )
 		local Load = 0.3 + this.Throttle * 0.7
 		Consumption = 60 * this.FuelUse / ACF.FuelDensity[ fuel ]
 	end
-	return math.Round( Consumption, 3 )
+	return Consumption
 end
