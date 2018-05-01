@@ -20,12 +20,12 @@ function SWEP:Initialize()
 	end
 	self:InitBulletData()
 	self:UpdateFakeCrate()
-	
+
 	if SERVER and self.BulletData.IsShortForm and not self.IsGrenadeWeapon then
 		//print("expand dong")
 		self.BulletData = ACF_ExpandBulletData(self.BulletData)
 	end
-	
+
 	if SERVER then
 		self.BulletData.OnEndFlight = self.CallbackEndFlight
 	end
@@ -41,7 +41,7 @@ function SWEP:UpdateFakeCrate(realcrate)
 	end
 
 	self.FakeCrate:RegisterTo(self)
-	
+
 	self.BulletData["Crate"] = self.FakeCrate:EntIndex()
 	self:SetNWString( "Sound", self.Primary.Sound )
 end
@@ -52,7 +52,7 @@ end
 function SWEP:OnRemove()
 
 	if not IsValid(self.FakeCrate) then return end
-	
+
 	local crate = self.FakeCrate
 	timer.Simple(15, function() if IsValid(crate) then crate:Remove() end end)
 
@@ -77,7 +77,7 @@ function SWEP:DoAmmoStatDisplay()
 									bType,
 									self.ThrowVel or bdata.MuzzleVel
 								  )
-	
+
 	if not nopen[bType] then
 		local maxpen = bdata.MaxPen or (ACF_Kinetic(
 														(bdata.SlugMV or bdata.MuzzleVel)*39.37,
@@ -85,7 +85,7 @@ function SWEP:DoAmmoStatDisplay()
 														bdata.SlugMV and 999999 or bdata.LimitVel or 900
 													  ).Penetration / (bdata.SlugPenAera or bdata.PenAera) * ACF.KEtoRHA
 												 )
-	
+
 		sendInfo = sendInfo .. string.format( 	", %.1fmm pen",
 												maxpen
 											)
@@ -96,8 +96,8 @@ function SWEP:DoAmmoStatDisplay()
 												(bdata.BlastRadius or (((bdata.FillerMass or 0) / 2) ^ 0.33 * 5 * 10 )) * 0.2
 											)
 	end
-	
-	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, \"NOTIFY_HINT\", 10)", sendInfo))
+
+	self.Owner:SendLua(string.format("GAMEMODE:AddNotify(%q, NOTIFY_HINT, 10)", sendInfo))
 end
 
 
@@ -116,30 +116,30 @@ function SWEP:FireBullet()
 
 	local MuzzlePos = self.Owner:GetShootPos()
 	local MuzzleVec = self.Owner:GetAimVector()
-	local angs = self.Owner:EyeAngles()	
+	local angs = self.Owner:EyeAngles()
 	local MuzzlePos2 = MuzzlePos + angs:Forward() * self.AimOffset.x + angs:Right() * self.AimOffset.y
 	local MuzzleVecFinal = self:inaccuracy(MuzzleVec, self.Inaccuracy)
-	
+
 	self.BulletData["Pos"] = MuzzlePos
 	self.BulletData["Flight"] = MuzzleVecFinal * self.BulletData["MuzzleVel"] * 39.37 + self.Owner:GetVelocity() + MuzzleVecFinal * 16
 	self.BulletData["Owner"] = self.Owner
 	self.BulletData["Gun"] = self
-	
+
 	local filter = self.BulletData["Filter"] or {}
 	filter[#filter + 1] = self.Owner
 	filter[#filter + 1] = self.Owner:GetVehicle() or nil
 	self.BulletData["Filter"] = filter
-	
+
 	if self.BeforeFire then
 		self:BeforeFire()
 	end
-	
+
 	ACF_CreateBulletSWEP(self.BulletData, self, ACF.SWEP.LagComp or false)
-	
+
 	self:MuzzleEffect( MuzzlePos2, MuzzleVec, true )
-	
+
 	--self.Owner:LagCompensation( false )
-	
+
 end
 
 
@@ -159,7 +159,7 @@ function SWEP:MuzzleEffect( MuzzlePos, MuzzleDir, realcall )
 	//*/
 	//*
 	if CLIENT or not realcall then return end
-	
+
 	/*
 	local Effect = EffectData()
 		Effect:SetEntity( self )
@@ -177,15 +177,15 @@ end
 function SWEP.CallbackEndFlight(index, bullet, trace)
 	if not (ACF.SWEP.AlwaysDust or (bullet.Gun and bullet.Gun.AlwaysDust)) then return end
 	if not trace.Hit then return end
-	
+
 	local pos = trace.HitPos
 	local dir = (pos - trace.StartPos):GetNormalized()
-	
+
 	local Effect = EffectData()
 		if bullet.Gun then
 			Effect:SetEntity(bullet.Gun)
 		end
-		
+
 		Effect:SetOrigin(pos - trace.Normal)
 		Effect:SetNormal(dir)
 		Effect:SetRadius((bullet.ProjMass * (bullet.Flight:Length() / 39.37)) / 10) // ditched realism for more readability at range
