@@ -421,9 +421,9 @@ function MakeACF_Rack (Owner, Pos, Angle, Id, UpdateRack, UpdateBullet)
 	local bdata = Rack.BulletData
 	bdata = bdata.ProjClass and (bdata.ProjClass.GetCompact(bdata)) or bdata
 	
-	print("--", "rack bdata")
+	--[[print("--", "rack bdata")
 	printByName(bdata)
-	print("--", "end rack bdata")
+	print("--", "end rack bdata")]]
 	
 		--Data 1 to 4 are should always be Round ID, Round Type, Propellant lenght, Projectile lenght
 	Rack.RoundId = bdata.Id		--Weapon this round loads into, ie 140mmC, 105mmH ...
