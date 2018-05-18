@@ -193,7 +193,7 @@ end
 
 function TOOL:LeftClick( trace )
 
-	if CLIENT then
+	if CLIENT and IsFirstTimePredicted() then
 
 		self:TransmitSelection()
 		return true
