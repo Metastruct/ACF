@@ -129,3 +129,33 @@ r500
 
 *r604
 -Fixing revision number
+
+*r613
+- Merged in community changes from n0th1ng1996, PolySteam, shadow7483147 and with help from thegrb93.  Thanks to all involved!
+- n0th1ng1996 (+ thegrb93):
+- Changed terminal ballistics for all rounds, introduced armour breaching (aka overmatching)
+- Added detonator bounce angles for explosive rounds except APHE.
+- Fixed HEAT bug, HEAT should now perform better.
+- Fixed entity:acfRoundType()
+- PolySteam:
+- Patched instant-reload bug.
+- shadow7483147:
+- Patched entity:acfFuelRequired()
+
+*r618
+- Merged in community changes from thegrb93.  Thanks!
+- Fixed gearbox brake and added torque limit to prevent crashing/spontaneous deletion.
+- Optimized inertia calculation.
+
+*r621
+- Another change from thegrb93!
+- Fixed cases of infinite ricochet + suspected ammobox lag by limiting bullet ricochets to 3.
+
+*r625
+- Optimization by thegrb93:
+- Optimized gearbox torque application.
+
+*r627
+- Update courtesy of Red and Stovokor
+- Minor engine balancing
+- New small i2 petrol, small v4 diesel, med v4 diesel, med r7 diesel, large i2 diesel, large v6 diesel

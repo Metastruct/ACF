@@ -44,7 +44,7 @@ ACF_DefineEngine( "12.0-V6", {
 	fuel = "Petrol",
 	enginetype = "GenericPetrol",
 	weight = 800,
-	torque = 1120,
+	torque = 1300,
 	flywheelmass = 4,
 	idlerpm = 600,
 	peakminrpm = 1750,
@@ -69,3 +69,19 @@ ACF_DefineEngine( "5.2-V6", {
 	limitrpm = 4300
 } )
 
+ACF_DefineEngine( "15.0-V6", {
+	name = "15.0L V6 Diesel",
+	desc = "Powerful military-grade large V6, with impressive output.  Well suited to moderately-sized AFVs and able to handle multiple fuel types.\n\nV6s are more torquey than the Boxer and Inline 6s but suffer in power",
+	model = "models/engines/v6large.mdl",
+	sound = "acf_engines/v6_diesellarge.wav",
+	category = "V6",
+	fuel = "Multifuel",
+	enginetype = "GenericDiesel",
+	weight = 1200,
+	torque = 1150,
+	flywheelmass = 4.2,
+	idlerpm = 400,
+	peakminrpm = 2500,
+	peakmaxrpm = 3000,
+	limitrpm = 3200
+} )

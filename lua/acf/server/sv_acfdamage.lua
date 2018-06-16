@@ -241,32 +241,49 @@ end
 
 --Calculates the vector of the ricochet of a round upon impact at a set angle
 function ACF_RicochetVector(Flight, HitNormal)
-	--bit of maths shamelessly stolen from wiremod to rotate a vector around an axis
-	local Vec = Flight:GetNormalized()
-	local x,y,z = HitNormal[1], HitNormal[2], HitNormal[3]
-	
-	local length = (x*x+y*y+z*z)^0.5
-	x,y,z = x/length, y/length, z/length
-	local Rotated = -Vector((-1 + (x^2)*2) * Vec[1] + (x*y*2) * Vec[2] + (x*z*2) * Vec[3],
-	(y*x*2) * Vec[1] + (-1 + (y^2)*2) * Vec[2] + (y*z*2) * Vec[3],
-	(z*x*2) * Vec[1] + (z*y*2) * Vec[2] + (-1 + (z^2)*2) * Vec[3])
-	
-	return Rotated
+	local Vec = Flight:GetNormalized() 
+
+	return Vec - ( 2 * Vec:Dot(HitNormal) ) * HitNormal
 end
 
---Handles the impact of a round on a target
+-- Handles the impact of a round on a target
 function ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bone  )
-	--if (Bullet.Type == "HEAT") then print("Pen: "..((Energy.Penetration / Bullet["PenAera"]) * ACF.KEtoRHA)) end
+	Bullet.Ricochets = Bullet.Ricochets or 0
 	local Angle = ACF_GetHitAngle( HitNormal , Bullet["Flight"] )
+
+	local HitRes = ACF_Damage ( --DAMAGE !!
+		Target,
+		Energy,
+		Bullet["PenAera"],
+		Angle,
+		Bullet["Owner"],
+		Bone,
+		Bullet["Gun"],
+		Bullet["Type"]
+	)
+
 	local Ricochet = 0
-	local MinAngle = math.min(Bullet["Ricochet"] - Speed/39.37/18,89)	--Making the chance of a ricochet get higher as the speeds increase
-	if Angle > math.random(MinAngle,90) and Angle < 89.9 then	--Checking for ricochet
-		Ricochet = (Angle/100)			--If ricocheting, calculate how much of the energy is dumped into the plate and how much is carried by the ricochet
-		Energy.Penetration = Energy.Penetration - Energy.Penetration*Ricochet/5 --Ricocheting can save plates that would theorically get penetrated, can add up to 1/5 rating
+	if HitRes.Loss == 1 then
+		-- Ricochet distribution center
+		local sigmoidCenter = Bullet.DetonatorAngle or ( Bullet.Ricochet - math.abs(Speed / 39.37 - Bullet.LimitVel) / 100 )
+		
+		-- Ricochet probability (sigmoid distribution); up to 5% minimal ricochet probability for projectiles with caliber < 20 mm 
+		local ricoProb = math.Clamp( 1 / (1 + math.exp( (Angle - sigmoidCenter) / -4) ), math.max(-0.05 * (Bullet.Caliber - 2) / 2, 0), 1 )
+
+		-- Checking for ricochet
+		if ricoProb > math.random() and Angle < 90 then
+			Ricochet       = math.Clamp(Angle / 90, 0.05, 1) -- atleast 5% of energy is kept
+			HitRes.Loss    = 1 - Ricochet
+			Energy.Kinetic = Energy.Kinetic * HitRes.Loss
+		end	
 	end
-	local HitRes = ACF_Damage ( Target , Energy , Bullet["PenAera"] , Angle , Bullet["Owner"] , Bone, Bullet["Gun"], Bullet["Type"] )  --DAMAGE !!
 	
-	ACF_KEShove(Target, HitPos, Bullet["Flight"]:GetNormal(), Energy.Kinetic*HitRes.Loss*1000*Bullet["ShovePower"]*(GetConVarNumber("acf_recoilpush") or 1) )
+	ACF_KEShove(
+		Target,
+		HitPos,
+		Bullet["Flight"]:GetNormal(),
+		Energy.Kinetic * HitRes.Loss * 1000 * Bullet["ShovePower"] * (GetConVarNumber("acf_recoilpush") or 1)
+	)
 	
 	if HitRes.Kill then
 		local Debris = ACF_APKill( Target , (Bullet["Flight"]):GetNormalized() , Energy.Kinetic )
@@ -274,11 +291,10 @@ function ACF_RoundImpact( Bullet, Speed, Energy, Target, HitPos, HitNormal , Bon
 	end	
 	
 	HitRes.Ricochet = false
-	if Ricochet > 0 then
+	if Ricochet > 0 and Bullet.Ricochets < 3 then
+		Bullet.Ricochets = Bullet.Ricochets + 1
 		Bullet["Pos"] = HitPos + HitNormal * 0.75
-		--Bullet.FiredPos = HitPos
 		Bullet.FlightTime = 0
-		--Bullet["Flight"] = (Bullet["Flight"]:GetNormalized() + HitNormal*(1-Ricochet+0.05) + VectorRand()*0.05):GetNormalized() * Speed * Ricochet
 		Bullet.Flight = (ACF_RicochetVector(Bullet.Flight, HitNormal) + VectorRand()*0.025):GetNormalized() * Speed * Ricochet
 		Bullet.TraceBackComp = math.max(ACF_GetPhysicalParent(Target):GetPhysicsObject():GetVelocity():Dot(Bullet["Flight"]:GetNormalized()),0)
 		HitRes.Ricochet = true

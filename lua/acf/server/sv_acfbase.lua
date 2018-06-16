@@ -127,12 +127,10 @@ function ACF_Damage ( Entity , Energy , FrAera , Angle , Inflictor , Bone, Gun, 
 end
 
 function ACF_CalcDamage( Entity , Energy , FrAera , Angle )
+	local armor    = Entity.ACF.Armour								-- Armor
+	local losArmor = armor / math.abs( math.cos(math.rad(Angle)) ^ ACF.SlopeEffectFactor )  -- LOS Armor
 
-	local Armour = Entity.ACF.Armour/math.abs( math.cos(math.rad(Angle)) ) --Calculate Line Of Sight thickness of the armour
-	local Structure = Entity.ACF.Density --Structural strengh of the material, derived from prop density, denser stuff is more vulnerable (Density is different than armour, calculated off real volume)
-	
-	local MaxPenetration = (Energy.Penetration / FrAera) * ACF.KEtoRHA							--Let's see how deep the projectile penetrates ( Energy = Kinetic Energy, FrAera = Frontal aera in cm2 )
-	local Penetration = math.min( MaxPenetration , Armour )			--Clamp penetration to the armour thickness
+	local maxPenetration = (Energy.Penetration / FrAera) * ACF.KEtoRHA	--RHA Penetration
 	
 	local HitRes = {}
 	--BNK Stuff
@@ -155,10 +153,38 @@ function ACF_CalcDamage( Entity , Energy , FrAera , Angle )
 			var = 0
 		end
 	end
-	
-	HitRes.Damage = var * dmul * (Penetration/Armour)^2 * FrAera --/math.abs( math.cos(math.rad(Angle/1.25)) )	-- This is the volume of the hole caused by our projectile, with area adjusted by slope
-	HitRes.Overkill = (MaxPenetration - Penetration)
-	HitRes.Loss = Penetration/MaxPenetration
+
+	-- Projectile caliber. Messy, function signature
+	local caliber = 20 * ( FrAera^(1 / ACF.PenAreaMod) / 3.1416 )^(0.5)
+
+	-- Breach probability
+	local breachProb = math.Clamp((caliber / Entity.ACF.Armour - 1.3) / (7 - 1.3), 0, 1)
+
+	-- Penetration probability
+	local penProb = (math.Clamp(1 / (1 + math.exp(-43.9445 * (maxPenetration/losArmor - 1))), 0.0015, 0.9985) - 0.0015) / 0.997;	
+
+	if breachProb > math.random() and maxPenetration > armor then				-- Breach chance roll
+		HitRes.Damage   = var * dmul * FrAera							-- Inflicted Damage
+		HitRes.Overkill = maxPenetration - armor						-- Remaining penetration
+		HitRes.Loss     = armor / maxPenetration						-- Energy loss in percents
+
+		return HitRes
+	elseif penProb > math.random() then									-- Penetration chance roll
+		local Penetration = math.min( maxPenetration, losArmor )
+
+		HitRes.Damage   = var * dmul * ( Penetration / losArmor )^2 * FrAera
+		HitRes.Overkill = (maxPenetration - Penetration)
+		HitRes.Loss     = Penetration / maxPenetration
+		
+		return HitRes
+	end
+
+	-- Projectile did not breach nor penetrate armor
+	local Penetration = math.min( maxPenetration , losArmor )
+
+	HitRes.Damage 	= var * dmul * ( Penetration / losArmor )^2 * FrAera
+	HitRes.Overkill = 0
+	HitRes.Loss 	= 1
 	
 	return HitRes
 end

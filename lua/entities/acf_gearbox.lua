@@ -761,7 +761,7 @@ function ENT:Calc( InputRPM, InputInertia )
 	self:CheckEnts()
 
 	local BoxPhys = self:GetPhysicsObject()
-	local SelfWorld = self:LocalToWorld( BoxPhys:GetAngleVelocity() ) - self:GetPos()
+	local SelfWorld = BoxPhys:LocalToWorldVector( BoxPhys:GetAngleVelocity() )
 	
 	if self.CVT and self.Gear == 1 then
 		if self.CVTRatio and self.CVTRatio > 0 then
@@ -837,8 +837,8 @@ function ENT:CalcWheel( Link, SelfWorld )
 
 	local Wheel = Link.Ent
 	local WheelPhys = Wheel:GetPhysicsObject()
-	local VelDiff = ( Wheel:LocalToWorld( WheelPhys:GetAngleVelocity() ) - Wheel:GetPos() ) - SelfWorld
-	local BaseRPM = VelDiff:Dot( Wheel:LocalToWorld( Link.Axis ) - Wheel:GetPos() )
+	local VelDiff = WheelPhys:LocalToWorldVector( WheelPhys:GetAngleVelocity() ) - SelfWorld
+	local BaseRPM = VelDiff:Dot( WheelPhys:LocalToWorldVector( Link.Axis ) )
 	Link.Vel = BaseRPM
 	
 	if self.GearRatio == 0 then return 0 end
@@ -887,11 +887,10 @@ function ENT:Act( Torque, DeltaTime, MassRatio )
 	else
 		BoxPhys = self:GetPhysicsObject()
 	end
-	
-	if IsValid( BoxPhys ) and ReactTq ~= 0 then	
-		local Force = self:GetForward() * ReactTq * MassRatio - self:GetForward()
-		BoxPhys:ApplyForceOffset( Force * 39.37 * DeltaTime, self:GetPos() + self:GetUp() * -39.37 )
-		BoxPhys:ApplyForceOffset( Force * -39.37 * DeltaTime, self:GetPos() + self:GetUp() * 39.37 )
+
+	if IsValid( BoxPhys ) and ReactTq ~= 0 then
+		local Torque = self:GetRight() * math.Clamp( 2 * math.deg( ReactTq * MassRatio ) * DeltaTime, -100000, 100000 )
+		BoxPhys:ApplyTorqueCenter( Torque )
 	end
 	
 	self.LastActive = CurTime()
@@ -902,19 +901,15 @@ function ENT:ActWheel( Link, Torque, Brake, DeltaTime )
 	
 	local Phys = Link.Ent:GetPhysicsObject()
 	local Pos = Link.Ent:GetPos()
-	local TorqueAxis = Link.Ent:LocalToWorld( Link.Axis ) - Pos
-	local Cross = TorqueAxis:Cross( Vector( TorqueAxis.y, TorqueAxis.z, TorqueAxis.x ) )
-	local TorqueVec = TorqueAxis:Cross( Cross ):GetNormalized()
-	
+	local TorqueAxis = Phys:LocalToWorldVector( Link.Axis )
+
 	local BrakeMult = 0
 	if Brake > 0 then
-		BrakeMult = Link.Vel * Phys:GetInertia() * Brake / 10
+		BrakeMult = Link.Vel * Link.Inertia * Brake / 5
 	end
-	
-	local Force = TorqueVec * Torque * 0.75 + TorqueVec * BrakeMult
-	Phys:ApplyForceOffset( Force * -39.37 * DeltaTime, Pos + Cross * 39.37 )
-	Phys:ApplyForceOffset( Force * 39.37 * DeltaTime, Pos + Cross * -39.37 )
-	
+
+	local Torque = TorqueAxis * math.Clamp( math.deg( -Torque * 1.5 - BrakeMult ) * DeltaTime, -100000, 100000 )
+	Phys:ApplyTorqueCenter( Torque )
 end
 
 function ENT:ChangeGear(value)
@@ -992,11 +987,15 @@ function ENT:Link( Target )
 	if self.Owner:GetInfoNum( "ACF_MobilityRopeLinks", 1) == 1 then
 		Rope = constraint.CreateKeyframeRope( OutPosWorld, 1, "cable/cable2", nil, self, OutPos, 0, Target, InPos, 0 )
 	end
+	local Phys = Target:GetPhysicsObject()
+	local Axis = Phys:WorldToLocalVector( self:GetRight() )
+	local Inertia = ( Axis * Phys:GetInertia() ):Length()
 	
 	local Link = {
 		Ent = Target,
 		Side = Side,
-		Axis = Target:WorldToLocal( self:GetRight() + InPosWorld ),
+		Axis = Axis,
+		Inertia = Inertia,
 		Rope = Rope,
 		RopeLen = ( OutPosWorld - InPosWorld ):Length(),
 		Output = OutPos,

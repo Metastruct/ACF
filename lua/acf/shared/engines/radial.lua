@@ -51,3 +51,21 @@ ACF_DefineEngine( "24.0-R7", {
 	peakmaxrpm = 3000,
 	limitrpm = 3300
 } )
+
+
+ACF_DefineEngine( "8.0-R7", {
+	name = "8.0 R7 Diesel",
+	desc = "Military-grade radial engine, similar to a ZO 02A.  Heavy and with a narrow powerband, but efficient, and well-optimized to cruising.",
+	model = "models/engines/radial7m.mdl",
+	sound = "acf_engines/r7_petrolmedium.wav",
+	category = "Radial",
+	fuel = "Multifuel",
+	enginetype = "GenericDiesel",
+	weight = 450,
+	torque = 800,
+	flywheelmass = 1.0,
+	idlerpm = 400,
+	peakminrpm = 2200,
+	peakmaxrpm = 2500,
+	limitrpm = 2800
+} )

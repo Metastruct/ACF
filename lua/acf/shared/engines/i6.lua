@@ -99,7 +99,7 @@ ACF_DefineEngine( "20.0-I6", {
 	fuel = "Diesel",
 	enginetype = "GenericDiesel",
 	weight = 1200,
-	torque = 1600,
+	torque = 1700,
 	flywheelmass = 8,
 	idlerpm = 400,
 	peakminrpm = 650,

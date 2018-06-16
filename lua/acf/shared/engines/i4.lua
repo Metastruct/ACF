@@ -46,7 +46,7 @@ ACF_DefineEngine( "16.0-I4", {
 	fuel = "Petrol",
 	enginetype = "GenericPetrol",
 	weight = 600,
-	torque = 770,
+	torque = 850,
 	flywheelmass = 4,
 	idlerpm = 500,
 	peakminrpm = 1750,
@@ -99,10 +99,10 @@ ACF_DefineEngine( "15.0-I4", {
 	fuel = "Diesel",
 	enginetype = "GenericDiesel",
 	weight = 800,
-	torque = 1280,
+	torque = 1400,
 	flywheelmass = 5,
 	idlerpm = 450,
 	peakminrpm = 500,
-	peakmaxrpm = 1700,
-	limitrpm = 2000
+	peakmaxrpm = 1800,
+	limitrpm = 2100
 } )

@@ -271,6 +271,11 @@ e2function number entity:acfIsEngine()
 	if isEngine(this) then return 1 else return 0 end
 end
 
+-- Returns 1 if an ACF engine is electric
+e2function number entity:acfIsElectric()
+	if ( this.iselec == true ) then return 1 else return 0 end
+end
+
 -- Returns the torque in N/m of an ACF engine
 e2function number entity:acfMaxTorque()
 	return getMaxTorque(this)
@@ -713,7 +718,7 @@ end
 e2function string entity:acfRoundType() --cartridge?
 	if not isAmmo(this) then return "" end
 	if restrictInfo(self, this) then return "" end
-	return this.RoundId or ""
+	return this.RoundType or ""
 end
 
 -- Returns the type of ammo in a crate or gun
@@ -876,7 +881,7 @@ end
 
 -- Returns 1 if the current engine requires fuel to run
 e2function number entity:acfFuelRequired()
-	if not isFuel(this) then return 0 end
+	if not isEngine(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
 	return (this.RequiresFuel and 1) or 0
 end

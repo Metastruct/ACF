@@ -417,7 +417,7 @@ end
 
 function ENT:TriggerInput( iname, value )
 	
-	if (iname == "Unload" and value > 0) then
+	if (iname == "Unload" and value > 0 and !self.Reloading) then
 		self:UnloadAmmo()
 	elseif ( iname == "Fire" and value > 0 and ACF.GunfireEnabled ) then
 		if self.NextFire < CurTime() then
