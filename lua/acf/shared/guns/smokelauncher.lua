@@ -18,10 +18,29 @@ ACF_defineGun("40mmSL", { --id
 	gunclass = "SL",
 	canparent = true,
 	caliber = 4.0,
-	weight = 5,
+	weight = 1,
 	year = 1941,
 	round = {
-		maxlength = 15,
-		propweight = 0.00005 
+		maxlength = 17.5,
+		propweight = 0.000075 
+	}
+} )
+
+--add a gun to the class
+ACF_defineGun("40mmCL", { --id
+	name = "40mm Countermeasure Launcher",
+	desc = "A revolver-style launcher capable of firing off several smoke or flare rounds.",
+	model = "models/launcher/40mmgl.mdl",
+	gunclass = "SL",
+	canparent = true,
+	caliber = 4.0,
+	weight = 20,
+	rofmod = 0.015,
+	magsize = 6,
+	magreload = 40,
+	year = 1950,
+	round = {
+		maxlength = 12,
+		propweight = 0.001
 	}
 } )

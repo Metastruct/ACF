@@ -14,6 +14,7 @@ E2Helper.Descriptions["acfUnlinkFrom"] = "Unlink various ACF components."
 E2Helper.Descriptions["acfCapacity"] = "Returns the capacity of an ACF ammo crate or fuel tank."
 E2Helper.Descriptions["acfInfoRestricted"] = "Returns 1 if functions returning sensitive info are restricted to owned props."
 E2Helper.Descriptions["acfLinks"] = "Returns all the entities which are linked to this entity through ACF."
+E2Helper.Descriptions["acfGetLinkedWheels"] = "Returns any wheels linked to this engine/gearbox or its children links."
 E2Helper.Descriptions["acfDragDiv"] = "Returns current ACF drag divisor"
 
 --engine
@@ -62,6 +63,9 @@ E2Helper.Descriptions["acfShiftPointScale"] = "Sets the shift point scale for an
 E2Helper.Descriptions["acfIsReloading"] = "Returns 1 if an ACF weapon is reloading."
 E2Helper.Descriptions["acfReady"] = "Returns 1 if an ACF weapon is ready to fire."
 E2Helper.Descriptions["acfMagSize"] = "Returns the magazine capacity of an ACF weapon."
+E2Helper.Descriptions["acfMagfReloadTime"] = "Returns time it takes for an ACF weapon to reload magazine."
+E2Helper.Descriptions["acfReloadTime"] = "Returns time to next shot of an ACF weapon."
+E2Helper.Descriptions["acfReloadProgress"] = "Returns number between 0 and 1 which represents reloading progress of an ACF weapon. Useful for progress bars."
 E2Helper.Descriptions["acfSpread"] = "Returns the spread of an ACF weapon."
 E2Helper.Descriptions["acfFireRate"] = "Returns the rate of fire of an ACF weapon."
 E2Helper.Descriptions["acfFire"] = "Sets the firing state of an ACF weapon.  Kills are only attributed to gun owner.  Use wire inputs on gun if you want to properly attribute kills to driver."

@@ -36,6 +36,11 @@ local function isFuel(ent)
 	if (ent:GetClass() == "acf_fueltank") then return true else return false end
 end
 
+local function reloadTime(ent)
+	if ent.CurrentShot and ent.CurrentShot > 0 then return ent.ReloadTime end
+	return ent.MagReload
+end
+
 local function restrictInfo(ply, ent)
 	if GetConVar("sbox_acf_restrictinfo"):GetInt() != 0 then
 		if isOwner(ply, ent) then return false else return true end
@@ -254,6 +259,16 @@ e2function number entity:acfUnlinkFrom(entity target, number notify)
         ACF_SendNotify(self.player, success, msg)
     end
     return success and 1 or 0
+end
+
+-- returns any wheels linked to this engine/gearbox or child gearboxes
+e2function array entity:acfGetLinkedWheels()
+	if not (isEngine(this) or isGearbox(this)) then return {} end
+	local wheels = {}
+	for k,ent in pairs( ACF_GetLinkedWheels( this ) ) do -- we need to switch from grody indexing by ent, to numerical indexing
+		table.insert(wheels, ent)
+	end
+	return wheels
 end
 
 --returns current acf dragdivisor
@@ -606,6 +621,28 @@ e2function number entity:acfReady()
 	return 0
 end
 
+-- Returns time to next shot of an ACF weapon
+__e2setcost( 3 )
+e2function number entity:acfReloadTime()
+	if restrictInfo(self, this) or not isGun(this) or this.Ready then return 0 end
+	return reloadTime(this)
+end
+
+-- Returns number between 0 and 1 which represents reloading progress of an ACF weapon. Useful for progress bars
+__e2setcost( 5 )
+e2function number entity:acfReloadProgress()
+	if restrictInfo(self, this) or not isGun(this) or this.Ready then return 1 end
+	return math.Clamp( 1 - (this.NextFire - CurTime()) / reloadTime(this), 0, 1 )
+end
+
+__e2setcost( 1 )
+
+-- returns time it takes for an ACF weapon to reload magazine
+e2function number entity:acfMagReloadTime()
+	if restrictInfo(self, this) or not isGun(this) or not this.MagReload then return 0 end
+	return this.MagReload
+end
+
 -- Returns the magazine size for an ACF gun
 e2function number entity:acfMagSize()
 	if not isGun(this) then return 0 end
@@ -627,7 +664,14 @@ end
 e2function number entity:acfIsReloading()
 	if not isGun(this) then return 0 end
 	if restrictInfo(self, this) then return 0 end
-	if (this.Reloading) then return 1 end
+	--if (this.Reloading) then return 1 end
+	if not this.Ready then
+		if this.MagSize == 1 then
+			return 1
+		else
+			return this.CurrentShot >= this.MagSize and 1 or 0
+		end
+	end
 	return 0
 end
 
@@ -785,7 +829,9 @@ e2function number entity:acfPenetration()
 		Energy = ACF_Kinetic(this.BulletData["MuzzleVel"]*39.37, this.BulletData["ProjMass"] - (this.BulletData["FillerMass"] or 0), this.BulletData["LimitVel"] )
 		return math.Round((Energy.Penetration/this.BulletData["PenAera"])*ACF.KEtoRHA,3)
 	elseif Type == "HEAT" then
-		Energy = ACF_Kinetic(this.BulletData["SlugMV"]*39.37, this.BulletData["SlugMass"], 9999999 )
+		local Crushed, HEATFillerMass, BoomFillerMass = ACF.RoundTypes["HEAT"].CrushCalc(this.BulletData.MuzzleVel, this.BulletData.FillerMass)
+		if Crushed == 1 then return 0 end -- no HEAT jet to fire off, it was all converted to HE
+		Energy = ACF_Kinetic(ACF.RoundTypes["HEAT"].CalcSlugMV( this.BulletData, HEATFillerMass )*39.37, this.BulletData["SlugMass"], 9999999 )
 		return math.Round((Energy.Penetration/this.BulletData["SlugPenAera"])*ACF.KEtoRHA,3)
 	elseif Type == "FL" then
 		Energy = ACF_Kinetic(this.BulletData["MuzzleVel"]*39.37 , this.BulletData["FlechetteMass"], this.BulletData["LimitVel"] )

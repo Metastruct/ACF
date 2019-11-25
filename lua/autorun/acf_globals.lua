@@ -2,19 +2,20 @@ ACF = {}
 ACF.AmmoTypes = {}
 ACF.MenuFunc = {}
 ACF.AmmoBlacklist = {}
-ACF.Version = 628 -- REMEMBER TO CHANGE THIS FOR GODS SAKE, OMFG!!!!!!! -wrex   Update the changelog too! -Ferv
+ACF.Version = 660 -- REMEMBER TO CHANGE THIS FOR GODS SAKE, OMFG!!!!!!! -wrex   Update the changelog too! -Ferv
 ACF.CurrentVersion = 0 -- just defining a variable, do not change
 
 ACF.Year = 1945
 
-ACF.Threshold = 264.7	--Health Divisor (don't forget to update cvar function down below)
+ACF.Threshold =   264.7	--Health Divisor (don't forget to update cvar function down below)
 ACF.PartialPenPenalty = 5 --Exponent for the damage penalty for partial penetration
 ACF.PenAreaMod = 0.85
 ACF.KinFudgeFactor = 2.1	--True kinetic would be 2, over that it's speed biaised, below it's mass biaised
 ACF.KEtoRHA = 0.25		--Empirical conversion from (kinetic energy in KJ)/(Aera in Cm2) to RHA penetration
 ACF.GroundtoRHA = 0.15		--How much mm of steel is a mm of ground worth (Real soil is about 0.15)
 ACF.KEtoSpall = 1
-ACF.AmmoMod = 0.6		-- Ammo modifier. 1 is 1x the amount of ammo
+ACF.AmmoMod = 1.05		-- Ammo modifier. 1 is 1x the amount of ammo. 0.6 default
+ACF.CrateVolEff = 0.1576 -- magic number that adjusts the efficiency of crate model volume to ammo capacity
 ACF.ArmorMod = 1
 ACF.SlopeEffectFactor = 1.1	-- Sloped armor effectiveness: armor / cos(angle)^factor
 ACF.Spalling = 0
@@ -27,11 +28,14 @@ ACF.HEFrag = 1500		--Mean fragment number for equal weight TNT and casing
 ACF.HEBlastPen = 0.4	--Blast penetration exponent based of HE power
 ACF.HEFeatherExp = 0.5 	--exponent applied to HE dist/maxdist feathering, <1 will increasingly bias toward max damage until sharp falloff at outer edge of range
 
-ACF.HEATMVScale = 0.74	--Filler KE to HEAT slug KE conversion expotential
-ACF.HEATMulAmmo = 16.5 		--HEAT slug damage multiplier; 13.2x roughly equal to AP damage
-ACF.HEATMulFuel = 8.25		--needs less multiplier, much less health than ammo
-ACF.HEATMulEngine = 8.25	--likewise
+ACF.HEATMVScale = 0.75	--Filler KE to HEAT slug KE conversion expotential
+ACF.HEATMulAmmo = 30 		--HEAT slug damage multiplier; 13.2x roughly equal to AP damage
+ACF.HEATMulFuel = 4 		--needs less multiplier, much less health than ammo
+ACF.HEATMulEngine = 10	--likewise
 ACF.HEATPenLayerMul = 0.75	--HEAT base energy multiplier
+ACF.HEATBoomConvert = 1/3 -- percentage of filler that creates HE damage at detonation
+ACF.HEATMinCrush = 800 -- vel where crush starts, progressively converting round to raw HE
+ACF.HEATMaxCrush = 1200 -- vel where fully crushed
 
 ACF.DragDiv = 40		--Drag fudge factor
 ACF.VelScale = 1		--Scale factor for the shell velocities in the game world
@@ -49,7 +53,19 @@ ACF.FuelRate = 5  --multiplier for fuel usage, 1.0 is approx real world
 ACF.ElecRate = 1.5 --multiplier for electrics
 ACF.TankVolumeMul = 0.5 -- multiplier for fuel tank capacity, 1.0 is approx real world
 
-
+--[[
+	random, low cost legality check that discourages attempts to game checking with a hard to predict timing and punishing lockout time
+	usage:
+	Ent.Legal, Ent.LegalIssues = ACF_CheckLegal(Ent, Model, MinMass, MinInertia, CanMakesphere, Parentable, ParentRequiresWeld, CanVisclip)
+	Ent.NextLegalCheck = ACF.LegalSettings:NextCheck(Ent.Legal)
+]]
+ACF.LegalSettings = {
+	CanModelSwap = false,
+	Min = 5, 			-- min seconds between checks
+	Max = 25, 			-- max seconds between checks
+	Lockout = 35,		-- lockout time on not legal
+	NextCheck = function(self, Legal) return ACF.CurTime + (Legal and math.random(self.Min, self.Max) or self.Lockout) end
+}
 
 ACF.FuelDensity = { --kg/liter
 	Diesel = 0.832,  
@@ -71,7 +87,7 @@ ACF.TorqueScale = { --how fast damage drops torque, lower loses more % torque
 	GenericDiesel = 0.35,
 	Turbine = 0.2,
 	Wankel = 0.2,
-	Radial = 0.25,
+	Radial = 0.3,
 	Electric = 0.5
 }
 
@@ -80,7 +96,7 @@ ACF.EngineHPMult = { --health multiplier for engines
 	GenericDiesel = 0.5,
 	Turbine = 0.125,
 	Wankel = 0.125,
-	Radial = 0.2,
+	Radial = 0.3,
 	Electric = 0.75
 }
 
@@ -90,6 +106,8 @@ ACF.CuIToLiter = 0.0163871 -- cubic inches to liters
 ACF.RefillDistance = 300 --Distance in which ammo crate starts refilling.
 ACF.RefillSpeed = 700 -- (ACF.RefillSpeed / RoundMass) / Distance 
 
+ACF.ChildDebris = 50 -- higher is more debris props;  Chance =  ACF.ChildDebris / num_children;  Only applies to children of acf-killed parent props
+ACF.DebrisIgniteChance = 0.25
 ACF.DebrisScale = 20 -- Ignore debris that is less than this bounding radius.
 ACF.SpreadScale = 4		-- The maximum amount that damage can decrease a gun's accuracy.  Default 4x
 ACF.GunInaccuracyScale = 1 -- A multiplier for gun accuracy.
@@ -97,6 +115,7 @@ ACF.GunInaccuracyBias = 2  -- Higher numbers make shots more likely to be inaccu
 
 ACF.EnableDefaultDP = false -- Enable the inbuilt damage protection system.
 
+ACF.EnableKillicons = true -- Enable killicons overwriting.
 
 if file.Exists("acf/shared/acf_userconfig.lua", "LUA") then
 	include("acf/shared/acf_userconfig.lua")
@@ -144,18 +163,6 @@ elseif CLIENT then
 		include("acf/client/gui/cl_acfsetpermission.lua")
 	end
 	
-	killicon.Add( "acf_AC", "HUD/killicons/acf_AC", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_AL", "HUD/killicons/acf_AL", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_C", "HUD/killicons/acf_C", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_GL", "HUD/killicons/acf_GL", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_HMG", "HUD/killicons/acf_HMG", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_HW", "HUD/killicons/acf_HW", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_MG", "HUD/killicons/acf_MG", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_MO", "HUD/killicons/acf_MO", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_RAC", "HUD/killicons/acf_RAC", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_SA", "HUD/killicons/acf_SA", Color( 200, 200, 48, 255 ) )
-	killicon.Add( "acf_ammo", "HUD/killicons/acf_ammo", Color( 200, 200, 48, 255 ) )
-	
 	CreateConVar("acf_cl_particlemul", 1)
 	CreateClientConVar("ACF_MobilityRopeLinks", "1", true, true)
 	
@@ -176,6 +183,10 @@ include("acf/shared/rounds/roundap.lua")
 include("acf/shared/rounds/roundaphe.lua")
 include("acf/shared/rounds/roundhe.lua")
 include("acf/shared/rounds/roundheat.lua")
+include("acf/shared/rounds/roundheatfs.lua")
+include("acf/shared/rounds/roundapfsds.lua")
+include("acf/shared/rounds/roundapds.lua")
+include("acf/shared/rounds/roundapcr.lua")
 include("acf/shared/rounds/roundfl.lua")
 include("acf/shared/rounds/roundhp.lua")
 include("acf/shared/rounds/roundsmoke.lua")
@@ -287,6 +298,33 @@ function ACF_GetPhysicalParent( obj )
 	return Parent
 end
 
+-- returns any wheels linked to this or child gearboxes
+function ACF_GetLinkedWheels( MobilityEnt )
+	if not IsValid( MobilityEnt ) then return {} end
+
+	local ToCheck = {}
+	local Wheels = {}
+
+	local links = MobilityEnt.GearLink or MobilityEnt.WheelLink -- handling for usage on engine or gearbox
+	for k,link in pairs( links ) do table.insert(ToCheck, link.Ent) end
+
+	-- use a stack to traverse the link tree looking for wheels at the end
+	while #ToCheck > 0 do
+		local Ent = table.remove(ToCheck,#ToCheck)
+		if IsValid(Ent) then
+			if Ent:GetClass() == "acf_gearbox" then
+				for k,v in pairs( Ent.WheelLink ) do
+					table.insert(ToCheck, v.Ent)
+				end
+			else
+				Wheels[Ent] = Ent -- indexing it same as ACF_GetAllPhysicalConstraints, for easy merge.  whoever indexed by entity in that function, uuuuuuggghhhhh
+			end
+		end
+	end
+
+	return Wheels
+end
+
 -- Global Ratio Setting Function
 function ACF_CalcMassRatio( obj, pwr )
 	if not IsValid(obj) then return end
@@ -335,6 +373,7 @@ function ACF_CalcMassRatio( obj, pwr )
 		
 	end
 	
+	-- todo: replace with a reference to table containing data
 	for k, v in pairs( AllEnts ) do
 		v.acfphystotal = PhysMass
 		v.acftotal = Mass
@@ -342,6 +381,85 @@ function ACF_CalcMassRatio( obj, pwr )
 	end
 	
 	if pwr then return { Power = power, Fuel = fuel } end
+end
+
+-- checks if an ent meets the given requirements for legality
+-- MinInertia needs to be mass normalized (normalized=inertia/mass)
+-- ballistics doesn't check visclips on anything except prop_physics, so no need to check on acf ents
+function ACF_CheckLegal(Ent, Model, MinMass, MinInertia, CanMakesphere, Parentable, ParentRequiresWeld, CanVisclip)
+	-- check it exists
+	if not IsValid(Ent) then return {Legal=false, Problems={"Invalid Ent"}} end
+
+	local problems = {}
+	local physobj = Ent:GetPhysicsObject()
+	
+	-- check if physics is valid
+	if not IsValid(physobj) then return {Legal=false, Problems={"Invalid Physics"}} end
+
+	--make sure traces can hit it (fade door, propnotsolid)
+	if not Ent:IsSolid() then
+		table.insert(problems,"Not solid")
+	end
+
+	-- check if the model matches
+	if Model != nil and not ACF.LegalSettings.CanModelSwap then
+		if Ent:GetModel() != Model then
+			table.insert(problems,"Wrong model")
+		end
+	end
+	
+	-- check mass
+	if MinMass != nil and (physobj:GetMass() < MinMass) then
+		table.insert(problems,"Under min mass")
+	end
+
+	-- check inertia components
+	if MinInertia != nil then
+		local inertia = physobj:GetInertia()/physobj:GetMass()
+		if (inertia.x < MinInertia.x) or (inertia.y < MinInertia.y) or (inertia.z < MinInertia.z) then
+			table.insert(problems,"Under min inertia")
+		end
+	end
+
+	-- check makesphere
+	if not CanMakesphere and (physobj:GetVolume() == nil) then
+		table.insert(problems,"Makesphere")
+	end
+
+	-- check for clips
+	if not CanVisclip and (Ent.ClipData != nil) and (#Ent.ClipData > 0) then
+		table.insert(problems,"Visclip")
+	end
+	
+	-- if it has a parent, check if legally parented
+	if IsValid( Ent:GetParent() ) then
+
+		-- if no parenting allowed
+		if not (Parentable or ParentRequiresWeld) then
+			table.insert(problems,"Parented")
+		end
+
+		-- legal if weld not required, otherwise check if parented with weld
+		if ParentRequiresWeld then
+			local welded = false
+			local rootparent = ACF_GetPhysicalParent(Ent)
+
+			--make sure it's welded to root parent
+			for k, v in pairs( constraint.FindConstraints( Ent, "Weld" ) ) do
+				if v.Ent1 == rootparent or v.Ent2 == rootparent then
+					welded = true
+					break
+				end
+			end
+
+			if not welded then 
+				table.insert(problems,"Parented without weld to root parent")
+			end
+		end
+	end
+	
+	-- legal if number of problems is 0
+	return (#problems == 0), table.concat(problems, ", ")
 end
 
 -- Cvars for recoil/he push
@@ -354,6 +472,7 @@ CreateConVar("acf_armormod", 1)
 CreateConVar("acf_ammomod", 1)
 CreateConVar("acf_spalling", 0)
 CreateConVar("acf_gunfire", 1)
+CreateConVar("acf_modelswap_legal", 0)
 
 function ACF_CVarChangeCallback(CVar, Prev, New)
 	if( CVar == "acf_healthmod" ) then
@@ -379,6 +498,9 @@ function ACF_CVarChangeCallback(CVar, Prev, New)
 			text = "enabled" 
 		end
 		print ("ACF Gunfire has been " .. text)
+	elseif CVar == "acf_modelswap_legal" then
+		ACF.LegalSettings.CanModelSwap = tobool( New )
+		print("ACF model swapping is set to " .. (ACF.LegalSettings.CanModelSwap and "legal" or "not legal"))
 	end
 end
 
@@ -491,80 +613,3 @@ else
 	end
 	net.Receive("acf_smokewind", recvSmokeWind)
 end
-
-/*
-ONE HUGE HACK to get good killicons.
-*/
--- disabling this for now because it was breaking killicons completely and i don't want to deal with it right now
-/*
-if SERVER then
-	
-	hook.Add("PlayerDeath", "ACF_PlayerDeath",function( victim, inflictor, attacker )
-		if inflictor:GetClass() == "acf_ammo" then
-			net.Start("ACF_KilledByACF")
-				net.WriteString( victim:Nick()..";ammo;"..attacker:Nick() )
-			net.Broadcast()
-		end
-		if inflictor:GetClass() == "acf_gun" then
-			net.Start("ACF_KilledByACF")
-				net.WriteString( victim:Nick()..";"..inflictor.Class..";"..attacker:Nick() )
-			net.Broadcast()
-		end
-	end)
-end
-
-
-if CLIENT then
-	
-	net.Receive("ACF_KilledByACF", function()
-		local Table = string.Explode(";", net.ReadString())
-		local victim, gun, attacker = Table[1], Table[2], Table[3]
-		
-		if attacker == "worldspawn" then attacker = "" end
-		GAMEMODE:AddDeathNotice( attacker, -1, "acf_"..gun, victim, 1001 )
-	end)
-	
-	if not ACF.replacedPlayerKilled then
-		timer.Create("ACF_replacePlayerKilled", 1, 0, function()
-			local Hooks = usermessage.GetTable()
-			if Hooks["PlayerKilled"] then
-				local ACF_PlayerKilled = Hooks["PlayerKilled"].Function
-				ACF.replacedPlayerKilled = true
-				Hooks["PlayerKilled"].Function = function(msg)
-					local victim     = msg:ReadEntity()
-					if ( !IsValid( victim ) ) then return end
-					local inflictor    = msg:ReadString()
-					local attacker     = msg:ReadString()
-					if inflictor != "acf_gun" and inflictor != "acf_ammo" then
-						ACF_PlayerKilled(msg)
-					end
-				end
-				timer.Destroy("ACF_replacePlayerKilled")
-				Msg("[ACF] Replaced PlayerKilled\n")
-			end
-		end)
-	end
-	if not ACF.replacedPlayerKilledByPlayer then
-		timer.Create("ACF_replacePlayerKilledByPlayer", 1, 0, function()
-			local Hooks = usermessage.GetTable()
-			if Hooks["PlayerKilledByPlayer"] then
-				local ACF_PlayerKilledByPlayer = Hooks["PlayerKilledByPlayer"].Function
-				ACF.replacedPlayerKilledByPlayer = true
-				Hooks["PlayerKilledByPlayer"].Function = function(msg)
-					local victim     = msg:ReadEntity()
-					local inflictor    = msg:ReadString()
-					local attacker     = msg:ReadEntity()
-
-					if ( !IsValid( attacker ) ) then return end
-					if ( !IsValid( victim ) ) then return end
-					if inflictor != "acf_gun" and inflictor != "acf_ammo" then
-						ACF_PlayerKilledByPlayer(msg)
-					end
-				end
-				timer.Destroy("ACF_replacePlayerKilledByPlayer")
-				Msg("[ACF] Replaced PlayerKilledByPlayer\n")
-			end
-		end)
-	end
-end
-*/
