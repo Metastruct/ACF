@@ -68,7 +68,7 @@ ACF.LegalSettings = {
 }
 
 ACF.FuelDensity = { --kg/liter
-	Diesel = 0.832,  
+	Diesel = 0.832,
 	Petrol = 0.745,
 	Electric = 3.89 -- li-ion
 }
@@ -104,7 +104,7 @@ ACF.LiIonED = 0.458 -- li-ion energy density: kw hours / liter
 ACF.CuIToLiter = 0.0163871 -- cubic inches to liters
 
 ACF.RefillDistance = 300 --Distance in which ammo crate starts refilling.
-ACF.RefillSpeed = 700 -- (ACF.RefillSpeed / RoundMass) / Distance 
+ACF.RefillSpeed = 700 -- (ACF.RefillSpeed / RoundMass) / Distance
 
 ACF.ChildDebris = 50 -- higher is more debris props;  Chance =  ACF.ChildDebris / num_children;  Only applies to children of acf-killed parent props
 ACF.DebrisIgniteChance = 0.25
@@ -122,7 +122,7 @@ if file.Exists("acf/shared/acf_userconfig.lua", "LUA") then
 end
 
 
-CreateConVar('sbox_max_acf_gun', 16)
+CreateConVar('sbox_max_acf_gun', 0)
 CreateConVar('sbox_max_acf_smokelauncher', 10)
 CreateConVar('sbox_max_acf_ammo', 32)
 CreateConVar('sbox_max_acf_misc', 32)
@@ -148,7 +148,7 @@ if SERVER then
 	include("acf/server/sv_acfbase.lua")
 	include("acf/server/sv_acfdamage.lua")
 	include("acf/server/sv_acfballistics.lua")
-	
+
 	if ACF.EnableDefaultDP then
 		include("acf/server/sv_acfpermission.lua")
 	end
@@ -157,26 +157,26 @@ elseif CLIENT then
 
 	include("acf/client/cl_acfballistics.lua")
 	include("acf/client/cl_acfrender.lua")
-	
+
 	if ACF.EnableDefaultDP then
 		include("acf/client/cl_acfpermission.lua")
 		include("acf/client/gui/cl_acfsetpermission.lua")
 	end
-	
+
 	CreateConVar("acf_cl_particlemul", 1)
 	CreateClientConVar("ACF_MobilityRopeLinks", "1", true, true)
-	
+
 	-- Cache results so we don't need to do expensive filesystem checks every time
 	local IsValidCache = {}
 
 	-- Returns whether or not a sound actually exists, fixes client timeout issues
 	function IsValidSound( path )
-		if IsValidCache[path] == nil then 
+		if IsValidCache[path] == nil then
 			IsValidCache[path] = file.Exists( string.format( "sound/%s", tostring( path ) ), "GAME" ) and true or false
 		end
 		return IsValidCache[path]
 	end
-	
+
 end
 
 include("acf/shared/rounds/roundap.lua")
@@ -198,7 +198,7 @@ include("acf/shared/acfcratelist.lua")
 --include("acf/shared/acfmissilelist.lua")
 
 ACF.Weapons = list.Get("ACFEnts")
-	
+
 ACF.Classes = list.Get("ACFClasses")
 
 ACF.RoundTypes = list.Get("ACFRoundTypes")
@@ -245,9 +245,9 @@ end )
 
 -- changes here will be automatically reflected in the armor properties tool
 function ACF_CalcArmor( Area, Ductility, Mass )
-	
+
 	return ( Mass * 1000 / Area / 0.78 ) / ( 1 + Ductility ) ^ 0.5 * ACF.ArmorMod
-	
+
 end
 
 function ACF_MuzzleVelocity( Propellant, Mass, Caliber )
@@ -260,41 +260,41 @@ function ACF_MuzzleVelocity( Propellant, Mass, Caliber )
 end
 
 function ACF_Kinetic( Speed , Mass, LimitVel )
-	
+
 	LimitVel = LimitVel or 99999
 	Speed = Speed/39.37
-	
+
 	local Energy = {}
 		Energy.Kinetic = ((Mass) * ((Speed)^2))/2000 --Energy in KiloJoules
 		Energy.Momentum = (Speed * Mass)
-		
+
 		local KE = (Mass * (Speed^ACF.KinFudgeFactor))/2000 + Energy.Momentum
 		Energy.Penetration = math.max( KE - (math.max(Speed-LimitVel,0)^2)/(LimitVel*5) * (KE/200)^0.95 , KE*0.1 )
 		--Energy.Penetration = math.max( KE - (math.max(Speed-LimitVel,0)^2)/(LimitVel*5) * (KE/200)^0.95 , KE*0.1 )
 		--Energy.Penetration = math.max(Energy.Momentum^ACF.KinFudgeFactor - math.max(Speed-LimitVel,0)/(LimitVel*5) * Energy.Momentum , Energy.Momentum*0.1)
-	
+
 	return Energy
 end
 
 -- returns last parent in chain, which has physics
 function ACF_GetPhysicalParent( obj )
 	if not IsValid(obj) then return nil end
-	
+
 	--check for fresh cached parent
 	if obj.acfphysparent and ACF.CurTime < obj.acfphysstale then
 		return obj.acfphysparent
 	end
-	
+
 	local Parent = obj
-	
+
 	while Parent:GetParent():IsValid() do
 		Parent = Parent:GetParent()
 	end
-	
+
 	--update cached parent
 	obj.acfphysparent = Parent
 	obj.acfphysstale = ACF.CurTime + 10 --when cached parent is considered stale and needs updating
-	
+
 	return Parent
 end
 
@@ -332,54 +332,54 @@ function ACF_CalcMassRatio( obj, pwr )
 	local PhysMass = 0
 	local power = 0
 	local fuel = 0
-	
+
 	-- find the physical parent highest up the chain
 	local Parent = ACF_GetPhysicalParent(obj)
-	
+
 	-- get the shit that is physically attached to the vehicle
 	local PhysEnts = ACF_GetAllPhysicalConstraints( Parent )
-	
+
 	-- add any parented but not constrained props you sneaky bastards
 	local AllEnts = table.Copy( PhysEnts )
 	for k, v in pairs( AllEnts ) do
-		
+
 		table.Merge( AllEnts, ACF_GetAllChildren( v ) )
-	
+
 	end
-	
+
 	for k, v in pairs( AllEnts ) do
-		
+
 		if IsValid( v ) then
-		
+
 			if v:GetClass() == "acf_engine" then
 				power = power + (v.peakkw * 1.34)
 				fuel = v.RequiresFuel and 2 or fuel
 			elseif v:GetClass() == "acf_fueltank" then
 				fuel = math.max(fuel,1)
 			end
-			
+
 			local phys = v:GetPhysicsObject()
-			if IsValid( phys ) then		
-			
+			if IsValid( phys ) then
+
 				Mass = Mass + phys:GetMass()
-				
+
 				if PhysEnts[ v ] then
 					PhysMass = PhysMass + phys:GetMass()
 				end
-				
+
 			end
-		
+
 		end
-		
+
 	end
-	
+
 	-- todo: replace with a reference to table containing data
 	for k, v in pairs( AllEnts ) do
 		v.acfphystotal = PhysMass
 		v.acftotal = Mass
 		v.acflastupdatemass = ACF.CurTime
 	end
-	
+
 	if pwr then return { Power = power, Fuel = fuel } end
 end
 
@@ -392,7 +392,7 @@ function ACF_CheckLegal(Ent, Model, MinMass, MinInertia, CanMakesphere, Parentab
 
 	local problems = {}
 	local physobj = Ent:GetPhysicsObject()
-	
+
 	-- check if physics is valid
 	if not IsValid(physobj) then return {Legal=false, Problems={"Invalid Physics"}} end
 
@@ -407,7 +407,7 @@ function ACF_CheckLegal(Ent, Model, MinMass, MinInertia, CanMakesphere, Parentab
 			table.insert(problems,"Wrong model")
 		end
 	end
-	
+
 	-- check mass
 	if MinMass != nil and (physobj:GetMass() < MinMass) then
 		table.insert(problems,"Under min mass")
@@ -430,7 +430,7 @@ function ACF_CheckLegal(Ent, Model, MinMass, MinInertia, CanMakesphere, Parentab
 	if not CanVisclip and (Ent.ClipData != nil) and (#Ent.ClipData > 0) then
 		table.insert(problems,"Visclip")
 	end
-	
+
 	-- if it has a parent, check if legally parented
 	if IsValid( Ent:GetParent() ) then
 
@@ -452,12 +452,12 @@ function ACF_CheckLegal(Ent, Model, MinMass, MinInertia, CanMakesphere, Parentab
 				end
 			end
 
-			if not welded then 
+			if not welded then
 				table.insert(problems,"Parented without weld to root parent")
 			end
 		end
 	end
-	
+
 	-- legal if number of problems is 0
 	return (#problems == 0), table.concat(problems, ", ")
 end
@@ -471,7 +471,7 @@ CreateConVar("acf_healthmod", 1)
 CreateConVar("acf_armormod", 1)
 CreateConVar("acf_ammomod", 1)
 CreateConVar("acf_spalling", 0)
-CreateConVar("acf_gunfire", 1)
+CreateConVar("acf_gunfire", 0)
 CreateConVar("acf_modelswap_legal", 0)
 
 function ACF_CVarChangeCallback(CVar, Prev, New)
@@ -494,8 +494,8 @@ function ACF_CVarChangeCallback(CVar, Prev, New)
 	elseif( CVar == "acf_gunfire" ) then
 		ACF.GunfireEnabled = tobool( New )
 		local text = "disabled"
-		if ACF.GunfireEnabled then 
-			text = "enabled" 
+		if ACF.GunfireEnabled then
+			text = "enabled"
 		end
 		print ("ACF Gunfire has been " .. text)
 	elseif CVar == "acf_modelswap_legal" then
@@ -515,7 +515,7 @@ else
 	local function ACF_Notify()
 		local Type = NOTIFY_ERROR
 		if tobool( net.ReadBit() ) then Type = NOTIFY_GENERIC end
-		
+
 		GAMEMODE:AddNotify( net.ReadString(), Type, 7 )
 	end
 	net.Receive( "ACF_Notify", ACF_Notify )
@@ -533,7 +533,7 @@ function ACF_UpdateChecking( )
 			if CLIENT then chat.AddText( Color( 255, 0, 0 ), "A newer version of ACF is available!" ) end
 		end
 		ACF.CurrentVersion = rev
-		
+
 	end, function() end)
 end
 ACF_UpdateChecking( )
@@ -570,18 +570,18 @@ if SERVER then
 	concommand.Add( "acf_smokewind", function(ply, cmd, args, str)
 			local validply = IsValid(ply)
 			local printmsg = validply and function(hud, msg) ply:PrintMessage(hud, msg) end or msgtoconsole
-			
+
 			if not args[1] then printmsg(HUD_PRINTCONSOLE,
 					"Set the wind intensity upon all smoke munitions." ..
 					"\n   This affects the ability of smoke to be used for screening effect." ..
 					"\n   Example; acf_smokewind 300")
 					return false
 			end
-			
+
 			if validply and not ply:IsAdmin() then
 					printmsg(HUD_PRINTCONSOLE, "You can't use this because you are not an admin.")
 					return false
-					
+
 			else
 					local wind = tonumber(args[1])
 
@@ -589,15 +589,15 @@ if SERVER then
 							printmsg(HUD_PRINTCONSOLE, "Command unsuccessful: that wind value could not be interpreted as a number!")
 							return false
 					end
-					
+
 					ACF.SmokeWind = wind
-					
+
 					net.Start("acf_smokewind")
 							net.WriteFloat(wind)
 					net.Broadcast()
-					
+
 					printmsg(HUD_PRINTCONSOLE, "Command SUCCESSFUL: set smoke-wind to " .. wind .. "!")
-					return true        
+					return true
 			end
 	end)
 
